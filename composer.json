@@ -1,0 +1,20 @@
+{
+    "name": "croads/sql-parser",
+    "description": "Easiest way to parse SQL",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "César Rodas",
+            "email": "crodas@php.net"
+        }
+    ],
+    "autoload": {
+        "psr-0": {
+            "SQLParser": "src/"
+        },
+        "classmap": ["src/SQLParser.php"]
+    },
+    "minimum-stability": "stable",
+    "require": {}
+}
