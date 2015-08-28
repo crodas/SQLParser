@@ -170,6 +170,21 @@ set_expr_values(A) ::= set_expr_values(B) COMMA assign(C) . { A = B->addTerm(C);
 set_expr_values(A) ::= assign(C) .      { A = new Stmt\ExprList(C); }
 assign(A) ::= colname(B) T_EQ expr(X) . { A = new Stmt\Expr("=", B, X); }
 
+create_table(A) ::= CREATE TABLE colname(name) PAR_OPEN create_fields(X) PAR_CLOSE.
+
+create_fields(A) ::= colname(B) data_type(C) column_mod(D) . { 
+}
+
+data_type(A) ::= colname(B) . {
+    A = new Stmt\DataType(@B);
+}
+
+data_type(A) ::= colname(B) PAR_OPEN NUMBER(X) PAR_CLOSE .{
+    A = new Stmt\DataType(@B, X);
+}
+
+column_mod(A) ::= T_NOT NULL.
+
 /** Expression */
 expr(A) ::= expr(B) T_AND expr(C). { A = new Stmt\Expr('and', B, C); }
 expr(A) ::= expr(B) T_OR expr(C). { A = new Stmt\Expr('or', B, C); }
@@ -236,14 +251,14 @@ expr_as(A) ::= expr(B) alpha(C) .       { A = new Stmt\Expr('ALIAS', B, C); }
 
 table_name(A) ::= colname(B) . { A = new Stmt\Table(B); }
 
-colname(A) ::= alpha(B) T_DOT xalpha(C).        { A = new Stmt\Expr("column", B, C); }
-colname(A) ::= xalpha(B).                       { A = new Stmt\Expr("column", B) ; }
+colname(A) ::= alpha(B) T_DOT xalpha(C).        { A = new Stmt\ColumnName(B, C); }
+colname(A) ::= xalpha(B).                       { A = new Stmt\ColumnName(B) ; }
 colname(A) ::= variable(B).                     { A = B; }
 
 alpha(A) ::= INTERVAL(X) .      { A = new Stmt\Expr('VALUE', @X); }
 alpha(A) ::= T_STRING(B).       { A = new Stmt\Expr('VALUE', stripslashes(trim(B, "\r\t\n \"'"))); }
-alpha(A) ::= ALPHA(B).          { A = new Stmt\Expr('ALPHA', B); }
-alpha(A) ::= COLUMN(B).         { A = new Stmt\Expr('ALPHA', trim(B, "` \r\n\t")); }
+alpha(A) ::= ALPHA(B).          { A = new Stmt\Alpha(B); }
+alpha(A) ::= COLUMN(B).         { A = new Stmt\Alpha(trim(B, "` \r\n\t")); }
 
 xalpha(A) ::= alpha(X).     { A = X; }
 xalpha(A) ::= T_TIMES.      { A = new Stmt\All; }

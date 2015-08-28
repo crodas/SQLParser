@@ -22,17 +22,14 @@
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
    THE SOFTWARE.
 */
-namespace SQLParser\Writer;
+namespace SQLParser\Stmt;
 
-use SQLParser\Stmt\Expr;
-use SQLParser\Stmt\Alpha;
-
-class MySQL extends SQL
+class Alpha extends Expr
 {
-    public function exprAlpha(Expr $stmt)
+    public function __construct($name)
     {
-        $str = $stmt->getMember(0);
-        return "`$str`";
+        $this->type = "ALPHA";
+        $this->members = [$name];
     }
 }
 

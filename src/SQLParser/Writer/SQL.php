@@ -90,10 +90,7 @@ class SQL
         $type = $expr->getType();
         switch ($type) {
         case 'COLUMN':
-            if ($expr->getMember(1)) {
-                return implode(".", [$member[0], $member[1]]);
-            }
-            return $member[0];
+            return implode(".", $member);
 
         case 'ALPHA':
             return $member[0];

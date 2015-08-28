@@ -62,11 +62,10 @@ class Table
     public function setValue($name)
     {
         if (is_scalar($name) || is_array($name)) {
-            $expr = array("COLUMN");
+            $this->table = new ColumnName;
             foreach ((array)$name as $part) {
-                $expr[] = new Expr("ALPHA", $part);
+                $this->table->addPart($part);
             }
-            $this->table = new Expr($expr);
         } else if ($name instanceof Select) {
             $this->table = $name;
         } else {

@@ -72,6 +72,7 @@ alpha   = /[a-z_][a-z0-9_]*/
   comment   { $this->token = "comment"; }
   "when"    { $this->token = P::WHEN; }
   "case"    { $this->token = P::T_CASE; }
+  "create"  { $this->token = P::CREATE; }
   "then"    { $this->token = P::THEN; }
   "else"    { $this->token = P::T_ELSE; }
   "end"     { $this->token = P::T_END; }

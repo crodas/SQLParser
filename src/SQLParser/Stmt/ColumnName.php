@@ -22,17 +22,29 @@
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
    THE SOFTWARE.
 */
-namespace SQLParser\Writer;
+namespace SQLParser\Stmt;
 
-use SQLParser\Stmt\Expr;
-use SQLParser\Stmt\Alpha;
-
-class MySQL extends SQL
+class ColumnName extends Expr
 {
-    public function exprAlpha(Expr $stmt)
+    public function __construct(Expr $name = null, $extra = null)
     {
-        $str = $stmt->getMember(0);
-        return "`$str`";
+        $this->type    = "COLUMN";
+        if ($name) {
+            $this->members = [$name];
+        }
+        if ($extra instanceof Expr) {
+            $this->members[] = $extra;
+        }
+        
+        foreach ($this->members as $part) {
+            if ($part && $part->type == 'VALUE') {
+                $part->type = 'ALPHA';
+            }
+        }
+    }
+
+    public function addPart($string)
+    {
+        $this->members[] = new Alpha($string);
     }
 }
-
