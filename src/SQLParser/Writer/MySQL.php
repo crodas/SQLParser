@@ -29,10 +29,9 @@ use SQLParser\Stmt\Alpha;
 
 class MySQL extends SQL
 {
-    public function exprAlpha(Expr $stmt)
+    public function exprAlpha(Alpha $stmt)
     {
-        $str = $stmt->getMember(0);
-        return "`$str`";
+        return "`$stmt`";
     }
 }
 

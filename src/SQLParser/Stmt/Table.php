@@ -49,7 +49,7 @@ class Table
         if (!$alias) {
             $this->alias = null;
         } else {
-            $this->alias = $alias instanceof Expr ? $alias : new Expr("ALPHA", $alias);
+            $this->alias = $alias instanceof  Alpha ? $alias : new Alpha($alias);
         }
         return $this;
     }

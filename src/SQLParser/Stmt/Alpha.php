@@ -31,5 +31,10 @@ class Alpha extends Expr
         $this->type = "ALPHA";
         $this->members = [$name];
     }
+
+    public function __toString()
+    {
+        return $this->members[0];
+    }
 }
 

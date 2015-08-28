@@ -36,9 +36,9 @@ class ColumnName extends Expr
             $this->members[] = $extra;
         }
         
-        foreach ($this->members as $part) {
+        foreach ($this->members as $id => $part) {
             if ($part && $part->type == 'VALUE') {
-                $part->type = 'ALPHA';
+                $this->members[$id] = new Alpha($part->members[0]);
             }
         }
     }
