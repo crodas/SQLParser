@@ -28,14 +28,46 @@ use SQLParser\Stmt\Alpha;
 use SQLParser\Stmt\Expr;
 use SQLParser\Stmt\ExprList;
 use SQLParser\Stmt\Table;
+use RuntimeException;
 
 class Select extends Stmt
 {
     protected $fields;
+    protected $mods = array();
 
     public function __construct(ExprList $fields)
     {
         $this->fields = $fields;
+    }
+
+    public function getOptions()
+    {
+        return $this->mods;
+    }
+
+    public function setOptions(Array $mods)
+    {
+        $rules = [
+            ['SQL_CACHE', 'SQL_NO_CACHE'],
+            ['ALL', 'DISTINCT', 'DISTINCTROW'],
+        ];
+
+        foreach ($rules as $rule) {
+            $check = [];
+            foreach ($rule as $id) {
+                if (in_array($id, $mods)) {
+                    $check[] = $id;
+                }
+            }
+
+            if (count($check) > 1) {
+                throw new RuntimeException("Invalid usage of " . implode(", ", $check));
+            }
+        }
+
+        $this->mods = $mods;
+
+        return $this;
     }
 
     public function from(Array $table)

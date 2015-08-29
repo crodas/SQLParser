@@ -26,9 +26,18 @@ namespace SQLParser\Writer;
 
 use SQLParser\Stmt\Expr;
 use SQLParser\Stmt\Alpha;
+use SQLParser\Select;
 
 class MySQL extends SQL
 {
+    public function selectOptions(Select $select)
+    {
+        $options = $select->getOptions();
+        if (!empty($options)) {
+            return implode(" ", $options) . " ";
+        }
+    }
+
     public function exprAlpha(Alpha $stmt)
     {
         return "`$stmt`";

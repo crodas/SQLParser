@@ -151,7 +151,9 @@ class Lexer
                 '/\Gsql_no_cache/i ',
                 '/\Ghigh_priority/i ',
                 '/\Gstraight_join/i ',
+                '/\Gsql_small_result/i ',
                 '/\Gsql_big_result/i ',
+                '/\Gsql_buffer_result/i ',
                 '/\G[a-z_][a-z0-9_]*/i ',
             );
             $match = false;
@@ -478,6 +480,12 @@ class Lexer
     {
  $this->token = P::SQL_BIG_RESULT;     }
     function yy_r1_76($yy_subpatterns)
+    {
+ $this->token = P::SQL_BIG_RESULT;     }
+    function yy_r1_77($yy_subpatterns)
+    {
+ $this->token = P::SQL_BUFFER_RESULT;     }
+    function yy_r1_78($yy_subpatterns)
     {
  $this->token = P::ALPHA;     }
 

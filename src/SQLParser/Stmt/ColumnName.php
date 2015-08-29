@@ -28,7 +28,7 @@ class ColumnName extends Expr
 {
     public function __construct(Expr $name = null, $extra = null)
     {
-        $this->type    = "COLUMN";
+        $this->type = "COLUMN";
         if ($name) {
             $this->members = [$name];
         }

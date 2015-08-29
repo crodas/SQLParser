@@ -145,7 +145,9 @@ alpha   = /[a-z_][a-z0-9_]*/
   "sql_no_cache"    { $this->token = P::SQL_NO_CACHE; }
   "high_priority"   { $this->token = P::HIGH_PRIORITY; }
   "straight_join"   { $this->token = P::STRAIGHT_JOIN; }
+  "sql_small_result"  { $this->token = P::SQL_BIG_RESULT; }
   "sql_big_result"  { $this->token = P::SQL_BIG_RESULT; }
+  "sql_buffer_result"   { $this->token = P::SQL_BUFFER_RESULT; }
 
   // Alpha-texts
   alpha     { $this->token = P::ALPHA; }

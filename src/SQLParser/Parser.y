@@ -47,9 +47,9 @@ inner_select(A) ::= PAR_OPEN inner_select(B) PAR_CLOSE . { A = B;}
 inner_select(A) ::= PAR_OPEN select(B) PAR_CLOSE . { A = B;}
 
 /** Select */
-select(A) ::= SELECT select_mods(MM) expr_list_as(L) from(X) joins(J) where(W) group_by(GG) order_by(O) limit(LL) .  { 
+select(A) ::= SELECT select_opts(MM) expr_list_as(L) from(X) joins(J) where(W) group_by(GG) order_by(O) limit(LL) .  { 
     A = new SQLParser\Select(L);
-    //if (MM) A->setMods(MM);
+    if (MM) A->setOptions(MM);
     if (X)  A->from(X);
     if (W)  A->where(W);
     if (J)  A->joins(J);
@@ -58,9 +58,9 @@ select(A) ::= SELECT select_mods(MM) expr_list_as(L) from(X) joins(J) where(W) g
     if (LL) A->limit(LL);
 }
 
-select_mods(A) ::= select_mods(B) select_mod(C) . { A = B; A[] = C; }
-select_mods(A) ::= . { A = array(); }
-select_mod(A) ::= ALL|DISTINCT|DISTINCTROW|HIGH_PRIORITY|STRAIGHT_JOIN|SQL_SMALL_RESULT|SQL_BIG_RESULT|SQL_CACHE|SQL_CALC_FOUND_ROWS|SQL_NO_CACHE(X). { A = strtoupper(@X); }
+select_opts(A) ::= select_opts(B) select_mod(C) . { A = B; A[] = C; }
+select_opts(A) ::= . { A = array(); }
+select_mod(A) ::= ALL|DISTINCT|DISTINCTROW|HIGH_PRIORITY|STRAIGHT_JOIN|SQL_SMALL_RESULT|SQL_BIG_RESULT|SQL_CACHE|SQL_CALC_FOUND_ROWS|SQL_BUFFER_RESULT|SQL_NO_CACHE(X). { A = strtoupper(@X); }
 
 from(A) ::= FROM table_list(X). { A = X; }
 from(A) ::= .

@@ -416,6 +416,7 @@ SELECT UNIX_TIMESTAMP(annotation_time) as time, UNIX_TIMESTAMP(annotation_expire
 SELECT SQL_CACHE count(*) FROM sub_statuses  WHERE sub_statuses.id = 0 AND status='published';
 SELECT 
 DISTINCT
+SQL_BUFFER_RESULT
 t.id,
     t.tag, 
     c.title AS Category

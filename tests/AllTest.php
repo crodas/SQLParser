@@ -19,11 +19,26 @@ class AllTest extends PHPUnit_Framework_TestCase
         return $args;
     }
 
+    public function featuresException()
+    {
+        $args = [];
+        $parser = new SQLParser;
+        foreach(explode(";", file_get_contents(__DIR__ . '/features/exception.sql')) as $sql) {
+            if (!trim($sql)) continue;
+            $args[] = [$sql, $parser];
+        }
+
+        return $args;
+    }
+
     public function featuresProvider()
     {
         $args = [];
         $parser = new SQLParser;
         foreach(glob(__DIR__ . "/features/*.sql") as $file) {
+            if (basename($file) == 'exception.sql') {
+                continue;
+            }
             $stmts = explode(";", file_get_contents($file));
             $type  = substr(basename($file), 0, -4);
 
@@ -95,7 +110,7 @@ class AllTest extends PHPUnit_Framework_TestCase
             $object = $parser->parse($sql)[0];
             $newsql = $parser->parse(SQL::create($object))[0];
 
-            foreach (['hasHaving', 'hasGroupBy','hasWhere', 'hasOrderBy', 'hasLimit', 'hasJoins'] as $q) {
+            foreach (['getOptions', 'hasHaving', 'hasGroupBy','hasWhere', 'hasOrderBy', 'hasLimit', 'hasJoins'] as $q) {
                 if (!is_callable([$object, $q])) {
                     continue;
                 } 
@@ -129,6 +144,15 @@ class AllTest extends PHPUnit_Framework_TestCase
             }
             throw $e;
         }
+    }
+
+    /**
+     *  @dataProvider featuresException
+     *  @expectedException RuntimeException
+     */
+    public function testFeaturesParsingErrors($sql, $parser)
+    {
+        $data = $parser->parse($sql);
     }
 
 }

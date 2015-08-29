@@ -303,9 +303,23 @@ class SQL
         return "";
     }
 
+    public function selectOptions($selct)
+    {
+        $options = array_intersect(
+            array("ALL", "DISTINCT", "DISTINCTROW"),
+            $select->getOptions()
+        );
+
+        if (!empty($options)) {
+            return implode(" ", $options) . " ";
+        }
+    }
+
     public function select(Select $select)
     {
-        $stmt = 'SELECT ' . $this->exprList($select->getFields());
+        $stmt  = 'SELECT ';
+        $stmt .= $this->selectOptions($select);
+        $stmt .= $this->exprList($select->getFields());
         if ($select->getTable()) {
             $stmt .= " FROM " . $this->tableName($select->getTable());
         }
