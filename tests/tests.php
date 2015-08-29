@@ -1,5 +1,8 @@
 <?php
 
+use SQLParser\Writer;
+use SQLParser\Writer\SQL;
+
 return array(
     "SELECT 5+10 as a, 90*10" => function($query, $phpunit) {
         $phpunit->assertEquals(count($query), 1);
@@ -212,6 +215,8 @@ return array(
         );
     },
     "SELECT
+        SQL_NO_CACHE
+        ALL
         SQL_CALC_FOUND_ROWS a.* 
     FROM 
          articles AS a
@@ -224,8 +229,14 @@ return array(
       COUNT(t.id)=3
     "   => function($queries, $phpunit) {
         $phpunit->assertEquals(
-            "SELECT SQL_CALC_FOUND_ROWS `a`.* FROM `articles` AS `a` INNER JOIN `tags2articles` AS `ta` ON `a`.`id` = `ta`.`idArticle` INNER JOIN `tags` AS `t` ON `ta`.`idTag` = `t`.`id` WHERE `t`.`id` IN (12,13,16) GROUP BY `a`.`id` HAVING COUNT(`t`.`id`) = 3",
+            "SELECT SQL_NO_CACHE ALL SQL_CALC_FOUND_ROWS `a`.* FROM `articles` AS `a` INNER JOIN `tags2articles` AS `ta` ON `a`.`id` = `ta`.`idArticle` INNER JOIN `tags` AS `t` ON `ta`.`idTag` = `t`.`id` WHERE `t`.`id` IN (12,13,16) GROUP BY `a`.`id` HAVING COUNT(`t`.`id`) = 3",
             (string)$queries[0]
         );
+        SQL::setInstance(new Writer\SQL);
+        $phpunit->assertEquals(
+            "SELECT ALL 'a'.* FROM 'articles' AS 'a' INNER JOIN 'tags2articles' AS 'ta' ON 'a'.'id' = 'ta'.'idArticle' INNER JOIN 'tags' AS 't' ON 'ta'.'idTag' = 't'.'id' WHERE 't'.'id' IN (12,13,16) GROUP BY 'a'.'id' HAVING COUNT('t'.'id') = 3",
+            (string)$queries[0]
+        );
+        SQL::setInstance(new Writer\MySQL);
     }
 );

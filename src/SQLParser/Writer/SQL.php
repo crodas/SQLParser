@@ -303,7 +303,7 @@ class SQL
         return "";
     }
 
-    public function selectOptions($selct)
+    public function selectOptions(Select $select)
     {
         $options = array_intersect(
             array("ALL", "DISTINCT", "DISTINCTROW"),
