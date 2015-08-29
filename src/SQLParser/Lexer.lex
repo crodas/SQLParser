@@ -124,6 +124,7 @@ alpha   = /[a-z_][a-z0-9_]*/
   "interval"    { $this->token = P::INTERVAL; }
   "having"  { $this->token = P::HAVING; }
   "where"   { $this->token = P::WHERE; }
+  "view"    { $this->token = P::VIEW; }
   "like"    { $this->token = P::T_LIKE; }
   "order"   { $this->token = P::ORDER; }
   "desc"    { $this->token = P::DESC; }

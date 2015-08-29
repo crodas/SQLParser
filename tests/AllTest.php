@@ -110,7 +110,10 @@ class AllTest extends PHPUnit_Framework_TestCase
             $object = $parser->parse($sql)[0];
             $newsql = $parser->parse(SQL::create($object))[0];
 
-            foreach (['getOptions', 'hasHaving', 'hasGroupBy','hasWhere', 'hasOrderBy', 'hasLimit', 'hasJoins'] as $q) {
+            foreach ([
+                    'getOptions', 'hasHaving', 'hasGroupBy','hasWhere', 'hasOrderBy', 'hasLimit', 
+                    'hasJoins', 'getView', 'getSelect',
+                ] as $q) {
                 if (!is_callable([$object, $q])) {
                     continue;
                 } 

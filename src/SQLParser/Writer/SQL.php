@@ -29,6 +29,7 @@ use SQLParser\Stmt\Table;
 use SQLParser\Drop;
 use SQLParser\Delete;
 use SQLParser\Select;
+use SQLParser\View;
 use SQLParser\Update;
 use SQLParser\Insert;
 use RuntimeException;
@@ -57,6 +58,8 @@ class SQL
 
         if ($object instanceof Select) {
             return self::$instance->select($object);
+        } else if ($object instanceof View) {
+            return self::$instance->view($object);
         } else if ($object instanceof Insert) {
             return self::$instance->insert($object);
         } else if ($object instanceof Update) {
@@ -329,6 +332,11 @@ class SQL
         $stmt .= $this->orderBy($select);
         $stmt .= $this->limit($select);
         return $stmt;
+    }
+
+    public function view(View $view)
+    {
+        return "CREATE VIEW " . $this->value($view->getView()) . " AS " . $this->select($view->getSelect());
     }
 
     public function insert(Insert $insert)

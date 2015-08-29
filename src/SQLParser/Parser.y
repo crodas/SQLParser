@@ -41,6 +41,7 @@ stmt(A) ::= update(B).          { A = B; }
 stmt(A) ::= delete(B).          { A = B; }
 stmt(A) ::= alter_table(B).     { A = B; }
 stmt(A) ::= create_table(B).    { A = B; }
+stmt(A) ::= create_view(B).     { A = B; }
 stmt(A) ::= . { A = null; }
 
 inner_select(A) ::= PAR_OPEN inner_select(B) PAR_CLOSE . { A = B;}
@@ -170,7 +171,11 @@ set_expr_values(A) ::= set_expr_values(B) COMMA assign(C) . { A = B->addTerm(C);
 set_expr_values(A) ::= assign(C) .      { A = new Stmt\ExprList(C); }
 assign(A) ::= colname(B) T_EQ expr(X) . { A = new Stmt\Expr("=", B, X); }
 
-create_table(A) ::= CREATE TABLE colname(name) PAR_OPEN create_fields(X) PAR_CLOSE.
+create_view(A) ::= CREATE VIEW colname(N) T_AS select(S). {
+    A = new SQLParser\View(N, S);
+}
+
+create_table(A) ::= CREATE TABLE colname(N) PAR_OPEN create_fields(X) PAR_CLOSE.
 
 create_fields(A) ::= colname(B) data_type(C) column_mod(D) . { 
 }
