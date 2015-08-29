@@ -228,6 +228,7 @@ return array(
     HAVING
       COUNT(t.id)=3
     "   => function($queries, $phpunit) {
+        $phpunit->assertEquals(count($queries), 1);
         $phpunit->assertEquals(
             "SELECT SQL_NO_CACHE ALL SQL_CALC_FOUND_ROWS `a`.* FROM `articles` AS `a` INNER JOIN `tags2articles` AS `ta` ON `a`.`id` = `ta`.`idArticle` INNER JOIN `tags` AS `t` ON `ta`.`idTag` = `t`.`id` WHERE `t`.`id` IN (12,13,16) GROUP BY `a`.`id` HAVING COUNT(`t`.`id`) = 3",
             (string)$queries[0]
@@ -238,5 +239,17 @@ return array(
             (string)$queries[0]
         );
         SQL::setInstance(new Writer\MySQL);
-    }
+    },
+    "SELECT city, max(temp_lo)
+    FROM weather
+    WHERE city LIKE 'S%'
+    GROUP BY city
+    HAVING max(temp_lo) < 40" => function($queries, $phpunit) {
+        $phpunit->assertEquals(count($queries), 1);
+        $phpunit->assertEquals(
+            "SELECT `city`,max(`temp_lo`) FROM `weather` WHERE `city` LIKE 'S%' GROUP BY `city` HAVING max(`temp_lo`) < 40",
+            (string)$queries[0]
+        );
+
+    },
 );

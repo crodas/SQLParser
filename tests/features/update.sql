@@ -14,5 +14,9 @@ UPDATE t SET id = id + 1;
 UPDATE t SET id = id + 1 ORDER BY id DESC;
 UPDATE items,month SET items.price=month.price
 WHERE items.id=month.id;
-
+UPDATE weather
+    SET temp_hi = temp_hi - 2,  temp_lo = temp_lo - 2
+        WHERE date > '1994-11-28';
+UPDATE branches SET balance = balance + 100.00
+    WHERE name = (SELECT branch_name FROM accounts WHERE name = 'Bob');
 

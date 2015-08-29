@@ -20,7 +20,7 @@ use SQLParser\Stmt;
 %left T_AND.
 %left T_OR.
 %left T_QUESTION T_COLON.
-%nonassoc T_EQ T_NE.
+%nonassoc T_EQ T_LIKE T_NE.
 %nonassoc T_GT T_GE T_LT T_LE.
 %nonassoc T_IN.
 %left T_PLUS T_MINUS T_CONCAT.
@@ -191,7 +191,7 @@ expr(A) ::= expr(B) T_OR expr(C). { A = new Stmt\Expr('or', B, C); }
 expr(A) ::= T_NOT expr(C). { A = new Stmt\Expr('not', C); }
 expr(A) ::= PAR_OPEN expr(B) PAR_CLOSE.    { A = new Stmt\Expr('expr', B); }
 expr(A) ::= inner_select(B) . { A = new Stmt\Expr('expr', B); }
-expr(A) ::= expr(B) T_EQ|T_NE|T_GT|T_GE|T_LT|T_LE(X) expr(C). { A = new Stmt\Expr(@X, B, C); }
+expr(A) ::= expr(B) T_EQ|T_LIKE|T_NE|T_GT|T_GE|T_LT|T_LE(X) expr(C). { A = new Stmt\Expr(@X, B, C); }
 expr(A) ::= expr(B) T_IS T_NOT null(C). { A = new Stmt\Expr("!=", B, C); }
 expr(A) ::= expr(B) T_IS null(C). { A = new Stmt\Expr("=", B, C); }
 expr(A) ::= expr(B) T_PLUS|T_MINUS|T_TIMES|T_DIV|T_MOD(X) expr(C). { A = new Stmt\Expr(@X, B, C); }
