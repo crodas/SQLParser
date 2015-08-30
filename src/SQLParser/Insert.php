@@ -25,7 +25,7 @@
 namespace SQLParser;
 
 use SQLParser\Stmt\ExprList;
-use SQLParser\Stmt\Table;
+use SQLParser\Stmt\Table as STable;
 
 class Insert extends Stmt
 {
@@ -44,7 +44,7 @@ class Insert extends Stmt
         return $this->table;
     }
 
-    public function table(Table $table)
+    public function table(STable $table)
     {
         $this->table = $table;
         return $this;

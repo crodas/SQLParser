@@ -24,11 +24,11 @@
 */
 namespace SQLParser;
 
-use SQLParser\Stmt\Table;
+use SQLParser\Stmt\Table as STable;
 
 class Delete extends Stmt
 {
-    public function __construct(Table $table)
+    public function __construct(STable $table)
     {
         $this->table = $table;
     }
