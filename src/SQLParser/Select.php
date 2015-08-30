@@ -27,7 +27,6 @@ namespace SQLParser;
 use SQLParser\Stmt\Alpha;
 use SQLParser\Stmt\Expr;
 use SQLParser\Stmt\ExprList;
-use SQLParser\Stmt\Table;
 use RuntimeException;
 
 class Select extends Stmt
