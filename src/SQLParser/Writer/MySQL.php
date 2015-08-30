@@ -27,6 +27,8 @@ namespace SQLParser\Writer;
 use SQLParser\Stmt\Expr;
 use SQLParser\Stmt\Alpha;
 use SQLParser\Select;
+use SQLParser\Table as CreateTable;
+use SQLParser\Stmt;
 
 class MySQL extends SQL
 {
@@ -36,6 +38,68 @@ class MySQL extends SQL
         if (!empty($options)) {
             return implode(" ", $options) . " ";
         }
+    }
+
+    public function createTable(CreateTable $table)
+    {
+        $columns = [];
+        foreach ($table->getColumns() as $column) {
+            $columns[] = $this->columnDefinition($column);
+        }
+
+        $keys = array();
+        foreach ($table->getIndexes() as $name => $definition) {
+            $keys[] = ($definition['unique']  ? "UNIQUE KEY " : "KEY ") . $this->escape($name) . "(" . $this->escape($definition['cols']) . ")";
+        }
+
+        $sql = "CREATE TABLE " . $this->value($table->getName()) . "(" 
+            . implode(",", array_merge($columns, $keys))
+            . ")";
+        foreach ($table->getOptions() as $key => $value) {
+            $sql .= " $key = $value";
+        }
+        return $sql;
+    }
+
+    public function columnDefinition(Stmt\Column $column)
+    {
+        $sql = $this->value($column->GetName()) 
+            . " "
+            . $this->dataType($column->getType(), $column->getTypeSize());
+
+
+        if ($column->isNotNull()) {
+            $sql .= " NOT NULL";
+        }
+
+        if ($column->isAutoIncrement()) {
+            $sql .= " AUTO_INCREMENT";
+        }
+
+        if ($column->defaultValue()) {
+            $sql .= " DEFAULT " . $this->value($column->defaultValue());
+        }
+
+        if ($column->collate()) {
+            $sql .= " COLLATE" . $this->value($column->collate());
+        } 
+
+        if ($column->isPrimaryKey()) {
+            $sql .= " PRIMARY KEY";
+        }
+
+        return $sql;
+    }
+
+    public function escape($name)
+    {
+        if (is_array($name)) {
+            foreach ($name as $id => $val) {
+                $name[$id] = "`$val`";
+            }
+            return implode(",", $name);
+        }
+        return "`$name`";
     }
 
     public function exprAlpha(Alpha $stmt)

@@ -28,6 +28,7 @@ use SQLParser\Stmt;
 use SQLParser\Stmt\Table;
 use SQLParser\Drop;
 use SQLParser\Delete;
+use SQLParser\Table as CreateTable;
 use SQLParser\Select;
 use SQLParser\View;
 use SQLParser\Update;
@@ -68,8 +69,11 @@ class SQL
             return self::$instance->drop($object);
         } else if ($object instanceof Delete) {
             return self::$instance->delete($object);
+        } else if ($object instanceof CreateTable) {
+            return self::$instance->createTable($object);
         }
 
+        throw new RuntimeException("Don't know how to create " . get_class($object));
     }
 
     final public static function getInstance()
@@ -304,6 +308,44 @@ class SQL
         }
 
         return "";
+    }
+    
+    public function columnDefinition(Stmt\Column $column)
+    {
+        $sql = $this->value($column->GetName()) 
+            . " "
+            . $this->dataType($column->getType(), $column->getTypeSize());
+
+
+        if ($column->isNotNull()) {
+            $sql .= " NOT NULL";
+        }
+
+        if ($column->defaultValue()) {
+            $sql .= " DEFAULT " . $this->value($column->defaultValue());
+        }
+
+        if ($column->isPrimaryKey()) {
+            $sql .= " PRIMARY KEY";
+        }
+
+        return $sql;
+    }
+
+    public function dataType($type, $size)
+    {
+        return $size ? "$type($size)" : $type;
+    }
+
+    public function createTable(CreateTable $table)
+    {
+        $columns = [];
+        foreach ($table->getColumns() as $column) {
+            $columns[] = $this->columnDefinition($column);
+        }
+        return "CREATE TABLE " . $this->value($table->getName()) . "(" 
+            . implode(",", $columns)
+            . ")";
     }
 
     public function selectOptions(Select $select)

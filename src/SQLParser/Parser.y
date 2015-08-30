@@ -175,20 +175,60 @@ create_view(A) ::= CREATE VIEW colname(N) T_AS select(S). {
     A = new SQLParser\View(N, S);
 }
 
-create_table(A) ::= CREATE TABLE colname(N) PAR_OPEN create_fields(X) PAR_CLOSE.
-
-create_fields(A) ::= colname(B) data_type(C) column_mod(D) . { 
+create_table(A) ::= CREATE TABLE alpha(N) PAR_OPEN create_fields(X) PAR_CLOSE table_opts(O) . {
+    A = new SQLParser\Table(N, X, O);
 }
 
-data_type(A) ::= colname(B) . {
-    A = new Stmt\DataType(@B);
+table_opts(A) ::= table_opts(B) table_opt(C). { A = array_merge(B, C); }
+table_opts(A) ::= . { A = array(); }
+
+table_opt(A) ::= table_key(B) T_EQ term(C) . {  
+    A[implode(" ", B)] = C->getMember(0); 
 }
 
-data_type(A) ::= colname(B) PAR_OPEN NUMBER(X) PAR_CLOSE .{
-    A = new Stmt\DataType(@B, X);
+table_key(A) ::= table_key(B) alpha(C). { A = B; A[] = C->getMember(0); }
+table_key(A) ::= alpha(B). { A = [B->getMember(0)]; }
+
+create_fields(A) ::= create_fields(B) COMMA create_column(C). { A = B; A[] = C; }
+create_fields(A) ::= create_column(C) . { A = array(C); }
+
+create_column(A) ::= PRIMARY KEY expr_list_par(X). {
+    A = ['primary', X];
+}
+create_column(A) ::= UNIQUE KEY alpha(C) expr_list_par(X). {
+    A = ['unique', C, X];
+}
+create_column(A) ::= KEY alpha(C) expr_list_par(X). {
+    A = ['key', C, X];
 }
 
-column_mod(A) ::= T_NOT NULL.
+create_column(A) ::= alpha(B) data_type(C) column_mods(X) . { 
+    A = new Stmt\Column(B, C[0], C[1]);
+    foreach (X as $setting) {
+        if (is_array($setting)) {
+            A->{$setting[0]}($setting[1]);
+        } else {
+            A->$setting();
+        }
+    }
+}
+
+data_type(A) ::= alpha(B) . {
+    A = [B, NULL];
+}
+
+data_type(A) ::= alpha(B) PAR_OPEN NUMBER(X) PAR_CLOSE .{
+    A = [B, X];
+}
+
+column_mods(A) ::= column_mods(B) column_mod(C). { A = B; A[] = C; }
+column_mods(A) ::= . { A = []; }
+
+column_mod(A) ::= T_DEFAULT expr(C).  { A = ['defaultValue', C]; }
+column_mod(A) ::= COLLATE expr(C).  { A = ['collate', C]; }
+column_mod(A) ::= PRIMARY KEY.      { A = 'primaryKey'; }
+column_mod(A) ::= T_NOT T_NULL.     { A = 'notNull'; }
+column_mod(A) ::= AUTO_INCREMENT.   { A = 'autoincrement'; }
 
 /** Expression */
 expr(A) ::= expr(B) T_AND expr(C). { A = new Stmt\Expr('and', B, C); }
@@ -260,7 +300,9 @@ colname(A) ::= alpha(B) T_DOT xalpha(C).        { A = new Stmt\ColumnName(B, C);
 colname(A) ::= xalpha(B).                       { A = new Stmt\ColumnName(B) ; }
 colname(A) ::= variable(B).                     { A = B; }
 
+alpha(A) ::= T_DEFAULT(X) .       { A = new Stmt\Expr('VALUE', @X); }
 alpha(A) ::= INTERVAL(X) .      { A = new Stmt\Expr('VALUE', @X); }
+alpha(A) ::= AUTO_INCREMENT(X). { A = new Stmt\Expr('VALUE', @X); }
 alpha(A) ::= T_STRING(B).       { A = new Stmt\Expr('VALUE', stripslashes(trim(B, "\r\t\n \"'"))); }
 alpha(A) ::= ALPHA(B).          { A = new Stmt\Alpha(B); }
 alpha(A) ::= COLUMN(B).         { A = new Stmt\Alpha(trim(B, "` \r\n\t")); }
