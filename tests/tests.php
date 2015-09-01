@@ -1,48 +1,57 @@
 <?php
 
-use SQLParser\Writer;
+use SQL\Writer;
 use SQLParser\Writer\SQL;
 
 return array(
     "SELECT 5+10 as a, 90*10" => function($query, $phpunit) {
         $phpunit->assertEquals(count($query), 1);
         $query = $query[0];
-        $phpunit->assertEquals($query->getTable()[0], null);
+        $phpunit->assertEquals($query->getTables(), array());
         $phpunit->assertFalse($query->hasWhere());
         return true;
     },
     "SELECT 5+10, 90*10" => function($query, $phpunit) {
         $phpunit->assertEquals(count($query), 1);
         $query = $query[0];
-        $phpunit->assertEquals($query->getTable()[0], null);
+        $phpunit->assertEquals($query->getTables(), array());
         $phpunit->assertFalse($query->hasWhere());
         return true;
     },
     "SELECT 5+10, 90*10 WHERE 2" => function($query, $phpunit) {
         $phpunit->assertEquals(count($query), 1);
         $query = $query[0];
-        $phpunit->assertEquals($query->getTable()[0], null);
+        $phpunit->assertEquals($query->getTables(), array());
         $phpunit->assertTrue($query->hasWhere());
         $phpunit->assertEquals(2, $query->getWhere()->getMembers()[0]);
     },
     "((SELECT * FROM 'table' X))" => function($query, $phpunit) {
         $phpunit->assertEquals(count($query), 1);
-        $query = $query[0];
-        $phpunit->assertEquals($query->getTable()[0]->getValue(), "table");
-        $phpunit->assertEquals($query->getTable()[0]->getAlias(), "X");
+        $query  = $query[0];
+        $tables = $query->getTables(); 
+        $phpunit->assertEquals(['X' => 'table'], $tables);
 
-        $query->getTable()[0]->setValue("foobar");
-        $phpunit->assertEquals("SELECT * FROM `foobar` AS `X`", (string)$query);
+        $tables = ['X' => 'foobar'];
+        $query->setTableS($tables);
 
-        $query->getTable()[0]->setAlias("Y");
-        $phpunit->assertEquals("SELECT * FROM `foobar` AS `Y`", (string)$query);
-        $query->getTable()[0]->SetAlias(null);
-        $phpunit->assertEquals("SELECT * FROM `foobar`", (string)$query);
-        $query->getTable()[0]->SetAlias('something');
-        $phpunit->assertEquals("SELECT * FROM `foobar` AS `something`", (string)$query);
+        $phpunit->assertEquals("SELECT * FROM `foobar` AS `X`", Writer::create($query));
 
-        $query->getTable()[0]->setValue(['x', 'foobar']);
-        $phpunit->assertEquals("SELECT * FROM `x`.`foobar` AS `something`", (string)$query);
+        $tables = ['Y' => 'foobar'];
+        $query->setTableS($tables);
+        $phpunit->assertEquals("SELECT * FROM `foobar` AS `Y`", Writer::create($query));
+
+        $tables = ['foobar'];
+        $query->setTableS($tables);
+
+        $phpunit->assertEquals("SELECT * FROM `foobar`", Writer::create($query));
+
+        $tables = ['something' => 'foobar'];
+        $query->setTables($tables);
+        $phpunit->assertEquals("SELECT * FROM `foobar` AS `something`", Writer::create($query));
+
+        $tables = ['something' => ['x', 'foobar']];
+        $query->setTables($tables);
+        $phpunit->assertEquals("SELECT * FROM `x`.`foobar` AS `something`", Writer::create($query));
         $phpunit->assertFalse($query->hasWhere());
         $phpunit->assertFalse($query->hasOrderBy());
         $phpunit->assertFalse($query->hasLimit());
@@ -50,22 +59,23 @@ return array(
     },
     "SELECT * FROM 'table' X" => function($query, $phpunit) {
         $phpunit->assertEquals(count($query), 1);
-        $query = $query[0];
-        $phpunit->assertEquals($query->getTable()[0]->getValue(), "table");
-        $phpunit->assertEquals($query->getTable()[0]->getAlias(), "X");
+        $query  = $query[0];
+        $phpunit->assertEquals($query->getTables(), ['X' => 'table']);
 
-        $query->getTable()[0]->setValue("foobar");
-        $phpunit->assertEquals("SELECT * FROM `foobar` AS `X`", (string)$query);
+        $query->setTables(['X' => 'foobar']);
+        $phpunit->assertEquals("SELECT * FROM `foobar` AS `X`", Writer::create($query));
 
-        $query->getTable()[0]->setAlias("Y");
-        $phpunit->assertEquals("SELECT * FROM `foobar` AS `Y`", (string)$query);
-        $query->getTable()[0]->SetAlias(null);
-        $phpunit->assertEquals("SELECT * FROM `foobar`", (string)$query);
-        $query->getTable()[0]->SetAlias('something');
-        $phpunit->assertEquals("SELECT * FROM `foobar` AS `something`", (string)$query);
+        $query->setTables(['Y' => 'foobar']);
+        $phpunit->assertEquals("SELECT * FROM `foobar` AS `Y`", Writer::create($query));
 
-        $query->getTable()[0]->setValue(['x', 'foobar']);
-        $phpunit->assertEquals("SELECT * FROM `x`.`foobar` AS `something`", (string)$query);
+        $query->setTables(['foobar']);
+        $phpunit->assertEquals("SELECT * FROM `foobar`", Writer::create($query));
+
+        $query->setTables(['something' => 'foobar']);
+        $phpunit->assertEquals("SELECT * FROM `foobar` AS `something`", Writer::create($query));
+
+        $query->setTables(['something' => ['x', 'foobar']]);
+        $phpunit->assertEquals("SELECT * FROM `x`.`foobar` AS `something`", Writer::create($query));
         $phpunit->assertFalse($query->hasWhere());
         $phpunit->assertFalse($query->hasOrderBy());
         $phpunit->assertFalse($query->hasLimit());
@@ -74,8 +84,7 @@ return array(
     "SELECT * FROM `db`.`table` AS `X`" => function($query, $phpunit) {
         $phpunit->assertEquals(count($query), 1);
         $query = $query[0];
-        $phpunit->assertEquals($query->getTable()[0]->getValue(), ["db", "table"]);
-        $phpunit->assertEquals($query->getTable()[0]->getAlias(), "X");
+        $phpunit->assertEquals($query->getTables(), ["X" => ["db", "table"]]);
         $phpunit->assertFalse($query->hasWhere());
         $phpunit->assertFalse($query->hasOrderBy());
         $phpunit->assertFalse($query->hasLimit());
@@ -84,7 +93,7 @@ return array(
     "SELECT `foo`.* FROM `table` WHERE `foo`.`bar` = 99 and `xx` = \$foobar LIMIT 10" => function($query, $phpunit) {
         $phpunit->assertEquals(count($query), 1);
         $query = $query[0];
-        $phpunit->assertEquals("SELECT `foo`.* FROM `table` WHERE `foo`.`bar` = 99 AND `xx` = :foobar LIMIT 10", (string)$query);
+        $phpunit->assertEquals("SELECT `foo`.* FROM `table` WHERE `foo`.`bar` = 99 AND `xx` = :foobar LIMIT 10", Writer::create($query));
         $phpunit->assertEquals($query->getTable()[0]->getValue(), "table");
         $phpunit->assertTrue($query->hasWhere());
         $phpunit->assertTrue($query->hasLimit());
@@ -99,36 +108,36 @@ return array(
         $phpunit->assertTrue($query->hasLimit());
         $phpunit->assertFalse($query->hasOrderBy());
         $phpunit->assertEquals(['?'], $query->getVariables());
-        $phpunit->assertEquals("SELECT `foo`.* FROM `table` WHERE `id` IN (SELECT `id` FROM `yy` WHERE `foo`.`bar` = 99 AND `xx` = ?) LIMIT 10", (string)$query);
+        $phpunit->assertEquals("SELECT `foo`.* FROM `table` WHERE `id` IN (SELECT `id` FROM `yy` WHERE `foo`.`bar` = 99 AND `xx` = ?) LIMIT 10", Writer::create($query));
     },
     "SELECT * FROM table1 WHERE foo = bar AND foo = 'bar'" => function($query, $phpunit) {
         $phpunit->assertEquals(count($query), 1);
         $phpunit->assertEquals(
             "SELECT * FROM `table1` WHERE `foo` = `bar` AND `foo` = 'bar'",
-            (string)$query[0]
+            Writer::create($query)[0]
         );
     },
     "SELECT ID, CONCAT(NAME, ' FROM ', DEPT) AS NAME, SALARY FROM employee" => function($query, $phpunit){
         $phpunit->assertEquals(count($query), 1);
         $phpunit->assertEquals(
             "SELECT `ID`,CONCAT(`NAME`,'FROM',`DEPT`) AS `NAME`,`SALARY` FROM `employee`",
-            (string)$query[0]
+            Writer::create($query)[0]
         );
     },
     "SELECT * FROM (SELECT * FROM 'table') X" => function($query, $phpunit) {
         $phpunit->assertEquals(count($query), 1);
         $query = $query[0];
         $phpunit->assertTrue($query->getTable()[0]->getValue() instanceof \SQLParser\Select);
-        $phpunit->assertEquals("SELECT * FROM (SELECT * FROM `table`) AS `X`", (string)$query);
+        $phpunit->assertEquals("SELECT * FROM (SELECT * FROM `table`) AS `X`", Writer::create($query));
 
         $query->getTable()[0]->setAlias('yyy');
-        $phpunit->assertEquals("SELECT * FROM (SELECT * FROM `table`) AS `yyy`", (string)$query);
+        $phpunit->assertEquals("SELECT * FROM (SELECT * FROM `table`) AS `yyy`", Writer::create($query));
 
         $query->getTable()[0]->getValue()->getTable()[0]->setAlias('x');
-        $phpunit->assertEquals("SELECT * FROM (SELECT * FROM `table` AS `x`) AS `yyy`", (string)$query);
+        $phpunit->assertEquals("SELECT * FROM (SELECT * FROM `table` AS `x`) AS `yyy`", Writer::create($query));
 
         $query->getTable()[0]->setValue('y');
-        $phpunit->assertEquals("SELECT * FROM `y` AS `yyy`", (string)$query);
+        $phpunit->assertEquals("SELECT * FROM `y` AS `yyy`", Writer::create($query));
         return false;
     },
     "-- some comment here

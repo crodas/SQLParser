@@ -1,7 +1,7 @@
 <?php
 
 use SQLParser\Stmt\Expr;
-use SQLParser\Writer\SQL;
+use SQL\Writer;
 
 class AllTest extends PHPUnit_Framework_TestCase
 {
@@ -14,7 +14,7 @@ class AllTest extends PHPUnit_Framework_TestCase
             $args[] = [$parser, $sql, $next];
         }
 
-        SQL::setInstance(new SQLParser\Writer\MySQL);
+        Writer::setInstance(new SQL\Writer\MySQL);
 
         return $args;
     }
@@ -65,7 +65,7 @@ class AllTest extends PHPUnit_Framework_TestCase
 
         $strs = [];
         foreach ($parsed as $sql) {
-            $strs[] = SQLParser\Writer\SQL::Create($sql);
+            $strs[] = SQL\Writer::Create($sql);
         }
         $newSql = implode(";", $strs);
         if ($callback($parsed, $this) !== false) {

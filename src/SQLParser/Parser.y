@@ -49,14 +49,18 @@ inner_select(A) ::= PAR_OPEN select(B) PAR_CLOSE . { A = B;}
 
 /** Select */
 select(A) ::= SELECT select_opts(MM) expr_list_as(L) from(X) joins(J) where(W) group_by(GG) order_by(O) limit(LL) .  { 
-    A = new SQLParser\Select(L);
+    A = new SQL\Select(L);
+    if (X)  {
+        foreach (X as $table) {
+            A->from($table[0], $table[1]);
+        }
+    }
     if (MM) A->setOptions(MM);
-    if (X)  A->from(X);
     if (W)  A->where(W);
     if (J)  A->joins(J);
     if (O)  A->orderBy(O);
     if (GG) A->groupBy(GG[0], GG[1]);
-    if (LL) A->limit(LL);
+    if (LL) A->limit(LL[0], LL[1]);
 }
 
 select_opts(A) ::= select_opts(B) select_mod(C) . { A = B; A[] = C; }
@@ -69,11 +73,11 @@ from(A) ::= .
 table_list(A) ::= table_list(B) COMMA table_with_alias(C) . { A = B; A[] = C; }
 table_list(A) ::= table_with_alias(B). { A = [B]; }
 
-table_with_alias(A) ::= inner_select(B) T_AS alpha(Y) .   { A = new Stmt\Table(B, Y); }
-table_with_alias(A) ::= inner_select(B) alpha(Y) .        { A = new Stmt\Table(B, Y); }
-table_with_alias(A) ::= table_name(X) T_AS alpha(Y) .     { A = X->setAlias(Y); }
-table_with_alias(A) ::= table_name(X) alpha(Y) .          { A = X->setAlias(Y); }
-table_with_alias(A) ::= table_name(X).                    { A = X; }
+table_with_alias(A) ::= inner_select(B) T_AS alpha(Y) .   { A = [B, Y]; }
+table_with_alias(A) ::= inner_select(B) alpha(Y) .        { A = [B, Y]; }
+table_with_alias(A) ::= table_name(X) T_AS alpha(Y) .     { A = [X, Y]; }
+table_with_alias(A) ::= table_name(X) alpha(Y) .          { A = [X, Y]; }
+table_with_alias(A) ::= table_name(X).                    { A = [X, NULL]; }
 
 joins(A) ::= joins(B) join(C). { A = B; A[] = C; } 
 joins(A) ::= . { A = []; }
@@ -112,9 +116,9 @@ order_by_fields(A) ::= order_by_field(B) . { A = new Stmt\ExprList(B); }
 order_by_field(A) ::= expr(X) DESC|ASC(Y) . { A = new Stmt\Expr(strtoupper(@Y), X); }
 order_by_field(A) ::= expr(X) . { A = new Stmt\Expr("DESC", X); }
 
-limit(A) ::= LIMIT expr(B) OFFSET expr(C).  { A = new Stmt\ExprList(B, C); }
-limit(A) ::= LIMIT expr(B) COMMA expr(C).   { A = new Stmt\ExprList(B, C); }
-limit(A) ::= LIMIT expr(B).{ A = new Stmt\ExprList(B); }
+limit(A) ::= LIMIT expr(B) OFFSET expr(C).  { A = [B, C]; }
+limit(A) ::= LIMIT expr(C) COMMA expr(B).   { A = [B, C]; }
+limit(A) ::= LIMIT expr(B).{ A = [B, NULL]; }
 limit(A) ::= . { A = NULL; }
 
 group_by(A) ::= GROUP BY expr_list_par_optional(B) . { A = [B, null]; }
@@ -144,7 +148,7 @@ delete(A) ::= DELETE FROM table_with_alias(T) where(W) order_by(O) limit(L). {
     A = new SQLParser\Delete(T);
     if (W) A->where(W);
     if (O) A->orderBy(O);
-    if (L) A->limit(L);
+    if (L) A->limit(L[0], L[1]);
 }
 
 update(A) ::= UPDATE table_list(B) joins(JJ) set_expr(S) where(W) order_by(O) limit(LL). {
@@ -152,7 +156,7 @@ update(A) ::= UPDATE table_list(B) joins(JJ) set_expr(S) where(W) order_by(O) li
     if (JJ) A->joins(JJ);
     if (W)  A->where(W);
     if (O) A->orderBy(O);
-    if (LL) A->limit(LL);
+    if (LL) A->limit(LL[0], LL[1]);
 }
 
 insert_stmt(A) ::= INSERT|REPLACE(X) INTO insert_table(T). { 
@@ -287,25 +291,25 @@ expr_list(A) ::= expr_list(B) COMMA expr(C). { A = B->addTerm(C); }
 expr_list(A) ::= expr(B). { A = new Stmt\ExprList(B); }
 /* expr_list(A) ::= . { A = new Stmt\ExprList ; } */
 
-expr_list_as(A) ::= expr_list_as(B) COMMA expr_as(C). { A = B->addTerm(C); }
-expr_list_as(A) ::= expr_as(B). { A = new Stmt\ExprList(B); }
+expr_list_as(A) ::= expr_list_as(B) COMMA expr_as(C). { A = B; A[] = C; }
+expr_list_as(A) ::= expr_as(B). { A = [B]; }
 
-expr_as(A) ::= expr(B) . { A = B; }
-expr_as(A) ::= expr(B) T_AS alpha(C) .  { A = new Stmt\Expr('ALIAS', B, C); }
-expr_as(A) ::= expr(B) alpha(C) .       { A = new Stmt\Expr('ALIAS', B, C); }
+expr_as(A) ::= expr(B) . { A = [B]; }
+expr_as(A) ::= expr(B) T_AS alpha(C) .  { A = [B, C]; }
+expr_as(A) ::= expr(B) alpha(C) .       { A = [B, C]; }
 
-table_name(A) ::= colname(B) . { A = new Stmt\Table(B); }
+table_name(A) ::= colname(B) . { A = B; }
 
-colname(A) ::= alpha(B) T_DOT xalpha(C).        { A = new Stmt\ColumnName(B, C); }
-colname(A) ::= xalpha(B).                       { A = new Stmt\ColumnName(B) ; }
+colname(A) ::= alpha(B) T_DOT xalpha(C).        { A = [B, C]; }
+colname(A) ::= xalpha(B).                       { A = B; }
 colname(A) ::= variable(B).                     { A = B; }
 
-alpha(A) ::= T_DEFAULT(X) .       { A = new Stmt\Expr('VALUE', @X); }
-alpha(A) ::= INTERVAL(X) .      { A = new Stmt\Expr('VALUE', @X); }
-alpha(A) ::= AUTO_INCREMENT(X). { A = new Stmt\Expr('VALUE', @X); }
-alpha(A) ::= T_STRING(B).       { A = new Stmt\Expr('VALUE', stripslashes(trim(B, "\r\t\n \"'"))); }
-alpha(A) ::= ALPHA(B).          { A = new Stmt\Alpha(B); }
-alpha(A) ::= COLUMN(B).         { A = new Stmt\Alpha(trim(B, "` \r\n\t")); }
+alpha(A) ::= T_DEFAULT(X) .     { A = @X; }
+alpha(A) ::= INTERVAL(X) .      { A = @X; }
+alpha(A) ::= AUTO_INCREMENT(X). { A = @X; }
+alpha(A) ::= T_STRING(B).       { A = stripslashes(trim(B, "\r\t\n \"'")); }
+alpha(A) ::= ALPHA(B).          { A = B; }
+alpha(A) ::= COLUMN(B).         { A = trim(B, "` \r\n\t"); }
 
 xalpha(A) ::= alpha(X).     { A = X; }
 xalpha(A) ::= T_TIMES.      { A = new Stmt\All; }
