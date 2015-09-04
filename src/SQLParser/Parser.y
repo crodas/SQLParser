@@ -270,7 +270,7 @@ term(A) ::= NUMBER(B).                  { A = new Stmt\Expr('value', 0+B); }
 term(A) ::= null(B).                    { A = B; }
 term(A) ::= function_call(B) .          { A = B; }
 term(A) ::= T_STRING(B).                { A = new Stmt\Expr('value', trim(B, "'\"")); }
-term(A) ::= alpha(B).                   { A = new Stmt\expr('column', B); }
+term(A) ::= alpha(B).                   { A = new Stmt\Expr('column', B); }
 term(A) ::= term_colname(B).            { A = B; }
 term_colname(A) ::= colname(B) .                { 
     if (is_array(B)) {

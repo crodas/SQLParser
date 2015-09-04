@@ -2190,7 +2190,7 @@ static public $yy_action = array(
     function yy_r118(){ $this->_retvalue = new Stmt\Expr('value', trim($this->yystack[$this->yyidx + 0]->minor, "'\""));     }
 #line 2197 "src/SQLParser/Parser.php"
 #line 273 "src/SQLParser/Parser.y"
-    function yy_r119(){ $this->_retvalue = new Stmt\expr('column', $this->yystack[$this->yyidx + 0]->minor);     }
+    function yy_r119(){ $this->_retvalue = new Stmt\Expr('column', $this->yystack[$this->yyidx + 0]->minor);     }
 #line 2200 "src/SQLParser/Parser.php"
 #line 275 "src/SQLParser/Parser.y"
     function yy_r121(){ 
