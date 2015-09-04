@@ -22,16 +22,14 @@
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
    THE SOFTWARE.
 */
-namespace SQLParser;
+namespace SQL;
 
-use SQLParser\Stmt\ColumnName;
-
-class View extends Stmt
+class View extends Statement
 {
     protected $name;
     protected $select;
 
-    public function __construct(ColumnName $name, Select $select)
+    public function __construct($name, Select $select)
     {
         $this->name   = $name;
         $this->select = $select;

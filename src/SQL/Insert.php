@@ -22,25 +22,61 @@
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
    THE SOFTWARE.
 */
-namespace SQLParser;
+namespace SQL;
 
-use SQLParser\Stmt\Alpha;
-use SQLParser\Stmt\Expr;
-use SQLParser\Stmt\ExprList;
-
-class Update extends Stmt
+class Insert extends Statement
 {
-    protected $set;
+    protected $type;
+    protected $table;
+    protected $values;
+    protected $fields;
 
-    public function __construct(Array $table, ExprList $set)
+    public function __construct($type = 'INSERT')
     {
-        $this->table = $table;
-        $this->set   = $set;
+        $this->type = strtoupper($type);
     }
 
-    public function getSet()
+    public function into($table)
     {
-        return $this->set;
+        $this->table = $table;
+        return $this;
+    }
+
+    public function getTable()
+    {
+        return $this->table;
+    }
+
+    public function values($values)
+    {
+        $this->values = $values;
+        return $this;
+    }
+
+    public function fields($fields)
+    {
+        $this->fields = $fields;
+        return $this;
+    }
+
+    public function getFields()
+    {
+        return $this->fields;
+    }
+
+    public function hasFields()
+    {
+        return !empty($this->fields);
+    }
+
+    public function getValues()
+    {
+        return $this->values;
+    }
+
+    public function getOperation()
+    {
+        return $this->type;
     }
 
 }

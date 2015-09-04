@@ -30,6 +30,7 @@ class Join
     protected $prefix;
     protected $sufix;
     protected $table;
+    protected $alias;
     protected $on;
     protected $using;
 
@@ -38,6 +39,16 @@ class Join
         $this->type   = strtoupper($type);
         $this->prefix = strtoupper($prefix);
         $this->sufix  = strtoupper($sufix);
+    }
+
+    public function getAlias()
+    {
+        return $this->alias;
+    }
+
+    public function hasAlias()
+    {
+        return !empty($this->alias);
     }
 
     public function getTable()
@@ -70,9 +81,10 @@ class Join
         return trim($this->prefix . " " . $this->type . " " . $this->sufix) . " JOIN";
     }
 
-    public function setTable(Table $table)
+    public function setTable($table, $alias = NULL)
     {
         $this->table = $table;
+        $this->alias = $alias;
         return $this;
     }
 

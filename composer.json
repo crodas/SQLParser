@@ -11,6 +11,7 @@
     ],
     "autoload": {
         "psr-0": {
+            "SQL": "src/",
             "SQLParser": "src/"
         },
         "classmap": ["src/SQLParser.php"]

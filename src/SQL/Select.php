@@ -22,19 +22,60 @@
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
    THE SOFTWARE.
 */
-namespace SQLParser\Stmt;
+namespace SQL;
 
-class Alpha extends Expr
+use SQLParser\Stmt\Expr;
+use SQLParser\Stmt\VariablePlaceholder;
+use SQLParser\Stmt\ExprList;
+
+class Select extends Statement
 {
-    public function __construct($name)
+    protected $tables = array();
+    protected $columns;
+
+    public function setTables(Array $tables)
     {
-        $this->type = "ALPHA";
-        $this->members = [$name];
+        $this->tables = $tables;
+        return $this;
     }
 
-    public function __toString()
+    public function hasTable()
     {
-        return $this->members[0];
+        return !empty($this->tables);
     }
+
+    public function from($table, $alias = '')
+    {
+        $alias = $alias ? $alias : $table;
+        $this->tables[$alias] = $table;
+        return $this;
+    }
+
+    public function getTables()
+    {
+        $tables = array();
+        foreach ($this->tables as $id => $table) {
+            if ($id === $table) {
+                $tables[] = $table;
+            } else {
+                $tables[$id] = $table;
+            }
+        }
+        return $tables;
+    }
+
+    public function getColumns()
+    {
+        return $this->columns;
+    }
+
+    public function __construct($expr = NULL)
+    {
+        if (is_string($expr)) {
+            die($expr);
+        }
+
+        $this->columns = $expr;
+    }
+
 }
-
