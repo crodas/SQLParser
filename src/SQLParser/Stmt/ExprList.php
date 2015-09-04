@@ -38,7 +38,7 @@ class ExprList
         }
     }
 
-    public function getTerms()
+    public function getExprs()
     {
         return $this->expr;
     }

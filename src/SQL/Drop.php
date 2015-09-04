@@ -22,31 +22,26 @@
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
    THE SOFTWARE.
 */
-namespace SQLParser;
+namespace SQL;
 
-use SQLParser\Stmt\Alpha;
-use SQLParser\Stmt\Expr;
-use SQLParser\Stmt\ExprList;
-use SQLParser\Stmt\Table;
-
-class Select extends Stmt
+class Drop extends Statement
 {
-    protected $fields;
+    protected $type;
+    protected $table;
 
-    public function __construct(ExprList $fields)
+    public function getTable()
     {
-        $this->fields = $fields;
+        return $this->table;
     }
 
-    public function from(Array $table)
+    public function __construct($type, Array $table)
     {
+        $this->type  = $type;
         $this->table = $table;
-        return $this;
     }
 
-    public function getFields()
+    public function getType()
     {
-        return $this->fields;
-    } 
-
+        return $this->type;
+    }
 }

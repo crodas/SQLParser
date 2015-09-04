@@ -22,20 +22,61 @@
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
    THE SOFTWARE.
 */
-namespace SQLParser\Writer;
+namespace SQL;
 
-use SQLParser\Stmt\Expr;
-use SQLParser\Stmt\Alpha;
-
-class MySQL extends SQL
+class Insert extends Statement
 {
-    public function exprAlpha(Expr $stmt)
-    {
-        $str = $stmt->getMember(0);
-        if (!is_string($str)) {
-            throw new \Exception;
-        }
-        return "`$str`";
-    }
-}
+    protected $type;
+    protected $table;
+    protected $values;
+    protected $fields;
 
+    public function __construct($type = 'INSERT')
+    {
+        $this->type = strtoupper($type);
+    }
+
+    public function into($table)
+    {
+        $this->table = $table;
+        return $this;
+    }
+
+    public function getTable()
+    {
+        return $this->table;
+    }
+
+    public function values($values)
+    {
+        $this->values = $values;
+        return $this;
+    }
+
+    public function fields($fields)
+    {
+        $this->fields = $fields;
+        return $this;
+    }
+
+    public function getFields()
+    {
+        return $this->fields;
+    }
+
+    public function hasFields()
+    {
+        return !empty($this->fields);
+    }
+
+    public function getValues()
+    {
+        return $this->values;
+    }
+
+    public function getOperation()
+    {
+        return $this->type;
+    }
+
+}

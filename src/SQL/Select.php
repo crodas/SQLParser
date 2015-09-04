@@ -22,15 +22,60 @@
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
    THE SOFTWARE.
 */
-namespace SQLParser;
+namespace SQL;
 
-use SQLParser\Stmt\Table;
+use SQLParser\Stmt\Expr;
+use SQLParser\Stmt\VariablePlaceholder;
+use SQLParser\Stmt\ExprList;
 
-class Delete extends Stmt
+class Select extends Statement
 {
-    public function __construct(Table $table)
-    {
-        $this->table = $table;
-    }
-}
+    protected $tables = array();
+    protected $columns;
 
+    public function setTables(Array $tables)
+    {
+        $this->tables = $tables;
+        return $this;
+    }
+
+    public function hasTable()
+    {
+        return !empty($this->tables);
+    }
+
+    public function from($table, $alias = '')
+    {
+        $alias = $alias ? $alias : $table;
+        $this->tables[$alias] = $table;
+        return $this;
+    }
+
+    public function getTables()
+    {
+        $tables = array();
+        foreach ($this->tables as $id => $table) {
+            if ($id === $table) {
+                $tables[] = $table;
+            } else {
+                $tables[$id] = $table;
+            }
+        }
+        return $tables;
+    }
+
+    public function getColumns()
+    {
+        return $this->columns;
+    }
+
+    public function __construct($expr = NULL)
+    {
+        if (is_string($expr)) {
+            die($expr);
+        }
+
+        $this->columns = $expr;
+    }
+
+}

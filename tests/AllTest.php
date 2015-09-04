@@ -1,7 +1,7 @@
 <?php
 
 use SQLParser\Stmt\Expr;
-use SQLParser\Writer\SQL;
+use SQL\Writer;
 
 class AllTest extends PHPUnit_Framework_TestCase
 {
@@ -14,7 +14,19 @@ class AllTest extends PHPUnit_Framework_TestCase
             $args[] = [$parser, $sql, $next];
         }
 
-        SQL::setInstance(new SQLParser\Writer\MySQL);
+        Writer::setInstance(new SQL\Writer\MySQL);
+
+        return $args;
+    }
+
+    public function featuresException()
+    {
+        $args = [];
+        $parser = new SQLParser;
+        foreach(explode(";", file_get_contents(__DIR__ . '/features/exception.sql')) as $sql) {
+            if (!trim($sql)) continue;
+            $args[] = [$sql, $parser];
+        }
 
         return $args;
     }
@@ -24,6 +36,9 @@ class AllTest extends PHPUnit_Framework_TestCase
         $args = [];
         $parser = new SQLParser;
         foreach(glob(__DIR__ . "/features/*.sql") as $file) {
+            if (basename($file) == 'exception.sql') {
+                continue;
+            }
             $stmts = explode(";", file_get_contents($file));
             $type  = substr(basename($file), 0, -4);
 
@@ -50,9 +65,10 @@ class AllTest extends PHPUnit_Framework_TestCase
 
         $strs = [];
         foreach ($parsed as $sql) {
-            $strs[] = SQLParser\Writer\SQL::Create($sql);
+            $strs[] = SQL\Writer::Create($sql);
         }
         $newSql = implode(";", $strs);
+
         if ($callback($parsed, $this) !== false) {
             // test if the generated SQL is good enough
             $callback($parser->parse($newSql), $this); 
@@ -93,9 +109,12 @@ class AllTest extends PHPUnit_Framework_TestCase
     {
         try {
             $object = $parser->parse($sql)[0];
-            $newsql = $parser->parse(SQL::create($object))[0];
+            $newsql = $parser->parse(SQL\Writer::create($object))[0];
 
-            foreach (['hasHaving', 'hasGroupBy','hasWhere', 'hasOrderBy', 'hasLimit', 'hasJoins'] as $q) {
+            foreach ([
+                    'getOptions', 'hasHaving', 'hasGroupBy','hasWhere', 'hasOrderBy', 'hasLimit', 
+                    'hasJoins', 'getView', 'getSelect', 'getName', 'getColumns', 'getIndexes',
+                ] as $q) {
                 if (!is_callable([$object, $q])) {
                     continue;
                 } 
@@ -123,12 +142,21 @@ class AllTest extends PHPUnit_Framework_TestCase
 
         } catch (\Exception $e) {
             echo $sql . "\n";
-            echo SQL::create($object) . "\n";
+            echo SQL\Writer::create($object) . "\n";
             if (!empty($newsql)) {
                 echo $newsql . "\n";
             }
             throw $e;
         }
+    }
+
+    /**
+     *  @dataProvider featuresException
+     *  @expectedException RuntimeException
+     */
+    public function testFeaturesParsingErrors($sql, $parser)
+    {
+        $data = $parser->parse($sql);
     }
 
 }

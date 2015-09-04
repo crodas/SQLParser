@@ -22,20 +22,26 @@
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
    THE SOFTWARE.
 */
-namespace SQLParser;
+namespace SQL;
 
-class Drop extends Stmt
+class View extends Statement
 {
-    protected $type;
+    protected $name;
+    protected $select;
 
-    public function __construct($type, Array $table)
+    public function __construct($name, Select $select)
     {
-        $this->type  = $type;
-        $this->table = $table;
+        $this->name   = $name;
+        $this->select = $select;
     }
 
-    public function getType()
+    public function getView()
     {
-        return $this->type;
+        return $this->name;
+    }
+
+    public function getSelect()
+    {
+        return $this->select;
     }
 }

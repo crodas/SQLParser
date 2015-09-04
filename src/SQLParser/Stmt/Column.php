@@ -24,81 +24,88 @@
 */
 namespace SQLParser\Stmt;
 
-class Join
+class Column
 {
+    protected $name;
     protected $type;
-    protected $prefix;
-    protected $sufix;
-    protected $table;
-    protected $alias;
-    protected $on;
-    protected $using;
+    protected $size;
+    protected $pk = false;
+    protected $notNull = false;
+    protected $default;
+    protected $collate;
+    protected $autoincrement = false;
 
-    public function __construct($type, $prefix = '', $sufix = '')
+    public function __construct($name, $type, $size = null)
     {
-        $this->type   = strtoupper($type);
-        $this->prefix = strtoupper($prefix);
-        $this->sufix  = strtoupper($sufix);
+        $this->name = $name;
+        $this->type = $type;
+        $this->size = $size;
     }
 
-    public function getAlias()
+    public function getName()
     {
-        return $this->alias;
-    }
-
-    public function hasAlias()
-    {
-        return !empty($this->alias);
-    }
-
-    public function getTable()
-    {
-        return $this->table;
-    }
-
-    public function hasCondition()
-    {
-        return !empty($this->on ?: $this->using);
-    }
-
-    public function getCondition()
-    {
-        return $this->on ?: $this->using;
-    }
-
-    public function hasOn()
-    {
-        return !empty($this->on);
-    }
-
-    public function hasUsing()
-    {
-        return !empty($this->using);
+        return $this->name;
     }
 
     public function getType()
     {
-        return trim($this->prefix . " " . $this->type . " " . $this->sufix) . " JOIN";
+        return $this->type;
     }
 
-    public function setTable($table, $alias = NULL)
+    public function collate($expr = null)
     {
-        $this->table = $table;
-        $this->alias = $alias;
+        if ($expr === null) {
+            return $this->collate;
+        }
+        $this->collate = $expr;
         return $this;
     }
 
-    public function using(ExprList $expr)
+    public function defaultValue(Expr $value = null)
     {
-        $this->on = null;
-        $this->using = $expr;
+        if ($value === null) {
+            return $this->default;
+        }
+        $this->default = $value;
         return $this;
     }
-    
-    public function on($expr)
+
+    public function getTypeSize()
     {
-        $this->using = null;
-        $this->on = $expr;
+        return $this->size;
+    }
+
+    public function isPrimaryKey()
+    {
+        return $this->pk;
+    }
+
+
+    public function primaryKey()
+    {
+        $this->pk = true;
+        return true;
+    }
+
+    public function isNotNull()
+    {
+        return (bool)$this->notNull;
+    }
+
+    public function notNull()
+    {
+        $this->notNull = true;
+        return $this;
+    }
+
+    public function isAutoincrement()
+    {
+        return $this->autoincrement;
+    }
+
+    public function autoincrement()
+    {
+        $this->autoincrement = true;
         return $this;
     }
 }

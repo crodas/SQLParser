@@ -42,13 +42,15 @@ class Expr
                 $this->members[] = $value;
             }
         }
-        if ($this->type === 'COLUMN') {
-            foreach ($this->members as $part) {
-                if ($part && $part->type == 'VALUE') {
-                    $part->type = 'ALPHA';
-                }
-            }
+    }
+
+    public function getValue()
+    {
+        if ($this->type === "VALUE") {
+            return $this->members[0];
         }
+
+        return $this;
     }
 
     public function is($type)

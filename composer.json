@@ -9,8 +9,10 @@
             "email": "crodas@php.net"
         }
     ],
+    "version": "v0.1.0",
     "autoload": {
         "psr-0": {
+            "SQL": "src/",
             "SQLParser": "src/"
         },
         "classmap": ["src/SQLParser.php"]
