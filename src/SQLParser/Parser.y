@@ -241,12 +241,12 @@ expr(A) ::= expr(B) T_AND expr(C). { A = new Stmt\Expr('and', B, C); }
 expr(A) ::= expr(B) T_OR expr(C). { A = new Stmt\Expr('or', B, C); }
 expr(A) ::= T_NOT expr(C). { A = new Stmt\Expr('not', C); }
 expr(A) ::= PAR_OPEN expr(B) PAR_CLOSE.    { A = new Stmt\Expr('expr', B); }
-expr(A) ::= inner_select(B) . { A = B; }
+expr(A) ::= term_select(B) . { A = B; }
 expr(A) ::= expr(B) T_EQ|T_LIKE|T_NE|T_GT|T_GE|T_LT|T_LE(X) expr(C). { A = new Stmt\Expr(@X, B, C); }
 expr(A) ::= expr(B) T_IS T_NOT null(C). { A = new Stmt\Expr("!=", B, C); }
 expr(A) ::= expr(B) T_IS null(C). { A = new Stmt\Expr("=", B, C); }
 expr(A) ::= expr(B) T_PLUS|T_MINUS|T_TIMES|T_DIV|T_MOD(X) expr(C). { A = new Stmt\Expr(@X, B, C); }
-expr(A) ::= term_colname(B) T_IN inner_select(X).    { A = new Stmt\Expr('in', B, X); }
+expr(A) ::= term_colname(B) T_IN term_select(X).    { A = new Stmt\Expr('in', B, X); }
 expr(A) ::= term_colname(B) T_IN expr_list_par(X).   { A = new Stmt\Expr('in', B, new Stmt\Expr('expr', X)); }
 expr(A) ::= case(B) . { A = B; }
 expr(A) ::= term(B) . { A = B; }
@@ -272,6 +272,7 @@ term(A) ::= function_call(B) .          { A = B; }
 term(A) ::= T_STRING(B).                { A = new Stmt\Expr('value', trim(B, "'\"")); }
 term(A) ::= alpha(B).                   { A = new Stmt\Expr('column', B); }
 term(A) ::= term_colname(B).            { A = B; }
+term_select(A)  ::= inner_select(B).    { A = new Stmt\Expr('expr', B); }
 term_colname(A) ::= colname(B) .                { 
     if (is_array(B)) {
         A = new Stmt\Expr('column', B[0], B[1]); 

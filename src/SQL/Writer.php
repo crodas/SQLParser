@@ -108,9 +108,6 @@ class Writer
             'SQLParser\Stmt\VariablePlaceholder' => 'variable',
         ];
         
-        if ($value instanceof Select) {
-            return "(" . $this->select($value) . ")";
-        }
 
         foreach ($map as $class => $callback) {
             if ($value instanceof $class) {
@@ -365,7 +362,7 @@ class Writer
 
     public function join(Stmt\Join $join)
     {
-        $str = $join->getType() . " " . $this->escape($join->getTable());
+        $str = $join->getType() . " " . $this->tableList(array($join->getTable()));
         if ($join->hasAlias()) {
             $str .= " AS " . $this->escape($join->getAlias());
         }

@@ -1,4 +1,5 @@
 INSERT INTO Table_1 (column_3, column_1) VALUES ('1996-12-31', 20);
+INSERT INTO users(user_id, email, password) VALUES((select count(*)+1 from users), :user, :password);
 INSERT INTO Table_1 VALUES (20, 'GOODBYE', '1996-12-31');
 INSERT INTO Sailboat(ID,Manufacture, Model, Length, Beam, Price) VALUES(2,'Pacific Seacraft', 'Dana 24', '24 feet 0 inches','8 feet 2 inches', 50000.00);
 INSERT INTO Sailboat(Manufacture, Model, Length, Beam, Price) VALUES('Cal Jenson', 'Cal 40', '40 feet 0 inches','10 feet 2 inches', 39500.00);
