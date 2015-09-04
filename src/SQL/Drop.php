@@ -22,11 +22,17 @@
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
    THE SOFTWARE.
 */
-namespace SQLParser;
+namespace SQL;
 
-class Drop extends Stmt
+class Drop extends Statement
 {
     protected $type;
+    protected $table;
+
+    public function getTable()
+    {
+        return $this->table;
+    }
 
     public function __construct($type, Array $table)
     {

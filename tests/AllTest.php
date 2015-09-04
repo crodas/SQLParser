@@ -68,6 +68,7 @@ class AllTest extends PHPUnit_Framework_TestCase
             $strs[] = SQL\Writer::Create($sql);
         }
         $newSql = implode(";", $strs);
+
         if ($callback($parsed, $this) !== false) {
             // test if the generated SQL is good enough
             $callback($parser->parse($newSql), $this); 
@@ -108,7 +109,7 @@ class AllTest extends PHPUnit_Framework_TestCase
     {
         try {
             $object = $parser->parse($sql)[0];
-            $newsql = $parser->parse(SQL::create($object))[0];
+            $newsql = $parser->parse(SQL\Writer::create($object))[0];
 
             foreach ([
                     'getOptions', 'hasHaving', 'hasGroupBy','hasWhere', 'hasOrderBy', 'hasLimit', 
@@ -141,7 +142,7 @@ class AllTest extends PHPUnit_Framework_TestCase
 
         } catch (\Exception $e) {
             echo $sql . "\n";
-            echo SQL::create($object) . "\n";
+            echo SQL\Writer::create($object) . "\n";
             if (!empty($newsql)) {
                 echo $newsql . "\n";
             }

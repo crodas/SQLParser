@@ -22,15 +22,30 @@
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
    THE SOFTWARE.
 */
-namespace SQLParser;
+namespace SQLParser\Stmt;
 
-use SQLParser\Stmt\Table as STable;
-
-class Delete extends Stmt
+class ExprList
 {
-    public function __construct(STable $table)
+    protected $expr;
+
+    public function __construct($expr = null, $expr2 = null)
     {
-        $this->table = $table;
+        if ($expr) {
+            $this->expr[] = $expr;
+        }
+        if ($expr2) {
+            $this->expr[] = $expr2;
+        }
+    }
+
+    public function getExprs()
+    {
+        return $this->expr;
+    }
+
+    public function addTerm($expr)
+    {
+        $this->expr[] = $expr;
+        return $this;
     }
 }
-

@@ -4,11 +4,12 @@ use SQL\Writer;
 use SQLParser\Writer\SQL;
 
 return array(
-    "SELECT 5+10 as a, 90*10" => function($query, $phpunit) {
+    "SELECT x, 5+10 as a, 90*10" => function($query, $phpunit) {
         $phpunit->assertEquals(count($query), 1);
         $query = $query[0];
         $phpunit->assertEquals($query->getTables(), array());
         $phpunit->assertFalse($query->hasWhere());
+        $phpunit->assertEquals("SELECT `x`, 5 + 10 AS `a`, 90 * 10", Writer::create($query));
         return true;
     },
     "SELECT 5+10, 90*10" => function($query, $phpunit) {
@@ -25,7 +26,7 @@ return array(
         $phpunit->assertTrue($query->hasWhere());
         $phpunit->assertEquals(2, $query->getWhere()->getMembers()[0]);
     },
-    "((SELECT * FROM 'table' X))" => function($query, $phpunit) {
+    "((SELECT * FROM `table` X))" => function($query, $phpunit) {
         $phpunit->assertEquals(count($query), 1);
         $query  = $query[0];
         $tables = $query->getTables(); 
@@ -57,7 +58,7 @@ return array(
         $phpunit->assertFalse($query->hasLimit());
         $phpunit->assertEquals([], $query->getVariables());
     },
-    "SELECT * FROM 'table' X" => function($query, $phpunit) {
+    "SELECT * FROM `table` X" => function($query, $phpunit) {
         $phpunit->assertEquals(count($query), 1);
         $query  = $query[0];
         $phpunit->assertEquals($query->getTables(), ['X' => 'table']);
@@ -94,7 +95,7 @@ return array(
         $phpunit->assertEquals(count($query), 1);
         $query = $query[0];
         $phpunit->assertEquals("SELECT `foo`.* FROM `table` WHERE `foo`.`bar` = 99 AND `xx` = :foobar LIMIT 10", Writer::create($query));
-        $phpunit->assertEquals($query->getTable()[0]->getValue(), "table");
+        $phpunit->assertEquals($query->getTables(), ["table"]);
         $phpunit->assertTrue($query->hasWhere());
         $phpunit->assertTrue($query->hasLimit());
         $phpunit->assertFalse($query->hasOrderBy());
@@ -103,7 +104,7 @@ return array(
     "SELECT `foo`.* FROM `table` WHERE `id` IN (SELECT `id` FROM `yy` WHERE `foo`.`bar` = 99 and `xx` = ?) LIMIT 10" => function($query, $phpunit) {
         $phpunit->assertEquals(count($query), 1);
         $query = $query[0];
-        $phpunit->assertEquals($query->getTable()[0]->getValue(), "table");
+        $phpunit->assertEquals($query->getTables(), ["table"]);
         $phpunit->assertTrue($query->hasWhere());
         $phpunit->assertTrue($query->hasLimit());
         $phpunit->assertFalse($query->hasOrderBy());
@@ -114,60 +115,68 @@ return array(
         $phpunit->assertEquals(count($query), 1);
         $phpunit->assertEquals(
             "SELECT * FROM `table1` WHERE `foo` = `bar` AND `foo` = 'bar'",
-            Writer::create($query)[0]
+            Writer::create($query[0])
         );
     },
     "SELECT ID, CONCAT(NAME, ' FROM ', DEPT) AS NAME, SALARY FROM employee" => function($query, $phpunit){
         $phpunit->assertEquals(count($query), 1);
         $phpunit->assertEquals(
-            "SELECT `ID`,CONCAT(`NAME`,'FROM',`DEPT`) AS `NAME`,`SALARY` FROM `employee`",
-            Writer::create($query)[0]
+            "SELECT `ID`, CONCAT(`NAME`, ' FROM ', `DEPT`) AS `NAME`, `SALARY` FROM `employee`",
+            Writer::create($query[0])
         );
     },
-    "SELECT * FROM (SELECT * FROM 'table') X" => function($query, $phpunit) {
+    "SELECT * FROM (SELECT * FROM `table`) X" => function($query, $phpunit) {
         $phpunit->assertEquals(count($query), 1);
-        $query = $query[0];
-        $phpunit->assertTrue($query->getTable()[0]->getValue() instanceof \SQLParser\Select);
+        $query  = $query[0];
+        $tables = $query->getTables(); 
+        $phpunit->assertTrue($tables['X'] instanceof \SQL\Select);
         $phpunit->assertEquals("SELECT * FROM (SELECT * FROM `table`) AS `X`", Writer::create($query));
 
-        $query->getTable()[0]->setAlias('yyy');
+        $tables = $query->getTables();
+        $query->setTables(['yyy' => current($tables)]);
         $phpunit->assertEquals("SELECT * FROM (SELECT * FROM `table`) AS `yyy`", Writer::create($query));
 
-        $query->getTable()[0]->getValue()->getTable()[0]->setAlias('x');
+        $sub = $query->getTables()['yyy'];
+        $sub->setTables(['x' => $sub->getTables()[0]]);
         $phpunit->assertEquals("SELECT * FROM (SELECT * FROM `table` AS `x`) AS `yyy`", Writer::create($query));
 
-        $query->getTable()[0]->setValue('y');
+        $query->setTables(['yyy' => 'y']);
         $phpunit->assertEquals("SELECT * FROM `y` AS `yyy`", Writer::create($query));
         return false;
     },
     "-- some comment here
-    SELECT * FROM 'table' -- more here
+    SELECT * FROM `table` -- more here
     WHERE id = ?; SELECT 1 -- not here" => function($queries, $phpunit) {
         $phpunit->assertEquals(count($queries), 2);
-        $phpunit->assertEquals(['some comment here', 'more here'], $queries[0]->getComment());
-        $phpunit->assertEquals(['not here'], $queries[1]->getComment());
+        $phpunit->assertEquals(['some comment here', 'more here'], $queries[0]->getComments());
+        $phpunit->assertEquals(['not here'], $queries[1]->getComments());
         return false;
+    },
+    "INSERT INTO `table` SET foo=:foo,bar=:bar" => function($queries, $phpunit) {
+        $phpunit->assertEquals(count($queries), 1);
+        $phpunit->assertEquals(['foo', 'bar'], $queries[0]->getVariables());
+        $phpunit->assertEquals('INSERT INTO `table`(`foo`, `bar`) VALUES(:foo, :bar)', (string)$queries[0]);
     },
     "INSERT INTO `table` SET foo=?,bar=?" => function($queries, $phpunit) {
         $phpunit->assertEquals(count($queries), 1);
         $phpunit->assertEquals(['?', '?'], $queries[0]->getVariables());
-        $phpunit->assertEquals('INSERT INTO `table`(`foo`,`bar`) VALUES(?,?)', (string)$queries[0]);
+        $phpunit->assertEquals('INSERT INTO `table`(`foo`, `bar`) VALUES(?, ?)', (string)$queries[0]);
     },
-    "INSERT INTO `table`(foo,bar) VALUES(?,?)" => function($queries, $phpunit) {
+    "INSERT INTO `table`(foo,bar) VALUES(?, ?)" => function($queries, $phpunit) {
         $phpunit->assertEquals(count($queries), 1);
         $phpunit->assertEquals(['?', '?'], $queries[0]->getVariables());
-        $phpunit->assertEquals('INSERT INTO `table`(`foo`,`bar`) VALUES(?,?)', (string)$queries[0]);
+        $phpunit->assertEquals('INSERT INTO `table`(`foo`, `bar`) VALUES(?, ?)', (string)$queries[0]);
     },
-    "INSERT INTO `table` VALUES(?,?)" => function($queries, $phpunit) {
+    "INSERT INTO `table` VALUES(?, ?)" => function($queries, $phpunit) {
         $phpunit->assertEquals(count($queries), 1);
         $phpunit->assertEquals(['?', '?'], $queries[0]->getVariables());
-        $phpunit->assertEquals('INSERT INTO `table` VALUES(?,?)', (string)$queries[0]);
+        $phpunit->assertEquals('INSERT INTO `table` VALUES(?, ?)', (string)$queries[0]);
     },
 
     "INSERT INTO `table` SELECT foo, bar, xxx FROM `table2` WHERE x = ? and y = ? ORDER BY id DESC LIMIT 20" => function($queries, $phpunit) {
         $phpunit->assertEquals(count($queries), 1);
         $phpunit->assertEquals(['?', '?'], $queries[0]->getVariables());
-        $phpunit->assertEquals('INSERT INTO `table` SELECT `foo`,`bar`,`xxx` FROM `table2` WHERE `x` = ? AND `y` = ? ORDER BY `id` DESC LIMIT 20', (string)$queries[0]);
+        $phpunit->assertEquals('INSERT INTO `table` SELECT `foo`, `bar`, `xxx` FROM `table2` WHERE `x` = ? AND `y` = ? ORDER BY `id` DESC LIMIT 20', (string)$queries[0]);
     },
     "SELECT * FROM 
         (select x FROM y) as x 
@@ -200,7 +209,7 @@ return array(
         $phpunit->assertEquals(count($queries), 1);
         $phpunit->assertEquals(['?'], $queries[0]->getVariables());
         $phpunit->assertEquals(
-            "SELECT `x`.*,`f`.*,`b`.* FROM (SELECT `x` FROM `y`) AS `x`,`another tabl` AS `y` INNER JOIN `foo` AS `f` ON `f`.`x` = `x`.`y` LEFT JOIN `bar` AS `b` ON `b`.`x` = `x`.`y` WHERE `x`.`y` IN (SELECT `foo` FROM `x`) AND `x` = (SELECT `x` FROM `y` LIMIT 1,?) ORDER BY `foobar` DESC LIMIT 20",
+            "SELECT `x`.*, `f`.*, `b`.* FROM (SELECT `x` FROM `y`) AS `x`, `another tabl` AS `y` INNER JOIN `foo` AS `f` ON `f`.`x` = `x`.`y` LEFT JOIN `bar` AS `b` ON `b`.`x` = `x`.`y` WHERE `x`.`y` IN (SELECT `foo` FROM `x`) AND `x` = (SELECT `x` FROM `y` LIMIT 1,?) ORDER BY `foobar` DESC LIMIT 20",
             (String)$queries[0]
         );
     },
@@ -219,7 +228,7 @@ return array(
     " => function ($queries, $phpunit) {
         $phpunit->assertEquals(count($queries), 1);
         $phpunit->assertEquals(
-            "SELECT `subs`.*,`media`.`id` AS `media_id`,`media`.`size` AS `media_size`,`media`.`dim1` AS `media_dim1`,`media`.`dim2` AS `media_dim2`,`media`.`extension` AS `media_extension`,UNIX_TIMESTAMP(`media`.`date`) AS `media_date` FROM `subs` LEFT JOIN `media` ON (`media`.`type` = 'sub_logo' AND `media`.`id` = `subs`.`id` AND `media`.`version` = 0) WHERE `subs`.`name` = 'mnm'",
+            "SELECT `subs`.*, `media`.`id` AS `media_id`, `media`.`size` AS `media_size`, `media`.`dim1` AS `media_dim1`, `media`.`dim2` AS `media_dim2`, `media`.`extension` AS `media_extension`, UNIX_TIMESTAMP(`media`.`date`) AS `media_date` FROM `subs` LEFT JOIN `media` ON (`media`.`type` = 'sub_logo' AND `media`.`id` = `subs`.`id` AND `media`.`version` = 0) WHERE `subs`.`name` = 'mnm'",
             (string)$queries[0]
         );
     },
@@ -239,15 +248,15 @@ return array(
     "   => function($queries, $phpunit) {
         $phpunit->assertEquals(count($queries), 1);
         $phpunit->assertEquals(
-            "SELECT SQL_NO_CACHE ALL SQL_CALC_FOUND_ROWS `a`.* FROM `articles` AS `a` INNER JOIN `tags2articles` AS `ta` ON `a`.`id` = `ta`.`idArticle` INNER JOIN `tags` AS `t` ON `ta`.`idTag` = `t`.`id` WHERE `t`.`id` IN (12,13,16) GROUP BY `a`.`id` HAVING COUNT(`t`.`id`) = 3",
+            "SELECT SQL_NO_CACHE ALL SQL_CALC_FOUND_ROWS `a`.* FROM `articles` AS `a` INNER JOIN `tags2articles` AS `ta` ON `a`.`id` = `ta`.`idArticle` INNER JOIN `tags` AS `t` ON `ta`.`idTag` = `t`.`id` WHERE `t`.`id` IN (12, 13, 16) GROUP BY `a`.`id` HAVING COUNT(`t`.`id`) = 3",
             (string)$queries[0]
         );
-        SQL::setInstance(new Writer\SQL);
+        Writer::setInstance(new Writer);
         $phpunit->assertEquals(
-            "SELECT ALL 'a'.* FROM 'articles' AS 'a' INNER JOIN 'tags2articles' AS 'ta' ON 'a'.'id' = 'ta'.'idArticle' INNER JOIN 'tags' AS 't' ON 'ta'.'idTag' = 't'.'id' WHERE 't'.'id' IN (12,13,16) GROUP BY 'a'.'id' HAVING COUNT('t'.'id') = 3",
+            'SELECT ALL "a".* FROM "articles" AS "a" INNER JOIN "tags2articles" AS "ta" ON "a"."id" = "ta"."idArticle" INNER JOIN "tags" AS "t" ON "ta"."idTag" = "t"."id" WHERE "t"."id" IN (12, 13, 16) GROUP BY "a"."id" HAVING COUNT("t"."id") = 3',
             (string)$queries[0]
         );
-        SQL::setInstance(new Writer\MySQL);
+        Writer::setInstance(new Writer\MySQL);
     },
     "SELECT city, max(temp_lo)
     FROM weather
@@ -256,7 +265,7 @@ return array(
     HAVING max(temp_lo) < 40" => function($queries, $phpunit) {
         $phpunit->assertEquals(count($queries), 1);
         $phpunit->assertEquals(
-            "SELECT `city`,max(`temp_lo`) FROM `weather` WHERE `city` LIKE 'S%' GROUP BY `city` HAVING max(`temp_lo`) < 40",
+            "SELECT `city`, max(`temp_lo`) FROM `weather` WHERE `city` LIKE 'S%' GROUP BY `city` HAVING max(`temp_lo`) < 40",
             (string)$queries[0]
         );
 

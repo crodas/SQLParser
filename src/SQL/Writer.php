@@ -1,9 +1,33 @@
 <?php
+/*
+   The MIT License (MIT)
 
+   Copyright (c) 2015 César Rodas
+
+   Permission is hereby granted, free of charge, to any person obtaining a copy
+   of this software and associated documentation files (the "Software"), to deal
+   in the Software without restriction, including without limitation the rights
+   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+   copies of the Software, and to permit persons to whom the Software is
+   furnished to do so, subject to the following conditions:
+
+   The above copyright notice and this permission notice shall be included in
+   all copies or substantial portions of the Software.
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+   THE SOFTWARE.
+*/
 namespace SQL;
 
+use SQLParser\Stmt\ExprList;
 use SQLParser\Stmt\Expr;
 use SQLParser\Stmt;
+use RuntimeException;
 
 class Writer
 {
@@ -34,19 +58,42 @@ class Writer
 
         if ($object instanceof Select) {
             return self::$instance->select($object);
+        } else if ($object instanceof Insert) {
+            return self::$instance->insert($object);
+        } else if ($object instanceof Delete) {
+            return self::$instance->delete($object);
+        } else if ($object instanceof Drop) {
+            return self::$instance->drop($object);
+        } else if ($object instanceof Table) {
+            return self::$instance->createTable($object);
+        } else if ($object instanceof Update) {
+            return self::$instance->update($object);
+        } else if ($object instanceof View) {
+            return self::$instance->view($object);
         }
 
         throw new RuntimeException("Don't know how to create " . get_class($object));
     }
 
+    public function variable(Stmt\VariablePlaceholder $stmt)
+    {
+        $name = $stmt->getName();
+        return $name != "?"  ? ":{$name}" : "?";
+    }
+
     protected function value($value)
     {
         $map = [
-            'SQLParser\Select' => 'select',
+            'SQL\Select' => 'select',
+            'SQLParser\Stmt\Join' => 'join',
             'SQLParser\Stmt\Expr' => 'expr',
             'SQLParser\Stmt\ExprList' => 'exprList',
             'SQLParser\Stmt\VariablePlaceholder' => 'variable',
         ];
+        
+        if ($value instanceof Select) {
+            return "(" . $this->select($value) . ")";
+        }
 
         foreach ($map as $class => $callback) {
             if ($value instanceof $class) {
@@ -59,6 +106,7 @@ class Writer
         }
 
         if (!is_scalar($value)) {
+            var_dump(compact('value'));
             throw new \InvalidArgumentException;
         }
 
@@ -80,7 +128,7 @@ class Writer
         $type = $expr->getType();
         switch ($type) {
         case 'COLUMN':
-            return implode(".", array_map([$this, 'escape'], $member));
+            return implode(".", array_map([$this, 'escape'], $expr->getMembers()));
 
         case 'ALPHA':
             return $member[0];
@@ -96,9 +144,10 @@ class Writer
             }
             $stmt .= " END";
             return $stmt;
+        case 'IN':
+            return $this->escape($expr->getMember(0)) . " IN {$member[1]}";
         case 'WHEN':
             return "WHEN {$member[0]} THEN {$member[1]}";
-
         case 'ALIAS':
             return "{$member[0]} AS {$member[1]}";
         case 'ALL':
@@ -108,14 +157,14 @@ class Writer
         case 'ASC':
         case 'DESC':
             return "{$member[0]} {$type}";
-        case 'IN':
-            return "{$member[0]} IN ({$member[1]})";
         case 'EXPR':
             return "({$member[0]})";
         case 'VALUE': 
             return $member[0];
         case 'NOT':
             return "NOT {$member[0]}";
+        case 'EMPTY':
+            return '';
         case 'TIMEINTERVAL':
             return "INTERVAL {$member[0]} " . $expr->getMember(1);
         }
@@ -123,52 +172,242 @@ class Writer
         return "{$member[0]} {$type} {$member[1]}";
     }
 
-    protected function exprList(Array $list)
+    protected function exprList($list)
     {
+        if ($list instanceof ExprList) {
+            $list = $list->getExprs();
+        }
         $columns = array();
         foreach ($list as $column) {
-            if (is_array($column[0])) {
-                $value = $this->expr($column[0][0]) . "." . $this->expr($column[0][1]);
+            if ($column instanceof Expr) {
+                $columns[] = $this->expr($column);
+            } else if (is_string($column)) {
+                $columns[] = $this->escape($column);
             } else {
-                var_dump($column[0]);
                 $value = $this->expr($column[0]);
-            }
-            if (count($column) == 2) {
-                $columns[] = $value . ' AS '. $this->escape($column[1]);
-            } else {
-                $columns[] = $value;
+                if (count($column) == 2) {
+                    $columns[] = $value . ' AS '. $this->escape($column[1]);
+                } else {
+                    $columns[] = $value;
+                }
             }
         }
 
-        return implode(",", $columns); 
+        return implode(", ", $columns); 
     }
 
     protected function tableList(Array $tables)
     {
         $list = array();
         foreach ($tables as $key => $table) {
-            if (is_numeric($key)) {
-                $list[] = $this->escape($table);
+            if (is_array($table) && $table[1]) {
+                $table = $this->escape($table[0]) . '.' . $this->escape($table[1]);
             } else if (is_array($table)) {
-                $list[] = $this->escape($table[0]) . '.' . $this->escape($table[1]) . ' AS ' . $this->escape($key);
-            } else if ($table instanceof Expr) {
-                var_dump($table);exit;
+                $table = $this->escape($table[0]);
+            } else if ($table instanceof Select) {
+                $table = '(' . $this->select($table) . ')';
             } else {
-                $list[] = $this->escape($table) . ' AS ' . $this->escape($key);
+                $table = $this->escape($table);
+            }
+
+            if (is_numeric($key) || $key === $table) {
+                $list[] = $table;
+            } else {
+                $list[] = $table . ' AS ' . $this->escape($key);
             }
         }
-        return implode(",", $list);
+        return implode(", ", $list);
+    }
+
+    public function update(Update $update)
+    {
+        $stmt  = 'UPDATE ' . $this->tableList($update->getTable());
+        $stmt .= $this->doJoins($update);
+        $stmt .= " SET " . $this->exprList($update->getSet());
+        $stmt .= $this->doWhere($update);
+        $stmt .= $this->doOrderBy($update);
+        $stmt .= $this->doLimit($update);
+        return $stmt;
+    }
+
+    public function selectOptions(Select $select)
+    {
+        $options = array_intersect(
+            array("ALL", "DISTINCT", "DISTINCTROW"),
+            $select->getOptions()
+        );
+
+        if (!empty($options)) {
+            return implode(" ", $options) . " ";
+        }
+    }
+
+    public function dataType($type, $size)
+    {
+        return $size ? "$type($size)" : $type;
+    }
+
+
+    public function columnDefinition(Stmt\Column $column)
+    {
+        $sql = $this->escape($column->GetName()) 
+            . " "
+            . $this->dataType($column->getType(), $column->getTypeSize());
+
+
+        if ($column->isNotNull()) {
+            $sql .= " NOT NULL";
+        }
+
+        if ($column->defaultValue()) {
+            $sql .= " DEFAULT " . $this->value($column->defaultValue());
+        }
+
+        if ($column->isPrimaryKey()) {
+            $sql .= " PRIMARY KEY";
+        }
+
+        return $sql;
+    }
+
+    public function createTable(Table $table)
+    {
+        $columns = [];
+        foreach ($table->getColumns() as $column) {
+            $columns[] = $this->columnDefinition($column);
+        }
+        return "CREATE TABLE " . $this->escape($table->getName()) . "(" 
+            . implode(",", $columns)
+            . ")";
+    }
+
+
+    public function view(View $view)
+    {
+        return "CREATE VIEW " . $this->escape($view->getView()) . " AS " . $this->select($view->getSelect());
+    }
+
+    public function drop(Drop $drop)
+    {
+        return "DROP " . $drop->getType() . " " . $this->tableList($drop->getTable());
+    }
+
+
+    public function delete(Delete $delete)
+    {
+        $stmt  = "DELETE FROM " . $this->escape($delete->getTable());
+        $stmt .= $this->doWhere($delete);
+        $stmt .= $this->doOrderBy($delete);
+        $stmt .= $this->doLimit($delete);
+
+        return $stmt;
+    }
+
+    public function Insert(Insert $insert)
+    {
+        $sql = $insert->getOperation() . " INTO " . $this->escape($insert->getTable());
+        if ($insert->hasFields()) {
+            $sql .= "(" . $this->exprList($insert->getFields()) . ")";
+        }
+        if ($insert->getValues() instanceof Select) {
+            $sql .= " " . $this->select($insert->getValues());
+        } else {
+            $sql .= " VALUES";
+            foreach ($insert->getValues() as $expr) {
+                $sql .= "(" . $this->exprList($expr) . "),";
+            }
+            $sql = substr($sql, 0, -1);
+        }
+        return $sql;
+    }
+
+    protected function doWhere(Statement $stmt)
+    {
+        if ($stmt->hasWhere()) {
+            return ' WHERE ' . $this->expr($stmt->getWhere());
+        }
+    }
+
+    protected function doOrderBy(Statement $stmt)
+    {
+        if ($stmt->hasOrderBy()) {
+            return " ORDER BY " . $this->exprList($stmt->getOrderBy());
+        }
+    }
+
+    protected function doLimit(Statement $stmt)
+    {
+        if ($stmt->hasLimit() || $stmt->hasOffset()) {
+            if ($stmt->hasOffset()) {
+                return " LIMIT " . $this->value($stmt->getOffset()) . "," . $this->value($stmt->getLimit());
+            } else {
+                return " LIMIT " . $this->value($stmt->getLimit());
+            }
+        }
+    }
+
+    public function join(Stmt\Join $join)
+    {
+        $str = $join->getType() . " " . $this->escape($join->getTable());
+        if ($join->hasAlias()) {
+            $str .= " AS " . $this->escape($join->getAlias());
+        }
+        if ($join->hasCondition()) {
+            $str .= $join->hasOn() ? " ON " : " USING ";
+            $str .= $this->value($join->getCondition());
+        }
+
+        return $str;
+    }
+
+    protected function doJoins(Statement $stmt)
+    {
+        if (!$stmt->hasJoins()) {
+            return '';
+        }
+
+        $joins = array();
+        foreach ($stmt->getJoins() as $join) {
+            $joins[] = $this->join($join);
+        }
+
+        return " " . implode(" ", $joins);
+    }
+
+    protected function doGroupBy(Statement $stmt)
+    {
+        if ($stmt->hasGroupBy()) {
+            $str = " GROUP BY " . $this->value($stmt->getGroupBy());
+            if($stmt->hasHaving()) {
+                $str .= " HAVING ". $this->value($stmt->getHaving());
+            }
+
+            return $str;
+        }
     }
 
     public function Select(Select $select)
     {
-        $stmt  = 'SELECT ' . $this->exprList($select->getColumns());
+        $stmt  = 'SELECT ';
+        $stmt .= $this->selectOptions($select);
+        $stmt .= $this->exprList($select->getColumns());
+
         if ($select->hasTable()) {
             $stmt .= " FROM " . $this->tableList($select->getTables());
         }
-        if ($select->hasWhere()) {
-            $stmt .= ' WHERE ' . $this->expr($select->getWhere());
-        }
+        $stmt .= $this->doJoins($select);
+        $stmt .= $this->doWhere($select);
+        $stmt .= $this->doGroupBy($select);
+        $stmt .= $this->doOrderBy($select);
+        $stmt .= $this->doLimit($select);
         return $stmt;
+    }
+
+    public function escape($value)
+    {
+        if (!is_string($value)) {
+            return $this->value($value);
+        }
+        return '"' . addslashes($value) . '"';
     }
 }

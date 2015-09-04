@@ -22,13 +22,20 @@
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
    THE SOFTWARE.
 */
-namespace SQLParser\Stmt;
+namespace SQL;
 
-class All extends Expr
+class Delete extends Statement
 {
-    function __construct()
+    protected $table;
+
+    public function __construct($table)
     {
-        $this->type = 'ALL';
+        $this->table = $table;
+    }
+
+
+    public function getTable()
+    {
+        return $this->table;
     }
 }
-

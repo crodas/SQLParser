@@ -1,46 +1,37 @@
 <?php
+/*
+   The MIT License (MIT)
 
+   Copyright (c) 2015 César Rodas
+
+   Permission is hereby granted, free of charge, to any person obtaining a copy
+   of this software and associated documentation files (the "Software"), to deal
+   in the Software without restriction, including without limitation the rights
+   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+   copies of the Software, and to permit persons to whom the Software is
+   furnished to do so, subject to the following conditions:
+
+   The above copyright notice and this permission notice shall be included in
+   all copies or substantial portions of the Software.
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+   THE SOFTWARE.
+*/
 namespace SQL;
 
 use SQLParser\Stmt\Expr;
+use SQLParser\Stmt\VariablePlaceholder;
+use SQLParser\Stmt\ExprList;
 
-class Select 
+class Select extends Statement
 {
     protected $tables = array();
     protected $columns;
-    protected $where;
-    protected $orderBy;
-    protected $limit;
-    protected $offset;
-    protected $variables = array();
-
-    public function limit($limit, $offset = NULL)
-    {
-        foreach (['limit', 'offset'] as $var) {
-            if ($$var instanceof Expr) {
-                $$var = $$var->getValue();
-            }
-            $this->$var = $$var;
-        }
-
-        return $this;
-    }
-
-    public function getVariables()
-    {
-        return $this->variables;
-    }
-
-    public function where($expr)
-    {
-        if (is_string($expr)) {
-            die($expr);
-        }
-
-        $this->where = $expr;
-
-        return $this;
-    }
 
     public function setTables(Array $tables)
     {
@@ -53,16 +44,6 @@ class Select
         return !empty($this->tables);
     }
 
-    public function hasLimit()
-    {
-        return !empty($this->limit);
-    }
-
-    public function hasOrderBy()
-    {
-        return !empty($this->orderBy);
-    }
-
     public function from($table, $alias = '')
     {
         $alias = $alias ? $alias : $table;
@@ -72,7 +53,15 @@ class Select
 
     public function getTables()
     {
-        return $this->tables;
+        $tables = array();
+        foreach ($this->tables as $id => $table) {
+            if ($id === $table) {
+                $tables[] = $table;
+            } else {
+                $tables[$id] = $table;
+            }
+        }
+        return $tables;
     }
 
     public function getColumns()
@@ -87,17 +76,6 @@ class Select
         }
 
         $this->columns = $expr;
-    }
-
-    public function hasWhere()
-    {
-        return !empty($this->where);
-    }
-
-
-    public function getWhere()
-    {
-        return $this->where;
     }
 
 }

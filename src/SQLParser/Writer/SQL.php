@@ -355,7 +355,7 @@ class SQL
             $select->getOptions()
         );
 
-        if (!empty($options)) {
+        if (!empty($otions)) {
             return implode(" ", $options) . " ";
         }
     }
