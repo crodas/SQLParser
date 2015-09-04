@@ -203,36 +203,61 @@ class Statement
         return $this->comments;
     }
 
-    protected function getVars(&$vars, $term)
+    protected function each(&$variable, Callable $callback)
     {
-        if ($term instanceof ExprList) {
-            foreach ($term->getExprs() as $value) {
-                $this->getVars($vars, $value);
+        if ($variable instanceof ExprList) {
+            $exprs = $variable->getExprs();
+            foreach ($exprs as &$value) {
+                $this->each($value, $callback);
             }
-            return;
-        } else if (is_array($term)) {
-            foreach ($term as $value) {
-                $this->getVars($vars, $value);
+            $variable->setExprs($exprs);
+        } else if (is_array($variable)) {
+            foreach ($variable as &$value) {
+                $this->each($value, $callback);
             }
-        } else if ($term instanceof Expr) {
-            foreach ($term->getMembers() as $member) {
-                $this->getVars($vars, $member);
+        } else if ($variable instanceof Expr) {
+            $exprs = $variable->getMembers();
+            foreach ($exprs as &$member) {
+                $this->each($member, $callback);
             }
-        } else if ($term instanceof self) {
-            foreach ($term as $property) {
-                $term->getVars($vars, $property);
+            $variable->setMembers($exprs);
+        } else if ($variable instanceof self) {
+            foreach ($variable as &$property) {
+                $this->each($property, $callback);
             }
-        } else if ($term instanceof VariablePlaceholder) {
-            $vars[] = $term->getName();
+        }
+        $return = $callback($variable);
+        if ($return !== NULL) {
+            $variable = $return;
+        }
+    }
+
+    public function iterate(Callable $callback)
+    {
+        foreach ($this as $key => $value) {
+            $this->each($value, $callback);
         }
     }
 
     public function getVariables()
     {
         $vars = [];
-        foreach ($this as $key => $value) {
-            $this->getVars($vars, $value);
-        }
+        $this->iterate(function($value) use (&$vars) {
+            if ($value instanceof VariablePlaceholder) {
+                $vars[] = $value->getName();
+            }
+        });
+        return $vars;
+    }
+
+    public function getFunctionCalls()
+    {
+        $vars = [];
+        $this->iterate(function($value) use (&$vars) {
+            if ($value instanceof Expr && $value->is('call')) {
+                $vars[] = $value;
+            }
+        });
         return $vars;
     }
 

@@ -1,6 +1,8 @@
 <?php
 
 use SQL\Writer;
+use SQLParser\Stmt\VariablePlaceholder;
+use SQLParser\Stmt\Expr;
 use SQLParser\Writer\SQL;
 
 return array(
@@ -270,5 +272,19 @@ return array(
             (string)$queries[0]
         );
 
+    },
+    'SELECT * FROM url WHERE hash = url($sha1)' => function($queries, $phpunit) {
+        $phpunit->assertEquals(count($queries), 1);
+        $query = $queries[0];
+        $phpunit->assertEquals(1, count($query->getFunctionCalls()));
+        $query->iterate(function($expr) {
+            if ($expr instanceof Expr && $expr->is('call')) {
+                return new VariablePlaceholder("xxx");
+            }
+        });
+        $phpunit->assertEquals(
+            "SELECT * FROM `url` WHERE `hash` = :xxx",
+            (string)$query
+        );
     },
 );

@@ -43,6 +43,12 @@ class ExprList
         return $this->expr;
     }
 
+    public function setExprs(Array $expr)
+    {
+        $this->expr = $expr;
+        return $this;
+    }
+
     public function addTerm($expr)
     {
         $this->expr[] = $expr;
