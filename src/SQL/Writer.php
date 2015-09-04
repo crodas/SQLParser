@@ -28,6 +28,7 @@ use SQLParser\Stmt\ExprList;
 use SQLParser\Stmt\Expr;
 use SQLParser\Stmt;
 use RuntimeException;
+use PDO;
 
 class Writer
 {
@@ -39,8 +40,24 @@ class Writer
      *  Change the Writer instance to generate SQL-compatible
      *  with another engine.
      */
-    final public static function setInstance(self $instance)
+    final public static function setInstance($instance)
     {
+        if ($instance instanceof PDO) {
+            $instance = $instance->getAttribute(PDO::ATTR_DRIVER_NAME);
+        }
+        if (is_string($instance)) {
+            if (class_exists('SQL\Writer\\' . $instance)) {
+                $class = 'SQL\Writer\\' . $instance ;
+                $instance = new $class;
+            } else {
+                $instance = new self;
+            }
+        }
+
+        if (!($instance instanceof self)) {
+            throw new RuntimeException('$instance must an instanceof SQL\Writer');
+        }
+
         self::$instance = $instance;
     }
 

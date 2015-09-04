@@ -14,7 +14,7 @@ class AllTest extends PHPUnit_Framework_TestCase
             $args[] = [$parser, $sql, $next];
         }
 
-        Writer::setInstance(new SQL\Writer\MySQL);
+        Writer::setInstance('mysql');
 
         return $args;
     }
