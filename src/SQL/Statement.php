@@ -36,7 +36,7 @@ class Statement
     protected $limit;
     protected $offset;
     protected $joins;
-    protected $mods;
+    protected $mods = array();
     protected $group;
 
     public function hasGroupBy()
