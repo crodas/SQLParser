@@ -2256,7 +2256,7 @@ static public $yy_action = array(
     function yy_r124(){ $this->_retvalue = new Stmt\Expr('CALL', $this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + 0]->minor);     }
 #line 2263 "src/SQLParser/Parser.php"
 #line 294 "src/SQLParser/Parser.y"
-    function yy_r128(){ $this->_retvalue = new Stmt\Expr('EMPTY', '');     }
+    function yy_r128(){ $this->_retvalue = new Stmt\ExprList();     }
 #line 2266 "src/SQLParser/Parser.php"
 #line 320 "src/SQLParser/Parser.y"
     function yy_r145(){ $this->_retvalue = @$this->yystack[$this->yyidx + 0]->minor;     }

@@ -26,7 +26,7 @@ namespace SQLParser\Stmt;
 
 class ExprList
 {
-    protected $expr;
+    protected $expr = array();
 
     public function __construct($expr = null, $expr2 = null)
     {

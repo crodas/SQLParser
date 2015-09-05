@@ -291,7 +291,7 @@ columns(A) ::= columns(B) COMMA alpha(C) . { A = B->addTerm(C); }
 columns(A) ::= alpha(B) . { A = new Stmt\ExprList(B); }
 
 expr_list_par_or_null (A) ::= expr_list_par(X).    { A = X; }
-expr_list_par_or_null (A) ::= PAR_OPEN PAR_CLOSE.  { A = new Stmt\Expr('EMPTY', ''); }
+expr_list_par_or_null (A) ::= PAR_OPEN PAR_CLOSE.  { A = new Stmt\ExprList(); }
 
 expr_list_par_optional (A) ::= expr_list_par(X).    { A = X; }
 expr_list_par_optional (A) ::= expr_list(X).        { A = X; }

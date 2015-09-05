@@ -177,8 +177,6 @@ class Writer
             return $member[0];
         case 'NOT':
             return "NOT {$member[0]}";
-        case 'EMPTY':
-            return '';
         case 'TIMEINTERVAL':
             return "INTERVAL {$member[0]} " . $expr->getMember(1);
         }
