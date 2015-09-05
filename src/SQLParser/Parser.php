@@ -2240,7 +2240,7 @@ static public $yy_action = array(
 #line 2246 "src/SQLParser/Parser.php"
 #line 276 "src/SQLParser/Parser.y"
     function yy_r122(){ 
-    if ($this->yystack[$this->yyidx + 0]->minor instanceof VariablePlaceholder) {
+    if ($this->yystack[$this->yyidx + 0]->minor instanceof Stmt\VariablePlaceholder) {
         $this->_retvalue = $this->yystack[$this->yyidx + 0]->minor;
     } else if (is_array($this->yystack[$this->yyidx + 0]->minor)) {
         $this->_retvalue = new Stmt\Expr('column', $this->yystack[$this->yyidx + 0]->minor[0], $this->yystack[$this->yyidx + 0]->minor[1]); 

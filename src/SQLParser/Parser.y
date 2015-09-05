@@ -274,7 +274,7 @@ term(A) ::= alpha(B).                   { A = new Stmt\Expr('column', B); }
 term(A) ::= term_colname(B).            { A = B; }
 term_select(A)  ::= inner_select(B).    { A = new Stmt\Expr('expr', B); }
 term_colname(A) ::= colname(B) .                { 
-    if (B instanceof VariablePlaceholder) {
+    if (B instanceof Stmt\VariablePlaceholder) {
         A = B;
     } else if (is_array(B)) {
         A = new Stmt\Expr('column', B[0], B[1]); 
