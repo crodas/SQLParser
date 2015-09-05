@@ -193,8 +193,8 @@ class Writer
         }
         $columns = array();
         foreach ($list as $column) {
-            if ($column instanceof Expr) {
-                $columns[] = $this->expr($column);
+            if ($column instanceof Expr || $column instanceof Stmt\VariablePlaceholder) {
+                $columns[] = $this->value($column);
             } else if (is_string($column)) {
                 $columns[] = $this->escape($column);
             } else {

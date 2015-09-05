@@ -273,6 +273,20 @@ return array(
         );
 
     },
+    'INSERT INTO `table` VALUES(sha1(xx))' => function($queries, $phpunit) {
+        $phpunit->assertEquals(count($queries), 1);
+        $query = $queries[0];
+        $phpunit->assertEquals(1, count($query->getFunctionCalls()));
+        $query->iterate(function($expr) {
+            if ($expr instanceof Expr && $expr->is('call')) {
+                return new VariablePlaceholder("xxx");
+            }
+        });
+        $phpunit->assertEquals(
+            'INSERT INTO `table` VALUES(:xxx)',
+            (string)$query
+        );
+    },
     'SELECT * FROM url WHERE hash = url($sha1)' => function($queries, $phpunit) {
         $phpunit->assertEquals(count($queries), 1);
         $query = $queries[0];
