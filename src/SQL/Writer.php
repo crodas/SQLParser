@@ -160,6 +160,8 @@ class Writer
             return $stmt;
         case 'IN':
             return $this->escape($expr->getMember(0)) . " IN {$member[1]}";
+        case 'NIN':
+            return $this->escape($expr->getMember(0)) . " NOT IN {$member[1]}";
         case 'WHEN':
             return "WHEN {$member[0]} THEN {$member[1]}";
         case 'ALIAS':

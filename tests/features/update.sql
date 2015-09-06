@@ -1,4 +1,5 @@
 UPDATE T SET C1 = 1 WHERE C2 = 'a';
+update urls set worker = '' where finished = 0 and worker not in ('later', '');
 UPDATE T SET C1 = 1 WHERE C2 = 'a';
 UPDATE T SET C1 = C1 + 1,D1= (C1*3)+9/C3 WHERE C2 = 'a';
 UPDATE T SET C1 = 'text' || C1 WHERE C2 = 'a';
@@ -17,6 +18,8 @@ WHERE items.id=month.id;
 UPDATE weather
     SET temp_hi = temp_hi - 2,  temp_lo = temp_lo - 2
         WHERE date > '1994-11-28';
+UPDATE branches SET balance = balance + 100.00
+    WHERE name NOT IN (SELECT branch_name FROM accounts WHERE name = 'Bob');
 UPDATE branches SET balance = balance + 100.00
     WHERE name = (SELECT branch_name FROM accounts WHERE name = 'Bob');
 

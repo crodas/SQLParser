@@ -246,10 +246,13 @@ expr(A) ::= expr(B) T_EQ|T_LIKE|T_NE|T_GT|T_GE|T_LT|T_LE(X) expr(C). { A = new S
 expr(A) ::= expr(B) T_IS T_NOT null(C). { A = new Stmt\Expr("!=", B, C); }
 expr(A) ::= expr(B) T_IS null(C). { A = new Stmt\Expr("=", B, C); }
 expr(A) ::= expr(B) T_PLUS|T_MINUS|T_TIMES|T_DIV|T_MOD(X) expr(C). { A = new Stmt\Expr(@X, B, C); }
-expr(A) ::= term_colname(B) T_IN term_select(X).    { A = new Stmt\Expr('in', B, X); }
-expr(A) ::= term_colname(B) T_IN expr_list_par(X).   { A = new Stmt\Expr('in', B, new Stmt\Expr('expr', X)); }
+expr(A) ::= expr(B) in(Y) term_select(X).       { A = new Stmt\Expr(Y, B, X); }
+expr(A) ::= expr(B) in(Y) expr_list_par(X).     { A = new Stmt\Expr(Y, B, new Stmt\Expr('expr', X)); }
 expr(A) ::= case(B) . { A = B; }
 expr(A) ::= term(B) . { A = B; }
+
+in(A) ::= T_NOT T_IN. { A = 'nin'; }
+in(A) ::= T_IN. { A = 'in'; }
 
 case(A) ::= T_CASE case_options(X) T_END . { 
     X = array_merge(['CASE'], X);
