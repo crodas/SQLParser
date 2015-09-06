@@ -234,19 +234,25 @@ class Statement
 
     public function iterate(Callable $callback)
     {
-        foreach ($this as $key => $value) {
+        foreach ($this as &$value) {
             $this->each($value, $callback);
         }
     }
 
-    public function getVariables()
+    public function getVariables($scope = null)
     {
         $vars = [];
-        $this->iterate(function($value) use (&$vars) {
+        $check = function($value) use (&$vars) {
             if ($value instanceof VariablePlaceholder) {
                 $vars[] = $value->getName();
             }
-        });
+        };
+
+        if ($scope === null) {
+            $this->iterate($check);
+        } else {
+            $this->each($this->$scope, $check);
+        }
         return $vars;
     }
 
