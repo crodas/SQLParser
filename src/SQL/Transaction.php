@@ -24,13 +24,18 @@
 */
 namespace SQL;
 
-abstract class Transaction
+abstract class Transaction extends Statement
 {
     protected $name;
 
     public function __construct($name = NULL)
     {
         $this->name = $name;
+    }
+
+    public function hasName()
+    {
+        return !empty($this->name);
     }
 
     public function getName()
