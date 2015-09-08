@@ -12,6 +12,21 @@ spl_autoload_register(function ($class) {
         This array has a map of (class => file)
     */
     static $classes = array (
+  'sql\\begintransaction' => 
+  array (
+    0 => '/SQL/BeginTransaction.php',
+    1 => 'class_exists',
+  ),
+  'sql\\transaction' => 
+  array (
+    0 => '/SQL/Transaction.php',
+    1 => 'class_exists',
+  ),
+  'sql\\committransaction' => 
+  array (
+    0 => '/SQL/CommitTransaction.php',
+    1 => 'class_exists',
+  ),
   'sql\\delete' => 
   array (
     0 => '/SQL/Delete.php',
@@ -30,6 +45,11 @@ spl_autoload_register(function ($class) {
   'sql\\insert' => 
   array (
     0 => '/SQL/Insert.php',
+    1 => 'class_exists',
+  ),
+  'sql\\rollbacktransaction' => 
+  array (
+    0 => '/SQL/RollbackTransaction.php',
     1 => 'class_exists',
   ),
   'sql\\select' => 
@@ -115,6 +135,14 @@ spl_autoload_register(function ($class) {
 );
 
     static $deps    = array (
+  'sql\\begintransaction' => 
+  array (
+    0 => 'sql\\transaction',
+  ),
+  'sql\\committransaction' => 
+  array (
+    0 => 'sql\\transaction',
+  ),
   'sql\\delete' => 
   array (
     0 => 'sql\\statement',
@@ -126,6 +154,10 @@ spl_autoload_register(function ($class) {
   'sql\\insert' => 
   array (
     0 => 'sql\\statement',
+  ),
+  'sql\\rollbacktransaction' => 
+  array (
+    0 => 'sql\\transaction',
   ),
   'sql\\select' => 
   array (

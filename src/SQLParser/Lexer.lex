@@ -141,6 +141,13 @@ alpha   = /[a-z_][a-z0-9_]*/
   "is"      { $this->token = P::T_IS; }
   "||"      { $this->token = P::T_OR; }
   "!="      { $this->token = P::T_NE; }
+  "begin"   { $this->token = P::BEGIN; }
+  "transaction" { $this->token = P::TRANSACTION; }
+  "commit"      { $this->token = P::COMMIT; }
+  "rollback"    { $this->token = P::ROLLBACK; }
+  "savepoint"   { $this->token = P::SAVEPOINT; }
+  "release"     { $this->token = P::RELEASE; }
+  "to"          { $this->token = P::TO; }
   "as"      { $this->token = P::T_AS; }
   number    { $this->token = P::NUMBER; }
   string1   { $this->token = P::T_STRING; }

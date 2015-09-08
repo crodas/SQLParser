@@ -239,6 +239,10 @@ class Statement
         }
     }
 
+    public function getSubQueries()
+    {
+    }
+
     public function getVariables($scope = null)
     {
         $vars = [];

@@ -34,6 +34,9 @@ stmts(A) ::= stmt(C) .  { A = [C];  }
 
 stmt(A) ::= PAR_OPEN stmt(B) PAR_CLOSE . { A = B; }
 
+stmt(A) ::= begin(B).           { A = B; }
+stmt(A) ::= commit(B).          { A = B; }
+stmt(A) ::= rollback(B).        { A = B; }
 stmt(A) ::= drop(B).            { A = B; }
 stmt(A) ::= select(B).          { A = B; }
 stmt(A) ::= insert(B).          { A = B; }
@@ -43,6 +46,20 @@ stmt(A) ::= alter_table(B).     { A = B; }
 stmt(A) ::= create_table(B).    { A = B; }
 stmt(A) ::= create_view(B).     { A = B; }
 stmt(A) ::= . { A = null; }
+
+begin(A) ::= BEGIN transaction_keyword.             { A = new SQL\BeginTransaction; }
+begin(A) ::= SAVEPOINT alpha(B).                    { A = new SQL\BeginTransaction(B); }
+commit(A) ::= commit_keyword transaction_keyword.   { A = new SQL\CommitTransaction; }
+commit(A) ::= RELEASE SAVEPOINT alpha(B).           { A = new SQL\CommitTransaction(B); }
+rollback(A) ::= ROLLBACK transaction_keyword.       { A = new SQL\RollbackTransaction; }
+rollback(A) ::= ROLLBACK TO alpha(B).               { A = new SQL\RollbackTransaction(B); }
+
+transaction_keyword ::= TRANSACTION.
+transaction_keyword ::= .
+
+commit_keyword ::= COMMIT. 
+commit_keyword ::= T_END. 
+
 
 inner_select(A) ::= PAR_OPEN inner_select(B) PAR_CLOSE . { A = B;}
 inner_select(A) ::= PAR_OPEN select(B) PAR_CLOSE . { A = B;}

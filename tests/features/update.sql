@@ -22,4 +22,3 @@ UPDATE branches SET balance = balance + 100.00
     WHERE name NOT IN (SELECT branch_name FROM accounts WHERE name = 'Bob');
 UPDATE branches SET balance = balance + 100.00
     WHERE name = (SELECT branch_name FROM accounts WHERE name = 'Bob');
-

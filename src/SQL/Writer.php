@@ -87,6 +87,12 @@ class Writer
             return self::$instance->update($object);
         } else if ($object instanceof View) {
             return self::$instance->view($object);
+        } else if ($object instanceof BeginTransaction) {
+            return self::$instance->begin($object);
+        } else if ($object instanceof RollbackTransaction) {
+            return self::$instance->rollback($object);
+        } else if ($object instanceof CommitTransaction) {
+            return self::$instance->commit($object);
         }
 
         throw new RuntimeException("Don't know how to create " . get_class($object));
@@ -242,6 +248,33 @@ class Writer
         $stmt .= $this->doOrderBy($update);
         $stmt .= $this->doLimit($update);
         return $stmt;
+    }
+
+    public function commit(CommitTransaction $transaction)
+    {
+        if ($transaction->getName()) {
+            return "RELEASE SAVEPOINT " . $this->escape($transaction->getName());
+        }
+
+        return "COMMIT TRANSACTION";
+    }
+
+    public function rollback(RollbackTransaction $transaction)
+    {
+        if ($transaction->getName()) {
+            return "ROLLBACK TO " . $this->escape($transaction->getName());
+        }
+
+        return "ROLLBACK TRANSACTION";
+    }
+
+    public function begin(BeginTransaction $transaction)
+    {
+        if ($transaction->getName()) {
+            return "SAVEPOINT " . $this->escape($transaction->getName());
+        }
+
+        return "BEGIN TRANSACTION";
     }
 
     public function selectOptions(Select $select)
