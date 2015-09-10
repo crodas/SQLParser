@@ -2107,7 +2107,7 @@ static public $yy_action = array(
     function yy_r62(){ $this->_retvalue = new Stmt\Expr(strtoupper(@$this->yystack[$this->yyidx + 0]->minor), $this->yystack[$this->yyidx + -1]->minor);     }
 #line 2114 "src/SQLParser/Parser.php"
 #line 134 "src/SQLParser/Parser.y"
-    function yy_r63(){ $this->_retvalue = new Stmt\Expr("DESC", $this->yystack[$this->yyidx + 0]->minor);     }
+    function yy_r63(){ $this->_retvalue = new Stmt\Expr("ASC", $this->yystack[$this->yyidx + 0]->minor);     }
 #line 2117 "src/SQLParser/Parser.php"
 #line 137 "src/SQLParser/Parser.y"
     function yy_r65(){ $this->_retvalue = [$this->yystack[$this->yyidx + 0]->minor, $this->yystack[$this->yyidx + -2]->minor];     }

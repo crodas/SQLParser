@@ -137,11 +137,17 @@ spl_autoload_register(function ($class) {
     static $deps    = array (
   'sql\\begintransaction' => 
   array (
-    0 => 'sql\\transaction',
+    0 => 'sql\\statement',
+    1 => 'sql\\transaction',
+  ),
+  'sql\\transaction' => 
+  array (
+    0 => 'sql\\statement',
   ),
   'sql\\committransaction' => 
   array (
-    0 => 'sql\\transaction',
+    0 => 'sql\\statement',
+    1 => 'sql\\transaction',
   ),
   'sql\\delete' => 
   array (
@@ -157,7 +163,8 @@ spl_autoload_register(function ($class) {
   ),
   'sql\\rollbacktransaction' => 
   array (
-    0 => 'sql\\transaction',
+    0 => 'sql\\statement',
+    1 => 'sql\\transaction',
   ),
   'sql\\select' => 
   array (

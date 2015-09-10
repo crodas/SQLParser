@@ -131,7 +131,7 @@ order_by_fields(A) ::= order_by_fields(B) COMMA order_by_field(C) . { A = B; A[]
 order_by_fields(A) ::= order_by_field(B) . { A = [B]; }
 
 order_by_field(A) ::= expr(X) DESC|ASC(Y) . { A = new Stmt\Expr(strtoupper(@Y), X); }
-order_by_field(A) ::= expr(X) . { A = new Stmt\Expr("DESC", X); }
+order_by_field(A) ::= expr(X) . { A = new Stmt\Expr("ASC", X); }
 
 limit(A) ::= LIMIT expr(B) OFFSET expr(C).  { A = [B, C]; }
 limit(A) ::= LIMIT expr(C) COMMA expr(B).   { A = [B, C]; }
