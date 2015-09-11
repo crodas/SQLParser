@@ -28,6 +28,7 @@ class Insert extends Statement
 {
     protected $type;
     protected $table;
+    protected $duplicate;
     protected $values;
     protected $fields;
 
@@ -56,6 +57,22 @@ class Insert extends Statement
     public function fields($fields)
     {
         $this->fields = $fields;
+        return $this;
+    }
+
+    public function getOnDuplicate()
+    {
+        return $this->duplicate;
+    } 
+
+    public function onDuplicate($expr)
+    {
+        if (is_string($expr)) {
+            throw new \RuntimeException("Cannot parse string yet");
+        }
+
+        $this->duplicate = $expr;
+
         return $this;
     }
 

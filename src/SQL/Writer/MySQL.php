@@ -5,6 +5,7 @@ namespace SQL\Writer;
 use SQL\Writer;
 use SQL\Select;
 use SQL\Table;
+use SQL\Insert;
 use SQLParser\Stmt;
 
 class MySQL extends Writer
@@ -45,6 +46,15 @@ class MySQL extends Writer
             $sql .= " $key = $value";
         }
         return $sql;
+    }
+
+    public function insert(Insert $insert)
+    {
+        $stmt = parent::insert($insert);
+        if ($insert->getOnDuplicate()) {
+            $stmt .= ' ON DUPLICATE KEY UPDATE ' . $this->exprList($insert->getOnDuplicate());
+        }
+        return $stmt;
     }
 
     public function columnDefinition(Stmt\Column $column)

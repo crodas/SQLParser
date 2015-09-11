@@ -118,6 +118,7 @@ alpha   = /[a-z_][a-z0-9_]*/
   "."       { $this->token = P::T_DOT; }
   ","       { $this->token = P::COMMA; }
   "on"      { $this->token = P::ON; }
+  "duplicate" { $this->token = P::DUPLICATE; }
   "in"      { $this->token = P::T_IN; }
   "all"     { $this->token = P::ALL; }
   "distinct"    { $this->token = P::DISTINCT; }

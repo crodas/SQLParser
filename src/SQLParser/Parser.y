@@ -144,8 +144,11 @@ group_by(A) ::= .
 
 insert(A) ::= insert_stmt(X) select(S).                 { A = X; X->values(S); }
 insert(A) ::= insert_stmt(X) inner_select(S)    .       { A = X; X->values(S); }
-insert(A) ::= insert_stmt(X) VALUES expr_list_par_many(L).   { A = X; X->values(L); }
-insert(A) ::= insert_stmt(X) set_expr(S). { 
+insert(A) ::= insert_stmt(X) VALUES expr_list_par_many(L) on_dup(DU).   { 
+    A = X; X->values(L); 
+    if (DU) A->onDuplicate(DU);
+}
+insert(A) ::= insert_stmt(X) set_expr(S) on_dup(DU). { 
     A = X; 
     $keys   = [];
     $values = [];
@@ -155,6 +158,7 @@ insert(A) ::= insert_stmt(X) set_expr(S). {
         $values[] = $member[1];
     }
     X->values([$values])->fields($keys);
+    if (DU) A->onDuplicate(DU);
 }
 
 drop(A) ::= DROP TABLE table_list(X). {
@@ -178,7 +182,8 @@ update(A) ::= UPDATE table_list(B) joins(JJ) set_expr(S) where(W) order_by(O) li
 
 insert_stmt(A) ::= INSERT|REPLACE(X) INTO insert_table(T). { 
     A = new SQL\Insert(@X);
-    A->into(T[0])->fields(T[1]); }
+    A->into(T[0])->fields(T[1]);
+}
 insert_stmt(A) ::= INSERT|REPLACE(X) insert_table(T). { 
     A = new SQL\Insert(@X);
     A->into(T[0]); 
@@ -186,6 +191,10 @@ insert_stmt(A) ::= INSERT|REPLACE(X) insert_table(T). {
 
 insert_table(A) ::= table_name(B) . { A = [B, []];}
 insert_table(A) ::= table_name(B) PAR_OPEN columns(L) PAR_CLOSE.  { A = [B, L]; }
+
+on_dup(A) ::= ON DUPLICATE KEY UPDATE set_expr_values(X) . { A = X; }
+on_dup(A) ::= . { A = NULL; }
+
 
 set_expr(A) ::= SET set_expr_values(X). { A = X; }
 set_expr_values(A) ::= set_expr_values(B) COMMA assign(C) . { A = B->addTerm(C); }
