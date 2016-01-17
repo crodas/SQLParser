@@ -58,12 +58,13 @@ class Join
 
     public function hasCondition()
     {
-        return !empty($this->on ?: $this->using);
+        $val = $this->on ? $this->on : $this->using;
+        return !empty($val);
     }
 
     public function getCondition()
     {
-        return $this->on ?: $this->using;
+        return $this->on ? $this->on : $this->using;
     }
 
     public function hasOn()

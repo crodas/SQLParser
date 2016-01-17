@@ -63,7 +63,7 @@ class Writer
 
     final public static function getInstance()
     {
-        self::$instance = self::$instance ?: new self;
+        self::$instance = self::$instance ? self::$instance : new self;
         return self::$instance;
     }
 
