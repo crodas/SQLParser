@@ -1,4 +1,5 @@
 INSERT INTO Table_1 (column_3, column_1) VALUES ('1996-12-31', 20);
+INSERT INTO users(user_id, email, password) VALUES((select count(*)+1 from users), :user, :password);
 INSERT INTO Table_1 VALUES (20, 'GOODBYE', '1996-12-31');
 INSERT INTO Sailboat(ID,Manufacture, Model, Length, Beam, Price) VALUES(2,'Pacific Seacraft', 'Dana 24', '24 feet 0 inches','8 feet 2 inches', 50000.00);
 INSERT INTO Sailboat(Manufacture, Model, Length, Beam, Price) VALUES('Cal Jenson', 'Cal 40', '40 feet 0 inches','10 feet 2 inches', 39500.00);
@@ -6,6 +7,7 @@ INSERT INTO Sailboat VALUES('Catalina', 'Catalina 27', '26 feet 11 inches','9 fe
 INSERT INTO Sailboat VALUES(2,'Mumm', 'Mumm 30', '30 feet 0 inches','8 feet 2 inches', 37000.00);
 INSERT INTO Sailboat (Manufacture, Model, Length, Beam, Price) VALUES ('Catalina', 'Catalina 26', '35 feet 11 inches','10 feet 2 inches', 42499.00), ('Santana', 'Santana 30', '30 feet 0 inches', '9 feet 9 inches',17000.00), ('Cal Marine', 'Cal 25 Mark I', '25 feet o inches', '8 feet 0 inches', 4585.00);
 INSERT INTO SailboatDataToImport VALUES('Pearson','27','27 feet 2 inches','8 feet',9000.00),('Aquarius','23','23 feet','7 feet',3000.00),('Vanguard','17','17 feet 3 inches','6 feet 4 inches',5000.00);
+insert into urls(hash, parent_id) values('17911d536c4048df537268859651dec342283acf', 2) on duplicate key update id = LAST_INSERT_ID(id);
 INSERT INTO Sailboat SELECT Manufacture, Model, Length, Beam, Price FROM SailboatDataToImport;
 INSERT INTO employee (emp_no, fname, lname, officeno)
    VALUES (3022, "John", "Smith", 2101);

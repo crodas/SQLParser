@@ -41,3 +41,19 @@ CREATE TABLE `all_strings` (
         UNIQUE KEY `text` (`text`),
         KEY `still_used` (`still_used`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7575 DEFAULT CHARSET=latin1;
+
+CREATE TABLE `sync_os` (
+          `sync_os_id` int(11) NOT NULL AUTO_INCREMENT,
+            `os` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+              `changelog` longtext COLLATE utf8_unicode_ci,
+                `saved` tinyint(1) DEFAULT '0',
+                  `created` datetime DEFAULT NULL,
+                    `url32` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+                      `url32n` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+                        `url64` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+                          `url64n` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+                            `help_text` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+                              PRIMARY KEY (`sync_os_id`),
+                                KEY `IDX_2FD9E663F9E3D325` (`saved`),
+                                  KEY `IDX_2FD9E663B23DB7B8` (`created`)
+        ) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

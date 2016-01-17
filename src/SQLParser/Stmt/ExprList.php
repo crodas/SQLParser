@@ -26,7 +26,7 @@ namespace SQLParser\Stmt;
 
 class ExprList
 {
-    protected $expr;
+    protected $expr = array();
 
     public function __construct($expr = null, $expr2 = null)
     {
@@ -41,6 +41,12 @@ class ExprList
     public function getExprs()
     {
         return $this->expr;
+    }
+
+    public function setExprs(Array $expr)
+    {
+        $this->expr = $expr;
+        return $this;
     }
 
     public function addTerm($expr)

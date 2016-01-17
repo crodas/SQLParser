@@ -22,20 +22,8 @@
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
    THE SOFTWARE.
 */
-namespace SQLParser\Stmt;
+namespace SQL;
 
-class VariablePlaceholder
+class CommitTransaction extends Transaction
 {
-    protected $name;
-
-    public function __construct($name = null)
-    {
-        $this->name = $name;
-    }
-
-    public function getName()
-    {
-        return $this->name ? $this->name : "?";
-    }
-
 }

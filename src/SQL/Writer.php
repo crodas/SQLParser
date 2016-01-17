@@ -28,6 +28,7 @@ use SQLParser\Stmt\ExprList;
 use SQLParser\Stmt\Expr;
 use SQLParser\Stmt;
 use RuntimeException;
+use PDO;
 
 class Writer
 {
@@ -39,14 +40,30 @@ class Writer
      *  Change the Writer instance to generate SQL-compatible
      *  with another engine.
      */
-    final public static function setInstance(self $instance)
+    final public static function setInstance($instance)
     {
+        if ($instance instanceof PDO) {
+            $instance = $instance->getAttribute(PDO::ATTR_DRIVER_NAME);
+        }
+        if (is_string($instance)) {
+            if (class_exists('SQL\Writer\\' . $instance)) {
+                $class = 'SQL\Writer\\' . $instance ;
+                $instance = new $class;
+            } else {
+                $instance = new self;
+            }
+        }
+
+        if (!($instance instanceof self)) {
+            throw new RuntimeException('$instance must an instanceof SQL\Writer');
+        }
+
         self::$instance = $instance;
     }
 
     final public static function getInstance()
     {
-        self::$instance = self::$instance ?: new self;
+        self::$instance = self::$instance ? self::$instance : new self;
         return self::$instance;
     }
 
@@ -70,6 +87,12 @@ class Writer
             return self::$instance->update($object);
         } else if ($object instanceof View) {
             return self::$instance->view($object);
+        } else if ($object instanceof BeginTransaction) {
+            return self::$instance->begin($object);
+        } else if ($object instanceof RollbackTransaction) {
+            return self::$instance->rollback($object);
+        } else if ($object instanceof CommitTransaction) {
+            return self::$instance->commit($object);
         }
 
         throw new RuntimeException("Don't know how to create " . get_class($object));
@@ -91,9 +114,6 @@ class Writer
             'SQLParser\Stmt\VariablePlaceholder' => 'variable',
         ];
         
-        if ($value instanceof Select) {
-            return "(" . $this->select($value) . ")";
-        }
 
         foreach ($map as $class => $callback) {
             if ($value instanceof $class) {
@@ -146,6 +166,8 @@ class Writer
             return $stmt;
         case 'IN':
             return $this->escape($expr->getMember(0)) . " IN {$member[1]}";
+        case 'NIN':
+            return $this->escape($expr->getMember(0)) . " NOT IN {$member[1]}";
         case 'WHEN':
             return "WHEN {$member[0]} THEN {$member[1]}";
         case 'ALIAS':
@@ -163,8 +185,6 @@ class Writer
             return $member[0];
         case 'NOT':
             return "NOT {$member[0]}";
-        case 'EMPTY':
-            return '';
         case 'TIMEINTERVAL':
             return "INTERVAL {$member[0]} " . $expr->getMember(1);
         }
@@ -179,8 +199,8 @@ class Writer
         }
         $columns = array();
         foreach ($list as $column) {
-            if ($column instanceof Expr) {
-                $columns[] = $this->expr($column);
+            if ($column instanceof Expr || $column instanceof Stmt\VariablePlaceholder) {
+                $columns[] = $this->value($column);
             } else if (is_string($column)) {
                 $columns[] = $this->escape($column);
             } else {
@@ -228,6 +248,33 @@ class Writer
         $stmt .= $this->doOrderBy($update);
         $stmt .= $this->doLimit($update);
         return $stmt;
+    }
+
+    public function commit(CommitTransaction $transaction)
+    {
+        if ($transaction->getName()) {
+            return "RELEASE SAVEPOINT " . $this->escape($transaction->getName());
+        }
+
+        return "COMMIT TRANSACTION";
+    }
+
+    public function rollback(RollbackTransaction $transaction)
+    {
+        if ($transaction->getName()) {
+            return "ROLLBACK TO " . $this->escape($transaction->getName());
+        }
+
+        return "ROLLBACK TRANSACTION";
+    }
+
+    public function begin(BeginTransaction $transaction)
+    {
+        if ($transaction->getName()) {
+            return "SAVEPOINT " . $this->escape($transaction->getName());
+        }
+
+        return "BEGIN TRANSACTION";
     }
 
     public function selectOptions(Select $select)
@@ -348,7 +395,7 @@ class Writer
 
     public function join(Stmt\Join $join)
     {
-        $str = $join->getType() . " " . $this->escape($join->getTable());
+        $str = $join->getType() . " " . $this->tableList(array($join->getTable()));
         if ($join->hasAlias()) {
             $str .= " AS " . $this->escape($join->getAlias());
         }

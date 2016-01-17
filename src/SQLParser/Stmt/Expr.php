@@ -74,6 +74,12 @@ class Expr
         return $this->members[$id];
     }
 
+    public function setMembers(Array $members)
+    {
+        $this->members = $members;
+        return $this;
+    }
+
     public function getMembers()
     {
         return $this->members;

@@ -1,6 +1,8 @@
 <?php
 
 use SQL\Writer;
+use SQLParser\Stmt\VariablePlaceholder;
+use SQLParser\Stmt\Expr;
 use SQLParser\Writer\SQL;
 
 return array(
@@ -251,12 +253,13 @@ return array(
             "SELECT SQL_NO_CACHE ALL SQL_CALC_FOUND_ROWS `a`.* FROM `articles` AS `a` INNER JOIN `tags2articles` AS `ta` ON `a`.`id` = `ta`.`idArticle` INNER JOIN `tags` AS `t` ON `ta`.`idTag` = `t`.`id` WHERE `t`.`id` IN (12, 13, 16) GROUP BY `a`.`id` HAVING COUNT(`t`.`id`) = 3",
             (string)$queries[0]
         );
-        Writer::setInstance(new Writer);
+        $old = Writer::getInstance();
+        Writer::setInstance('sqlite');
         $phpunit->assertEquals(
             'SELECT ALL "a".* FROM "articles" AS "a" INNER JOIN "tags2articles" AS "ta" ON "a"."id" = "ta"."idArticle" INNER JOIN "tags" AS "t" ON "ta"."idTag" = "t"."id" WHERE "t"."id" IN (12, 13, 16) GROUP BY "a"."id" HAVING COUNT("t"."id") = 3',
             (string)$queries[0]
         );
-        Writer::setInstance(new Writer\MySQL);
+        Writer::setInstance($old);
     },
     "SELECT city, max(temp_lo)
     FROM weather
@@ -269,5 +272,33 @@ return array(
             (string)$queries[0]
         );
 
+    },
+    'INSERT INTO `table` VALUES(sha1(xx))' => function($queries, $phpunit) {
+        $phpunit->assertEquals(count($queries), 1);
+        $query = $queries[0];
+        $phpunit->assertEquals(1, count($query->getFunctionCalls()));
+        $query->iterate(function($expr) {
+            if ($expr instanceof Expr && $expr->is('call')) {
+                return new VariablePlaceholder("xxx");
+            }
+        });
+        $phpunit->assertEquals(
+            'INSERT INTO `table` VALUES(:xxx)',
+            (string)$query
+        );
+    },
+    'SELECT * FROM url WHERE hash = url($sha1)' => function($queries, $phpunit) {
+        $phpunit->assertEquals(count($queries), 1);
+        $query = $queries[0];
+        $phpunit->assertEquals(1, count($query->getFunctionCalls()));
+        $query->iterate(function($expr) {
+            if ($expr instanceof Expr && $expr->is('call')) {
+                return new VariablePlaceholder("xxx");
+            }
+        });
+        $phpunit->assertEquals(
+            "SELECT * FROM `url` WHERE `hash` = :xxx",
+            (string)$query
+        );
     },
 );

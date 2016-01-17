@@ -9,13 +9,9 @@
             "email": "crodas@php.net"
         }
     ],
-    "version": "v0.1.0",
+    "version": "v0.1.1",
     "autoload": {
-        "psr-0": {
-            "SQL": "src/",
-            "SQLParser": "src/"
-        },
-        "classmap": ["src/SQLParser.php"]
+        "files": ["src/autoload.php"]
     },
     "minimum-stability": "stable",
     "require": {}
