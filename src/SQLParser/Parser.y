@@ -256,7 +256,7 @@ data_type(A) ::= alpha(B) PAR_OPEN NUMBER(X) PAR_CLOSE .{
 column_mods(A) ::= column_mods(B) column_mod(C). { A = B; A[] = C; }
 column_mods(A) ::= . { A = []; }
 
-column_mod(A) ::= T_DEFAULT expr(C).  { A = ['defaultValue', C]; }
+column_mod(A) ::=   T_DEFAULT expr(C).  { A = ['defaultValue', C]; }
 column_mod(A) ::= COLLATE expr(C).  { A = ['collate', C]; }
 column_mod(A) ::= PRIMARY KEY.      { A = 'primaryKey'; }
 column_mod(A) ::= T_NOT T_NULL.     { A = 'notNull'; }
@@ -347,6 +347,7 @@ colname(A) ::= alpha_or_all(B).                       { A = B; }
 colname(A) ::= variable(B).                     { A = B; }
 
 alpha(A) ::= T_DEFAULT(X) .     { A = @X; }
+alpha(A) ::= COLLATE(X) .       { A = @X; }
 alpha(A) ::= INTERVAL(X) .      { A = @X; }
 alpha(A) ::= AUTO_INCREMENT(X). { A = @X; }
 alpha(A) ::= ALPHA(B).          { A = B; }
