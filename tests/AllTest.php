@@ -114,7 +114,7 @@ class AllTest extends PHPUnit_Framework_TestCase
             foreach ([
                     'getOptions', 'hasHaving', 'hasGroupBy','hasWhere', 'hasOrderBy', 'hasLimit', 
                     'hasJoins', 'getView', 'getSelect', 'getName', 'getColumns', 'getIndexes',
-                    'getName', 'hasName', 'getOnDuplicate',
+                    'getName', 'hasName', 'getOnDuplicate', 'getPrimaryKey',
                 ] as $q) {
                 if (!is_callable([$object, $q])) {
                     continue;

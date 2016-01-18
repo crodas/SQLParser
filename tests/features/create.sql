@@ -37,7 +37,7 @@ CREATE TABLE `all_strings` (
         `sectionid` int(11) NOT NULL,
         `timestamp` int(11) NOT NULL,
         `still_used` tinyint(4) DEFAULT '0',
-        PRIMARY KEY (`id`),
+        PRIMARY KEY (`id`, `text`),
         UNIQUE KEY `text` (`text`),
         KEY `still_used` (`still_used`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7575 DEFAULT CHARSET=latin1;
@@ -57,3 +57,15 @@ CREATE TABLE `sync_os` (
                                 KEY `IDX_2FD9E663F9E3D325` (`saved`),
                                   KEY `IDX_2FD9E663B23DB7B8` (`created`)
         ) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE `about_teams` (
+          `about_team_id` int(11) NOT NULL AUTO_INCREMENT,
+            `name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+              `role` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+                `twitter` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+                  `linkedin` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+                    `saved` tinyint(1) DEFAULT '0',
+                      `created` datetime DEFAULT NULL,
+                        PRIMARY KEY (`about_team_id`),
+                          KEY `IDX_FDBA6687F9E3D325` (`saved`)
+        ) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

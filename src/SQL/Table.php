@@ -29,8 +29,8 @@ use SQLParser\Stmt;
 class Table extends Statement
 {
     protected $name;
-    protected $columns;
     protected $options;
+    protected $columns = array();
     protected $keys = array();
 
     protected function listToArray(Stmt\ExprList $list)
@@ -41,6 +41,13 @@ class Table extends Statement
     public function getIndexes()
     {
         return $this->keys;
+    }
+
+    public function getPrimaryKey()
+    {
+        return array_filter($this->columns, function($column) {
+            return $column->isPrimaryKey();
+        });
     }
 
     public function __construct($alpha, Array $columns, Array $options = array())
@@ -55,6 +62,7 @@ class Table extends Statement
             case 'primary':
                 $primary = $this->listToArray($column[1]);
                 foreach ($this->listToArray($column[1]) as $field) {
+                    $field = $field->getMember(0);
                     foreach ($this->columns as $column) {
                         if ($column->getName() == $field) {
                             $column->primaryKey();
