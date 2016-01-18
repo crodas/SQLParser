@@ -69,3 +69,16 @@ CREATE TABLE `about_teams` (
                         PRIMARY KEY (`about_team_id`),
                           KEY `IDX_FDBA6687F9E3D325` (`saved`)
         ) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE `attaches` (
+          `attach_id` int(11) NOT NULL AUTO_INCREMENT,
+            `sha2` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
+              `type` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
+                `size` int(11) DEFAULT '0',
+                  `label` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+                    `content` longblob,
+                      `fname` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+                        `created` datetime DEFAULT NULL,
+                          PRIMARY KEY (`attach_id`),
+                            KEY `IDX_EB74E74FAF37D4EA` (`fname`)
+        ) ENGINE=InnoDB AUTO_INCREMENT=216 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

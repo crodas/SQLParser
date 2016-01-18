@@ -256,11 +256,11 @@ data_type(A) ::= alpha(B) PAR_OPEN NUMBER(X) PAR_CLOSE .{
 column_mods(A) ::= column_mods(B) column_mod(C). { A = B; A[] = C; }
 column_mods(A) ::= . { A = []; }
 
-column_mod(A) ::=   T_DEFAULT expr(C).  { A = ['defaultValue', C]; }
-column_mod(A) ::= COLLATE expr(C).  { A = ['collate', C]; }
-column_mod(A) ::= PRIMARY KEY.      { A = 'primaryKey'; }
-column_mod(A) ::= T_NOT T_NULL.     { A = 'notNull'; }
-column_mod(A) ::= AUTO_INCREMENT.   { A = 'autoincrement'; }
+column_mod(A) ::= T_DEFAULT term(C).    { A = ['defaultValue', C]; }
+column_mod(A) ::= COLLATE term(C).      { A = ['collate', C]; }
+column_mod(A) ::= PRIMARY KEY.          { A = 'primaryKey'; }
+column_mod(A) ::= T_NOT T_NULL.         {    A = 'notNull'; }
+column_mod(A) ::= AUTO_INCREMENT.       { A = 'autoincrement'; }
 
 /** Expression */
 expr(A) ::= expr(B) T_AND expr(C). { A = new Stmt\Expr('and', B, C); }
