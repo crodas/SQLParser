@@ -79,6 +79,7 @@ class Lexer
                 '/\G[ \t\n]+/i ',
                 '/\G--[^\n]+/i ',
                 '/\Gwhen/i ',
+                '/\Gunsigned/i ',
                 '/\Gcase/i ',
                 '/\Gcreate/i ',
                 '/\Gthen/i ',
@@ -278,278 +279,281 @@ class Lexer
  $this->token = P::WHEN;     }
     function yy_r1_3($yy_subpatterns)
     {
- $this->token = P::T_CASE;     }
+ $this->token = P::T_UNSIGNED;     }
     function yy_r1_4($yy_subpatterns)
     {
- $this->token = P::CREATE;     }
+ $this->token = P::T_CASE;     }
     function yy_r1_5($yy_subpatterns)
     {
- $this->token = P::THEN;     }
+ $this->token = P::CREATE;     }
     function yy_r1_6($yy_subpatterns)
     {
- $this->token = P::T_DEFAULT;     }
+ $this->token = P::THEN;     }
     function yy_r1_7($yy_subpatterns)
     {
- $this->token = P::T_ELSE;     }
+ $this->token = P::T_DEFAULT;     }
     function yy_r1_8($yy_subpatterns)
     {
- $this->token = P::AUTO_INCREMENT;     }
+ $this->token = P::T_ELSE;     }
     function yy_r1_9($yy_subpatterns)
     {
- $this->token = P::COLLATE;     }
+ $this->token = P::AUTO_INCREMENT;     }
     function yy_r1_10($yy_subpatterns)
     {
- $this->token = P::T_END;     }
+ $this->token = P::COLLATE;     }
     function yy_r1_11($yy_subpatterns)
     {
- $this->token = P::T_NULL;     }
+ $this->token = P::T_END;     }
     function yy_r1_12($yy_subpatterns)
     {
- $this->token = P::SELECT;     }
+ $this->token = P::T_NULL;     }
     function yy_r1_13($yy_subpatterns)
     {
- $this->token = P::GROUP;      }
+ $this->token = P::SELECT;     }
     function yy_r1_14($yy_subpatterns)
     {
- $this->token = P::INSERT;     }
+ $this->token = P::GROUP;      }
     function yy_r1_15($yy_subpatterns)
     {
- $this->token = P::UPDATE;     }
+ $this->token = P::INSERT;     }
     function yy_r1_16($yy_subpatterns)
     {
- $this->token = P::DELETE;     }
+ $this->token = P::UPDATE;     }
     function yy_r1_17($yy_subpatterns)
     {
- $this->token = P::INTO;     }
+ $this->token = P::DELETE;     }
     function yy_r1_18($yy_subpatterns)
     {
- $this->token = P::LEFT;     }
+ $this->token = P::INTO;     }
     function yy_r1_19($yy_subpatterns)
     {
- $this->token = P::RIGHT;     }
+ $this->token = P::LEFT;     }
     function yy_r1_20($yy_subpatterns)
     {
- $this->token = P::INNER;     }
+ $this->token = P::RIGHT;     }
     function yy_r1_21($yy_subpatterns)
     {
- $this->token = P::JOIN;     }
+ $this->token = P::INNER;     }
     function yy_r1_22($yy_subpatterns)
     {
- $this->token = P::FROM;       }
+ $this->token = P::JOIN;     }
     function yy_r1_23($yy_subpatterns)
     {
- $this->token = P::LIMIT;      }
+ $this->token = P::FROM;       }
     function yy_r1_24($yy_subpatterns)
     {
- $this->token = P::DELETE;     }
+ $this->token = P::LIMIT;      }
     function yy_r1_25($yy_subpatterns)
     {
- $this->token = P::OFFSET;     }
+ $this->token = P::DELETE;     }
     function yy_r1_26($yy_subpatterns)
     {
- $this->token = P::VALUES;     }
+ $this->token = P::OFFSET;     }
     function yy_r1_27($yy_subpatterns)
     {
- $this->token = P::SET;     }
+ $this->token = P::VALUES;     }
     function yy_r1_28($yy_subpatterns)
     {
- $this->token = P::DROP;     }
+ $this->token = P::SET;     }
     function yy_r1_29($yy_subpatterns)
     {
- $this->token = P::TABLE;     }
+ $this->token = P::DROP;     }
     function yy_r1_30($yy_subpatterns)
     {
- $this->token = P::T_NOT;     }
+ $this->token = P::TABLE;     }
     function yy_r1_31($yy_subpatterns)
     {
- $this->token = P::T_GE;     }
+ $this->token = P::T_NOT;     }
     function yy_r1_32($yy_subpatterns)
     {
- $this->token = P::T_LE;     }
+ $this->token = P::T_GE;     }
     function yy_r1_33($yy_subpatterns)
     {
- $this->token = P::T_MOD;     }
+ $this->token = P::T_LE;     }
     function yy_r1_34($yy_subpatterns)
     {
- $this->token = P::T_DIV;     }
+ $this->token = P::T_MOD;     }
     function yy_r1_35($yy_subpatterns)
     {
- $this->token = P::T_GT;     }
+ $this->token = P::T_DIV;     }
     function yy_r1_36($yy_subpatterns)
     {
- $this->token = P::T_LT;     }
+ $this->token = P::T_GT;     }
     function yy_r1_37($yy_subpatterns)
     {
- $this->token = P::PAR_OPEN;     }
+ $this->token = P::T_LT;     }
     function yy_r1_38($yy_subpatterns)
     {
- $this->token = P::PAR_CLOSE;     }
+ $this->token = P::PAR_OPEN;     }
     function yy_r1_39($yy_subpatterns)
     {
- $this->token = P::SEMICOLON;     }
+ $this->token = P::PAR_CLOSE;     }
     function yy_r1_40($yy_subpatterns)
     {
- $this->token = P::T_TIMES;     }
+ $this->token = P::SEMICOLON;     }
     function yy_r1_41($yy_subpatterns)
     {
- $this->token = P::T_PLUS;     }
+ $this->token = P::T_TIMES;     }
     function yy_r1_42($yy_subpatterns)
     {
- $this->token = P::T_MINUS;     }
+ $this->token = P::T_PLUS;     }
     function yy_r1_43($yy_subpatterns)
     {
- $this->token = P::T_EQ;     }
+ $this->token = P::T_MINUS;     }
     function yy_r1_44($yy_subpatterns)
     {
- $this->token = P::QUESTION;     }
+ $this->token = P::T_EQ;     }
     function yy_r1_45($yy_subpatterns)
     {
- $this->token = P::T_DOLLAR;     }
+ $this->token = P::QUESTION;     }
     function yy_r1_46($yy_subpatterns)
     {
- $this->token = P::T_COLON;     }
+ $this->token = P::T_DOLLAR;     }
     function yy_r1_47($yy_subpatterns)
     {
- $this->token = P::T_DOT;     }
+ $this->token = P::T_COLON;     }
     function yy_r1_48($yy_subpatterns)
     {
- $this->token = P::COMMA;     }
+ $this->token = P::T_DOT;     }
     function yy_r1_49($yy_subpatterns)
     {
- $this->token = P::ON;     }
+ $this->token = P::COMMA;     }
     function yy_r1_50($yy_subpatterns)
     {
- $this->token = P::DUPLICATE;     }
+ $this->token = P::ON;     }
     function yy_r1_51($yy_subpatterns)
     {
- $this->token = P::T_IN;     }
+ $this->token = P::DUPLICATE;     }
     function yy_r1_52($yy_subpatterns)
     {
- $this->token = P::ALL;     }
+ $this->token = P::T_IN;     }
     function yy_r1_53($yy_subpatterns)
     {
- $this->token = P::DISTINCT;     }
+ $this->token = P::ALL;     }
     function yy_r1_54($yy_subpatterns)
     {
- $this->token = P::NATURAL;     }
+ $this->token = P::DISTINCT;     }
     function yy_r1_55($yy_subpatterns)
     {
- $this->token = P::OUTER;     }
+ $this->token = P::NATURAL;     }
     function yy_r1_56($yy_subpatterns)
     {
- $this->token = P::USING;     }
+ $this->token = P::OUTER;     }
     function yy_r1_57($yy_subpatterns)
     {
- $this->token = P::INTERVAL;     }
+ $this->token = P::USING;     }
     function yy_r1_58($yy_subpatterns)
     {
- $this->token = P::HAVING;     }
+ $this->token = P::INTERVAL;     }
     function yy_r1_59($yy_subpatterns)
     {
- $this->token = P::WHERE;     }
+ $this->token = P::HAVING;     }
     function yy_r1_60($yy_subpatterns)
     {
- $this->token = P::VIEW;     }
+ $this->token = P::WHERE;     }
     function yy_r1_61($yy_subpatterns)
     {
- $this->token = P::T_LIKE;     }
+ $this->token = P::VIEW;     }
     function yy_r1_62($yy_subpatterns)
     {
- $this->token = P::ORDER;     }
+ $this->token = P::T_LIKE;     }
     function yy_r1_63($yy_subpatterns)
     {
- $this->token = P::PRIMARY;     }
+ $this->token = P::ORDER;     }
     function yy_r1_64($yy_subpatterns)
     {
- $this->token = P::UNIQUE;     }
+ $this->token = P::PRIMARY;     }
     function yy_r1_65($yy_subpatterns)
     {
- $this->token = P::KEY;     }
+ $this->token = P::UNIQUE;     }
     function yy_r1_66($yy_subpatterns)
     {
- $this->token = P::DESC;     }
+ $this->token = P::KEY;     }
     function yy_r1_67($yy_subpatterns)
     {
- $this->token = P::ASC;     }
+ $this->token = P::DESC;     }
     function yy_r1_68($yy_subpatterns)
     {
- $this->token = P::BY;     }
+ $this->token = P::ASC;     }
     function yy_r1_69($yy_subpatterns)
     {
- $this->token = P::T_AND;     }
+ $this->token = P::BY;     }
     function yy_r1_70($yy_subpatterns)
     {
- $this->token = P::T_OR;     }
+ $this->token = P::T_AND;     }
     function yy_r1_71($yy_subpatterns)
     {
- $this->token = P::T_IS;     }
+ $this->token = P::T_OR;     }
     function yy_r1_72($yy_subpatterns)
     {
- $this->token = P::T_OR;     }
+ $this->token = P::T_IS;     }
     function yy_r1_73($yy_subpatterns)
     {
- $this->token = P::T_NE;     }
+ $this->token = P::T_OR;     }
     function yy_r1_74($yy_subpatterns)
     {
- $this->token = P::BEGIN;     }
+ $this->token = P::T_NE;     }
     function yy_r1_75($yy_subpatterns)
     {
- $this->token = P::TRANSACTION;     }
+ $this->token = P::BEGIN;     }
     function yy_r1_76($yy_subpatterns)
     {
- $this->token = P::COMMIT;     }
+ $this->token = P::TRANSACTION;     }
     function yy_r1_77($yy_subpatterns)
     {
- $this->token = P::ROLLBACK;     }
+ $this->token = P::COMMIT;     }
     function yy_r1_78($yy_subpatterns)
     {
- $this->token = P::SAVEPOINT;     }
+ $this->token = P::ROLLBACK;     }
     function yy_r1_79($yy_subpatterns)
     {
- $this->token = P::RELEASE;     }
+ $this->token = P::SAVEPOINT;     }
     function yy_r1_80($yy_subpatterns)
     {
- $this->token = P::TO;     }
+ $this->token = P::RELEASE;     }
     function yy_r1_81($yy_subpatterns)
     {
- $this->token = P::T_AS;     }
+ $this->token = P::TO;     }
     function yy_r1_82($yy_subpatterns)
     {
- $this->token = P::NUMBER;     }
+ $this->token = P::T_AS;     }
     function yy_r1_83($yy_subpatterns)
     {
- $this->token = P::T_STRING;     }
+ $this->token = P::NUMBER;     }
     function yy_r1_84($yy_subpatterns)
     {
  $this->token = P::T_STRING;     }
     function yy_r1_85($yy_subpatterns)
     {
- $this->token = P::COLUMN;     }
+ $this->token = P::T_STRING;     }
     function yy_r1_86($yy_subpatterns)
     {
- $this->token = P::SQL_CACHE;     }
+ $this->token = P::COLUMN;     }
     function yy_r1_87($yy_subpatterns)
     {
- $this->token = P::SQL_CALC_FOUND_ROWS;     }
+ $this->token = P::SQL_CACHE;     }
     function yy_r1_88($yy_subpatterns)
     {
- $this->token = P::SQL_NO_CACHE;     }
+ $this->token = P::SQL_CALC_FOUND_ROWS;     }
     function yy_r1_89($yy_subpatterns)
     {
- $this->token = P::HIGH_PRIORITY;     }
+ $this->token = P::SQL_NO_CACHE;     }
     function yy_r1_90($yy_subpatterns)
     {
- $this->token = P::STRAIGHT_JOIN;     }
+ $this->token = P::HIGH_PRIORITY;     }
     function yy_r1_91($yy_subpatterns)
     {
- $this->token = P::SQL_BIG_RESULT;     }
+ $this->token = P::STRAIGHT_JOIN;     }
     function yy_r1_92($yy_subpatterns)
     {
  $this->token = P::SQL_BIG_RESULT;     }
     function yy_r1_93($yy_subpatterns)
     {
- $this->token = P::SQL_BUFFER_RESULT;     }
+ $this->token = P::SQL_BIG_RESULT;     }
     function yy_r1_94($yy_subpatterns)
+    {
+ $this->token = P::SQL_BUFFER_RESULT;     }
+    function yy_r1_95($yy_subpatterns)
     {
  $this->token = P::ALPHA;     }
 

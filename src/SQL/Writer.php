@@ -126,7 +126,6 @@ class Writer
         }
 
         if (!is_scalar($value)) {
-            var_dump(compact('value'));
             throw new \InvalidArgumentException;
         }
 
@@ -181,6 +180,16 @@ class Writer
             return "{$member[0]} {$type}";
         case 'EXPR':
             return "({$member[0]})";
+        case 'INDEX':
+            $rawMember = $expr->getMembers();
+            $expr = $member[0];
+            if (!empty($rawMember[1])) {
+                $expr .= "(" . $rawMember[1] . ")";
+            }
+            if (!empty($rawMember[2])) {
+                $expr .= " " . $member[2];
+            }
+            return $expr;
         case 'VALUE': 
             return $member[0];
         case 'NOT':
@@ -299,8 +308,8 @@ class Writer
     {
         $sql = $this->escape($column->GetName()) 
             . " "
-            . $this->dataType($column->getType(), $column->getTypeSize());
-
+            . $this->dataType($column->getType(), $column->getTypeSize())
+            . $column->getModifier();
 
         if ($column->isNotNull()) {
             $sql .= " NOT NULL";

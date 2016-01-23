@@ -224,18 +224,31 @@ table_key(A) ::= alpha(B). { A = [B]; }
 create_fields(A) ::= create_fields(B) COMMA create_column(C). { A = B; A[] = C; }
 create_fields(A) ::= create_column(C) . { A = array(C); }
 
-create_column(A) ::= PRIMARY KEY expr_list_par(X). {
+create_column(A) ::= PRIMARY KEY index_list(X). {
     A = ['primary', X];
 }
-create_column(A) ::= UNIQUE KEY alpha(C) expr_list_par(X). {
+create_column(A) ::= UNIQUE KEY alpha(C) index_list(X). {
     A = ['unique', C, X];
 }
-create_column(A) ::= KEY alpha(C) expr_list_par(X). {
+create_column(A) ::= KEY alpha(C) index_list(X). {
     A = ['key', C, X];
 }
 
+index_list(A) ::= PAR_OPEN indexes(B) PAR_CLOSE . { A = B; }
+indexes(A) ::= indexes(B) COMMA index_col_name(C)  . { A = B->addTerm(C); }
+indexes(A) ::= index_col_name(B) . { A = new Stmt\ExprList(B); }
+
+index_col_name(A) ::= expr(B) length(C) order(D) . {
+    A = new Stmt\Expr('INDEX', B, C, D);
+}
+
+order(Y)  ::= DESC|ASC(X) . { Y = strtoupper(@X); }
+order(Y)  ::= . { Y = NULL; }
+length(A) ::= PAR_OPEN NUMBER(B) PAR_CLOSE . { A = B; }
+length(A) ::= . { A = NULL; }
+
 create_column(A) ::= alpha(B) data_type(C) column_mods(X) . { 
-    A = new Stmt\Column(B, C[0], C[1]);
+    A = new Stmt\Column(B, C[0], C[1], C[2]);
     foreach (X as $setting) {
         if (is_array($setting)) {
             A->{$setting[0]}($setting[1]);
@@ -245,13 +258,20 @@ create_column(A) ::= alpha(B) data_type(C) column_mods(X) . {
     }
 }
 
-data_type(A) ::= alpha(B) . {
-    A = [B, NULL];
+data_type(A) ::= alpha(B) unsigned(Y) . {
+    A = [B, NULL, Y];
 }
 
-data_type(A) ::= alpha(B) PAR_OPEN NUMBER(X) PAR_CLOSE .{
-    A = [B, X];
+data_type(A) ::= alpha(B) PAR_OPEN NUMBER(X) PAR_CLOSE unsigned(Y) .{
+    A = [B, X, Y];
 }
+
+data_type(A) ::= alpha(B) PAR_OPEN NUMBER(X) PAR_CLOSE unsigned(Y) .{
+    A = [B, X, Y];
+}
+
+unsigned(A) ::= . { A = ''; }
+unsigned(A) ::= T_UNSIGNED(B) . { A = @B; }
 
 column_mods(A) ::= column_mods(B) column_mod(C). { A = B; A[] = C; }
 column_mods(A) ::= . { A = []; }

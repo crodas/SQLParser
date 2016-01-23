@@ -61,7 +61,8 @@ class MySQL extends Writer
     {
         $sql = $this->escape($column->GetName()) 
             . " "
-            . $this->dataType($column->getType(), $column->getTypeSize());
+            . $this->dataType($column->getType(), $column->getTypeSize())
+            . $column->getModifier();
 
 
         if ($column->isNotNull()) {

@@ -62,7 +62,7 @@ class Table extends Statement
             case 'primary':
                 $primary = $this->listToArray($column[1]);
                 foreach ($this->listToArray($column[1]) as $field) {
-                    $field = $field->getMember(0);
+                    $field = $field->getMember(0)->getMember(0);
                     foreach ($this->columns as $column) {
                         if ($column->getName() == $field) {
                             $column->primaryKey();

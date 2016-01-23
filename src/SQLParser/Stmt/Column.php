@@ -34,12 +34,19 @@ class Column
     protected $default;
     protected $collate;
     protected $autoincrement = false;
+    protected $modifier;
 
-    public function __construct($name, $type, $size = null)
+    public function __construct($name, $type, $size = null, $modifier = null)
     {
         $this->name = $name;
         $this->type = $type;
         $this->size = $size;
+        $this->modifier = $modifier;
+    }
+
+    public function getModifier()
+    {
+        return $this->modifier;
     }
 
     public function getName()

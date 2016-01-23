@@ -81,4 +81,14 @@ CREATE TABLE `attaches` (
                         `created` datetime DEFAULT NULL,
                           PRIMARY KEY (`attach_id`),
                             KEY `IDX_EB74E74FAF37D4EA` (`fname`)
-        ) ENGINE=InnoDB AUTO_INCREMENT=216 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+        ) ENGINE=InnoDB AUTO_INCREMENT=216 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE `wp_commentmeta` (
+          `meta_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            `comment_id` bigint(20) unsigned NOT NULL DEFAULT '0',
+              `meta_key` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                `meta_value` longtext COLLATE utf8mb4_unicode_ci,
+                  PRIMARY KEY (`meta_id`),
+                    KEY `comment_id` (`comment_id`),
+                      KEY `meta_key` (`meta_key`(191))
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
