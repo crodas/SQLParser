@@ -14,5 +14,8 @@
         "files": ["src/autoload.php"]
     },
     "minimum-stability": "stable",
-    "require": {}
+    "require": {},
+    "require-dev": {
+        "crodas/autoloader": "^0.1.16"
+    }
 }

@@ -102,6 +102,21 @@ spl_autoload_register(function ($class) {
     0 => '/SQLParser/Parser.php',
     1 => 'class_exists',
   ),
+  'sqlparser\\stmt\\addcolumn' => 
+  array (
+    0 => '/SQLParser/Stmt/AddColumn.php',
+    1 => 'class_exists',
+  ),
+  'sqlparser\\stmt\\altertable' => 
+  array (
+    0 => '/SQLParser/Stmt/AlterTable.php',
+    1 => 'class_exists',
+  ),
+  'sqlparser\\stmt\\changecolumn' => 
+  array (
+    0 => '/SQLParser/Stmt/ChangeColumn.php',
+    1 => 'class_exists',
+  ),
   'sqlparser\\stmt\\column' => 
   array (
     0 => '/SQLParser/Stmt/Column.php',
@@ -186,6 +201,20 @@ spl_autoload_register(function ($class) {
   array (
     0 => 'sql\\writer',
   ),
+  'sqlparser\\stmt\\addcolumn' => 
+  array (
+    0 => 'sql\\statement',
+    1 => 'sqlparser\\stmt\\altertable',
+  ),
+  'sqlparser\\stmt\\altertable' => 
+  array (
+    0 => 'sql\\statement',
+  ),
+  'sqlparser\\stmt\\changecolumn' => 
+  array (
+    0 => 'sql\\statement',
+    1 => 'sqlparser\\stmt\\altertable',
+  ),
 );
 
 $class = strtolower($class);
@@ -207,21 +236,6 @@ if (
     return true;
 }
 
-    /**
-     * Autoloader that implements the PSR-0 spec for interoperability between
-     * PHP software.
-     *
-     * kudos to@alganet for this autoloader script.
-     * borrowed from https://github.com/Respect/Validation/blob/develop/tests/bootstrap.php
-     */
-    $fileParts = explode('\\', ltrim($class, '\\'));
-    if (false !== strpos(end($fileParts), '_')) {
-        array_splice($fileParts, -1, 1, explode('_', current($fileParts)));
-    }
-    $file = stream_resolve_include_path(implode(DIRECTORY_SEPARATOR, $fileParts) . '.php');
-    if ($file) {
-        return require $file;
-    }
 
     return false;
 } 
