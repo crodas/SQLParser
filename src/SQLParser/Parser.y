@@ -64,6 +64,20 @@ commit_keyword ::= T_END.
 inner_select(A) ::= PAR_OPEN inner_select(B) PAR_CLOSE . { A = B;}
 inner_select(A) ::= PAR_OPEN select(B) PAR_CLOSE . { A = B;}
 
+alter_table(A) ::= ALTER TABLE table_name(X) alter_operation(Y) . { A = Y->setTableName(X); }
+
+alter_operation(A) ::= ADD optional_column create_column(Y) after(X). { A = new Stmt\AddColumn(Y, X); }
+alter_operation(A) ::= CHANGE optional_column colname(X) create_column(Y) after(B). { A = new Stmt\ChangeColumn(X, Y, B); }
+alter_operation(A) ::= DROP optional_column .
+
+optional_column ::= T_COLUMN .
+optional_column ::= .
+
+after(A) ::= T_FIRST . { A = TRUE; }
+after(A) ::= T_AFTER colname(Y) . { A = Y; }
+after(A) ::= .
+
+
 /** Select */
 select(A) ::= SELECT select_opts(MM) expr_list_as(L) from(X) joins(J) where(W) group_by(GG) order_by(O) limit(LL) .  { 
     A = new SQL\Select(L);

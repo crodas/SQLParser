@@ -26,6 +26,8 @@ namespace SQL;
 
 use SQLParser\Stmt\ExprList;
 use SQLParser\Stmt\Expr;
+use SQLParser\Stmt\ChangeColumn;
+use SQLParser\Stmt\AddColumn;
 use SQLParser\Stmt;
 use RuntimeException;
 use PDO;
@@ -93,9 +95,41 @@ class Writer
             return self::$instance->rollback($object);
         } else if ($object instanceof CommitTransaction) {
             return self::$instance->commit($object);
+        } else if ($object instanceof AddColumn) {
+            return self::$instance->addColumn($object);
+        } else if ($object instanceof ChangeColumn) {
+            return self::$instance->changeColumn($object);
         }
 
         throw new RuntimeException("Don't know how to create " . get_class($object));
+    }
+
+    public function changeColumn(ChangeColumn $alterTable)
+    {
+        $sql = "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " CHANGE COLUMN " 
+            . $this->escape($alterTable->getOldName())
+            .  " "
+            . $this->columnDefinition($alterTable->getColumn());
+        if ($alterTable->isFirst()) {
+            $sql .= " FIRST";
+        } else if ($alterTable->getPosition()) {
+            $sql .= " AFTER " . $this->escape($this->getPosition());
+        }
+
+        return $sql;
+    }
+
+    public function addColumn(AddColumn $alterTable)
+    {
+        $sql =  "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " ADD COLUMN " 
+            . $this->columnDefinition($alterTable->getColumn());
+        if ($alterTable->isFirst()) {
+            $sql .= " FIRST";
+        } else if ($alterTable->getPosition()) {
+            $sql .= " AFTER " . $this->escape($this->getPosition());
+        }
+
+        return $sql;
     }
 
     public function variable(Stmt\VariablePlaceholder $stmt)
