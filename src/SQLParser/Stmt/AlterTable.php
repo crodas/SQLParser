@@ -2,7 +2,9 @@
 
 namespace SQLParser\Stmt;
 
-abstract class AlterTable
+use SQL\Statement;
+
+abstract class AlterTable extends Statement
 {
     protected $table;
     protected $column;
