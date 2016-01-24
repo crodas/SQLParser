@@ -28,12 +28,22 @@ class MySQL extends Writer
 
     public function createTable(Table $table)
     {
-        $columns = [];
+        $columns = array();
         foreach ($table->getColumns() as $column) {
             $columns[] = $this->columnDefinition($column);
         }
 
+        $primaryKey = array();
+        foreach ($table->getPrimaryKey() as $column) {
+            $primaryKey[] = $this->escape($column->getName());
+        }
+
         $keys = array();
+        if (!empty($primaryKey)) {
+            $keys[] = "PRIMARY KEY(" . implode(", ", $primaryKey) . ")";
+        }
+
+
         foreach ($table->getIndexes() as $name => $definition) {
             $keys[] = ($definition['unique']  ? "UNIQUE KEY " : "KEY ") 
                 . $this->escape($name) . "(" . $this->exprList($definition['cols']) . ")";
@@ -80,10 +90,6 @@ class MySQL extends Writer
         if ($column->collate()) {
             $sql .= " COLLATE" . $this->value($column->collate());
         } 
-
-        if ($column->isPrimaryKey()) {
-            $sql .= " PRIMARY KEY";
-        }
 
         return $sql;
     }
