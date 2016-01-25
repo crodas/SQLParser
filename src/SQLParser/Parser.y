@@ -73,7 +73,12 @@ alter_operation(A) ::= alter_change(X) DROP T_DEFAULT. { A = new SQL\AlterTable\
 alter_operation(A) ::= alter_change(X) create_column(Y) after(B). { A = new SQL\AlterTable\ChangeColumn(X, Y, B); }
 alter_operation(A) ::= MODIFY create_column(Y) after(B) . { A = new SQL\AlterTable\ChangeColumn(Y->getName(), Y, B); }
 alter_operation(A) ::= ADD optional_column create_column(Y) after(X). { A = new SQL\AlterTable\AddColumn(Y, X); }
-alter_operation(A) ::= DROP optional_column .
+alter_operation(A) ::= DROP optional_column colname(X) . { A = new SQL\AlterTable\DropColumn(X); }
+alter_operation(A) ::= RENAME to colname(X) . { A = new SQL\AlterTable\RenameTable(X); }
+alter_operation(A) ::= RENAME KEY|INDEX colname(F) TO colname(X) . { A = new SQL\AlterTable\RenameIndex(F, X); }
+
+to ::= TO|T_AS .
+to ::= .
 
 alter_change(A) ::= CHANGE optional_column colname(X) . { A = X; }
 

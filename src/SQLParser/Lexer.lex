@@ -159,6 +159,7 @@ alpha   = /[a-z_][a-z0-9_]*/
   "release"     { $this->token = P::RELEASE; }
   "to"          { $this->token = P::TO; }
   "as"      { $this->token = P::T_AS; }
+  "rename"  { $this->token = P::RENAME; }
   number    { $this->token = P::NUMBER; }
   string1   { $this->token = P::T_STRING; }
   string2   { $this->token = P::T_STRING; }

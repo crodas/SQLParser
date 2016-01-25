@@ -32,6 +32,11 @@ spl_autoload_register(function ($class) {
     0 => '/SQL/AlterTable/ChangeColumn.php',
     1 => 'class_exists',
   ),
+  'sql\\altertable\\dropcolumn' => 
+  array (
+    0 => '/SQL/AlterTable/DropColumn.php',
+    1 => 'class_exists',
+  ),
   'sql\\altertable\\dropindex' => 
   array (
     0 => '/SQL/AlterTable/DropIndex.php',
@@ -40,6 +45,16 @@ spl_autoload_register(function ($class) {
   'sql\\altertable\\dropprimarykey' => 
   array (
     0 => '/SQL/AlterTable/DropPrimaryKey.php',
+    1 => 'class_exists',
+  ),
+  'sql\\altertable\\renameindex' => 
+  array (
+    0 => '/SQL/AlterTable/RenameIndex.php',
+    1 => 'class_exists',
+  ),
+  'sql\\altertable\\renametable' => 
+  array (
+    0 => '/SQL/AlterTable/RenameTable.php',
     1 => 'class_exists',
   ),
   'sql\\altertable\\setdefault' => 
@@ -179,12 +194,27 @@ spl_autoload_register(function ($class) {
     0 => 'sql\\statement',
     1 => 'sql\\altertable\\altertable',
   ),
+  'sql\\altertable\\dropcolumn' => 
+  array (
+    0 => 'sql\\statement',
+    1 => 'sql\\altertable\\altertable',
+  ),
   'sql\\altertable\\dropindex' => 
   array (
     0 => 'sql\\statement',
     1 => 'sql\\altertable\\altertable',
   ),
   'sql\\altertable\\dropprimarykey' => 
+  array (
+    0 => 'sql\\statement',
+    1 => 'sql\\altertable\\altertable',
+  ),
+  'sql\\altertable\\renameindex' => 
+  array (
+    0 => 'sql\\statement',
+    1 => 'sql\\altertable\\altertable',
+  ),
+  'sql\\altertable\\renametable' => 
   array (
     0 => 'sql\\statement',
     1 => 'sql\\altertable\\altertable',

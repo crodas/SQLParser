@@ -104,10 +104,39 @@ class Writer
             return self::$instance->dropIndex($object);
         } else if ($object instanceof AlterTable\DropPrimaryKey) {
             return self::$instance->dropPrimaryKey($object);
+        } else if ($object instanceof AlterTable\DropColumn) {
+            return self::$instance->dropColumn($object);
+        } else if ($object instanceof AlterTable\RenameTable) {
+            return self::$instance->renameTable($object);
+        } else if ($object instanceof AlterTable\RenameIndex) {
+            return self::$instance->renameIndex($object);
         }
 
         throw new RuntimeException("Don't know how to create " . get_class($object));
     }
+
+    public function renameIndex(AlterTable\RenameIndex $alterTable)
+    {
+        return "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " RENAME INDEX " 
+            . $this->escape($alterTable->getOldName())
+            . ' TO '
+            . $this->escape($alterTable->getNewName());
+    }
+
+
+    public function renameTable(AlterTable\RenameTable $alterTable)
+    {
+        return "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " RENAME TO " 
+            . $this->escape($alterTable->getTableName());
+    }
+
+
+    public function dropColumn(AlterTable\DropColumn $alterTable)
+    {
+        return "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " DROP INDEX " 
+            . $this->escape($alterTable->getColumnName());
+    }
+
 
     public function dropPrimaryKey(AlterTable\DropPrimaryKey $alterTable)
     {

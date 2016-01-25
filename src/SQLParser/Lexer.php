@@ -167,6 +167,7 @@ class Lexer
                 '/\Grelease/i ',
                 '/\Gto/i ',
                 '/\Gas/i ',
+                '/\Grename/i ',
                 '/\G[0-9]+(\\.[0-9]+)?|0x[0-9a-fA-F]+/i ',
                 '/\G\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'/i ',
                 '/\G\"[^\"\\\\]*(?:\\\\.[^\"\\\\]*)*\"/i ',
@@ -551,41 +552,44 @@ class Lexer
  $this->token = P::T_AS;     }
     function yy_r1_91($yy_subpatterns)
     {
- $this->token = P::NUMBER;     }
+ $this->token = P::RENAME;     }
     function yy_r1_92($yy_subpatterns)
     {
- $this->token = P::T_STRING;     }
+ $this->token = P::NUMBER;     }
     function yy_r1_93($yy_subpatterns)
     {
  $this->token = P::T_STRING;     }
     function yy_r1_94($yy_subpatterns)
     {
- $this->token = P::COLUMN;     }
+ $this->token = P::T_STRING;     }
     function yy_r1_95($yy_subpatterns)
     {
- $this->token = P::SQL_CACHE;     }
+ $this->token = P::COLUMN;     }
     function yy_r1_96($yy_subpatterns)
     {
- $this->token = P::SQL_CALC_FOUND_ROWS;     }
+ $this->token = P::SQL_CACHE;     }
     function yy_r1_97($yy_subpatterns)
     {
- $this->token = P::SQL_NO_CACHE;     }
+ $this->token = P::SQL_CALC_FOUND_ROWS;     }
     function yy_r1_98($yy_subpatterns)
     {
- $this->token = P::HIGH_PRIORITY;     }
+ $this->token = P::SQL_NO_CACHE;     }
     function yy_r1_99($yy_subpatterns)
     {
- $this->token = P::STRAIGHT_JOIN;     }
+ $this->token = P::HIGH_PRIORITY;     }
     function yy_r1_100($yy_subpatterns)
     {
- $this->token = P::SQL_BIG_RESULT;     }
+ $this->token = P::STRAIGHT_JOIN;     }
     function yy_r1_101($yy_subpatterns)
     {
  $this->token = P::SQL_BIG_RESULT;     }
     function yy_r1_102($yy_subpatterns)
     {
- $this->token = P::SQL_BUFFER_RESULT;     }
+ $this->token = P::SQL_BIG_RESULT;     }
     function yy_r1_103($yy_subpatterns)
+    {
+ $this->token = P::SQL_BUFFER_RESULT;     }
+    function yy_r1_104($yy_subpatterns)
     {
  $this->token = P::ALPHA;     }
 
