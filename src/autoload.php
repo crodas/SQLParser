@@ -12,6 +12,31 @@ spl_autoload_register(function ($class) {
         This array has a map of (class => file)
     */
     static $classes = array (
+  'sql\\altertable\\addcolumn' => 
+  array (
+    0 => '/SQL/AlterTable/AddColumn.php',
+    1 => 'class_exists',
+  ),
+  'sql\\altertable\\altertable' => 
+  array (
+    0 => '/SQL/AlterTable/AlterTable.php',
+    1 => 'class_exists',
+  ),
+  'sql\\statement' => 
+  array (
+    0 => '/SQL/Statement.php',
+    1 => 'class_exists',
+  ),
+  'sql\\altertable\\changecolumn' => 
+  array (
+    0 => '/SQL/AlterTable/ChangeColumn.php',
+    1 => 'class_exists',
+  ),
+  'sql\\altertable\\setdefault' => 
+  array (
+    0 => '/SQL/AlterTable/SetDefault.php',
+    1 => 'class_exists',
+  ),
   'sql\\begintransaction' => 
   array (
     0 => '/SQL/BeginTransaction.php',
@@ -30,11 +55,6 @@ spl_autoload_register(function ($class) {
   'sql\\delete' => 
   array (
     0 => '/SQL/Delete.php',
-    1 => 'class_exists',
-  ),
-  'sql\\statement' => 
-  array (
-    0 => '/SQL/Statement.php',
     1 => 'class_exists',
   ),
   'sql\\drop' => 
@@ -102,21 +122,6 @@ spl_autoload_register(function ($class) {
     0 => '/SQLParser/Parser.php',
     1 => 'class_exists',
   ),
-  'sqlparser\\stmt\\addcolumn' => 
-  array (
-    0 => '/SQLParser/Stmt/AddColumn.php',
-    1 => 'class_exists',
-  ),
-  'sqlparser\\stmt\\altertable' => 
-  array (
-    0 => '/SQLParser/Stmt/AlterTable.php',
-    1 => 'class_exists',
-  ),
-  'sqlparser\\stmt\\changecolumn' => 
-  array (
-    0 => '/SQLParser/Stmt/ChangeColumn.php',
-    1 => 'class_exists',
-  ),
   'sqlparser\\stmt\\column' => 
   array (
     0 => '/SQLParser/Stmt/Column.php',
@@ -150,6 +155,25 @@ spl_autoload_register(function ($class) {
 );
 
     static $deps    = array (
+  'sql\\altertable\\addcolumn' => 
+  array (
+    0 => 'sql\\statement',
+    1 => 'sql\\altertable\\altertable',
+  ),
+  'sql\\altertable\\altertable' => 
+  array (
+    0 => 'sql\\statement',
+  ),
+  'sql\\altertable\\changecolumn' => 
+  array (
+    0 => 'sql\\statement',
+    1 => 'sql\\altertable\\altertable',
+  ),
+  'sql\\altertable\\setdefault' => 
+  array (
+    0 => 'sql\\statement',
+    1 => 'sql\\altertable\\altertable',
+  ),
   'sql\\begintransaction' => 
   array (
     0 => 'sql\\statement',
@@ -200,20 +224,6 @@ spl_autoload_register(function ($class) {
   'sql\\writer\\mysql' => 
   array (
     0 => 'sql\\writer',
-  ),
-  'sqlparser\\stmt\\addcolumn' => 
-  array (
-    0 => 'sql\\statement',
-    1 => 'sqlparser\\stmt\\altertable',
-  ),
-  'sqlparser\\stmt\\altertable' => 
-  array (
-    0 => 'sql\\statement',
-  ),
-  'sqlparser\\stmt\\changecolumn' => 
-  array (
-    0 => 'sql\\statement',
-    1 => 'sqlparser\\stmt\\altertable',
   ),
 );
 

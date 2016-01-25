@@ -26,8 +26,7 @@ namespace SQL;
 
 use SQLParser\Stmt\ExprList;
 use SQLParser\Stmt\Expr;
-use SQLParser\Stmt\ChangeColumn;
-use SQLParser\Stmt\AddColumn;
+use SQL\AlterTable;
 use SQLParser\Stmt;
 use RuntimeException;
 use PDO;
@@ -95,16 +94,31 @@ class Writer
             return self::$instance->rollback($object);
         } else if ($object instanceof CommitTransaction) {
             return self::$instance->commit($object);
-        } else if ($object instanceof AddColumn) {
+        } else if ($object instanceof AlterTable\AddColumn) {
             return self::$instance->addColumn($object);
-        } else if ($object instanceof ChangeColumn) {
+        } else if ($object instanceof AlterTable\ChangeColumn) {
             return self::$instance->changeColumn($object);
+        } else if ($object instanceof AlterTable\SetDefault) {
+            return self::$instance->setDefault($object);
         }
 
         throw new RuntimeException("Don't know how to create " . get_class($object));
     }
 
-    public function changeColumn(ChangeColumn $alterTable)
+    public function setDefault(AlterTable\SetDefault $alterTable)
+    {
+        $sql = "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " CHANGE COLUMN " 
+            . $this->escape($alterTable->getColumn());
+        if ($alterTable->getValue() === NULL) {
+            $sql .= " DROP DEFAULT";
+        } else {
+            $sql .= " SET DEFAULT " . $this->expr($alterTable->getValue());
+        }
+
+        return $sql;
+    }
+
+    public function changeColumn(AlterTable\ChangeColumn $alterTable)
     {
         $sql = "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " CHANGE COLUMN " 
             . $this->escape($alterTable->getOldName())
@@ -119,7 +133,7 @@ class Writer
         return $sql;
     }
 
-    public function addColumn(AddColumn $alterTable)
+    public function addColumn(AlterTable\AddColumn $alterTable)
     {
         $sql =  "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " ADD COLUMN " 
             . $this->columnDefinition($alterTable->getColumn());

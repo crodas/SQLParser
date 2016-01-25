@@ -1,6 +1,8 @@
 <?php
 
-namespace SQLParser\Stmt;
+namespace SQL\AlterTable;
+
+use SQLParser\Stmt\Column;
 
 class AddColumn extends AlterTable
 {

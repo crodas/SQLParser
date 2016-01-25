@@ -64,10 +64,12 @@ commit_keyword ::= T_END.
 inner_select(A) ::= PAR_OPEN inner_select(B) PAR_CLOSE . { A = B;}
 inner_select(A) ::= PAR_OPEN select(B) PAR_CLOSE . { A = B;}
 
-alter_table(A) ::= ALTER TABLE table_name(X) alter_operation(Y) . { A = Y->setTableName(X); }
+alter_table(A) ::= ALTER TABLE table_name(X) alter_operation(Y). { A = Y->setTableName(X); }
 
-alter_operation(A) ::= ADD optional_column create_column(Y) after(X). { A = new Stmt\AddColumn(Y, X); }
-alter_operation(A) ::= CHANGE optional_column colname(X) create_column(Y) after(B). { A = new Stmt\ChangeColumn(X, Y, B); }
+alter_operation(A) ::= CHANGE optional_column colname(X) SET T_DEFAULT expr(V) . { A = new SQL\AlterTable\SetDefault(X, V); }
+alter_operation(A) ::= CHANGE optional_column colname(X) DROP T_DEFAULT. { A = new SQL\AlterTable\SetDefault(X, NULL); }
+alter_operation(A) ::= ADD optional_column create_column(Y) after(X). { A = new SQL\AlterTable\AddColumn(Y, X); }
+alter_operation(A) ::= CHANGE optional_column colname(X) create_column(Y) after(B). { A = new SQL\AlterTable\ChangeColumn(X, Y, B); }
 alter_operation(A) ::= DROP optional_column .
 
 optional_column ::= T_COLUMN .
