@@ -32,6 +32,16 @@ spl_autoload_register(function ($class) {
     0 => '/SQL/AlterTable/ChangeColumn.php',
     1 => 'class_exists',
   ),
+  'sql\\altertable\\dropindex' => 
+  array (
+    0 => '/SQL/AlterTable/DropIndex.php',
+    1 => 'class_exists',
+  ),
+  'sql\\altertable\\dropprimarykey' => 
+  array (
+    0 => '/SQL/AlterTable/DropPrimaryKey.php',
+    1 => 'class_exists',
+  ),
   'sql\\altertable\\setdefault' => 
   array (
     0 => '/SQL/AlterTable/SetDefault.php',
@@ -165,6 +175,16 @@ spl_autoload_register(function ($class) {
     0 => 'sql\\statement',
   ),
   'sql\\altertable\\changecolumn' => 
+  array (
+    0 => 'sql\\statement',
+    1 => 'sql\\altertable\\altertable',
+  ),
+  'sql\\altertable\\dropindex' => 
+  array (
+    0 => 'sql\\statement',
+    1 => 'sql\\altertable\\altertable',
+  ),
+  'sql\\altertable\\dropprimarykey' => 
   array (
     0 => 'sql\\statement',
     1 => 'sql\\altertable\\altertable',

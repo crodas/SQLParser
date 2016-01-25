@@ -100,9 +100,24 @@ class Writer
             return self::$instance->changeColumn($object);
         } else if ($object instanceof AlterTable\SetDefault) {
             return self::$instance->setDefault($object);
+        } else if ($object instanceof AlterTable\DropIndex) {
+            return self::$instance->dropIndex($object);
+        } else if ($object instanceof AlterTable\DropPrimaryKey) {
+            return self::$instance->dropPrimaryKey($object);
         }
 
         throw new RuntimeException("Don't know how to create " . get_class($object));
+    }
+
+    public function dropPrimaryKey(AlterTable\DropPrimaryKey $alterTable)
+    {
+        return "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " DROP PRIMARY KEY";
+    }
+
+    public function dropIndex(AlterTable\DropIndex $alterTable)
+    {
+        return "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " DROP INDEX " 
+            . $this->escape($alterTable->getIndexName());
     }
 
     public function setDefault(AlterTable\SetDefault $alterTable)

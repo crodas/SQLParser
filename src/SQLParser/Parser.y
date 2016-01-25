@@ -66,11 +66,16 @@ inner_select(A) ::= PAR_OPEN select(B) PAR_CLOSE . { A = B;}
 
 alter_table(A) ::= ALTER TABLE table_name(X) alter_operation(Y). { A = Y->setTableName(X); }
 
-alter_operation(A) ::= CHANGE optional_column colname(X) SET T_DEFAULT expr(V) . { A = new SQL\AlterTable\SetDefault(X, V); }
-alter_operation(A) ::= CHANGE optional_column colname(X) DROP T_DEFAULT. { A = new SQL\AlterTable\SetDefault(X, NULL); }
+alter_operation(A) ::= DROP PRIMARY KEY . { A = new SQL\AlterTable\DropPrimaryKey; }
+alter_operation(A) ::= DROP KEY|INDEX colname(Y) . { A = new SQL\AlterTable\DropIndex(Y); }
+alter_operation(A) ::= alter_change(X) SET T_DEFAULT expr(V) . { A = new SQL\AlterTable\SetDefault(X, V); }
+alter_operation(A) ::= alter_change(X) DROP T_DEFAULT. { A = new SQL\AlterTable\SetDefault(X, NULL); }
+alter_operation(A) ::= alter_change(X) create_column(Y) after(B). { A = new SQL\AlterTable\ChangeColumn(X, Y, B); }
+alter_operation(A) ::= MODIFY create_column(Y) after(B) . { A = new SQL\AlterTable\ChangeColumn(Y->getName(), Y, B); }
 alter_operation(A) ::= ADD optional_column create_column(Y) after(X). { A = new SQL\AlterTable\AddColumn(Y, X); }
-alter_operation(A) ::= CHANGE optional_column colname(X) create_column(Y) after(B). { A = new SQL\AlterTable\ChangeColumn(X, Y, B); }
 alter_operation(A) ::= DROP optional_column .
+
+alter_change(A) ::= CHANGE optional_column colname(X) . { A = X; }
 
 optional_column ::= T_COLUMN .
 optional_column ::= .
