@@ -22,6 +22,11 @@ spl_autoload_register(function ($class) {
     0 => '/SQL/AlterTable/AlterTable.php',
     1 => 'class_exists',
   ),
+  'sql\\altertable\\addindex' => 
+  array (
+    0 => '/SQL/AlterTable/AddIndex.php',
+    1 => 'class_exists',
+  ),
   'sql\\statement' => 
   array (
     0 => '/SQL/Statement.php',
@@ -107,6 +112,11 @@ spl_autoload_register(function ($class) {
     0 => '/SQL/Table.php',
     1 => 'class_exists',
   ),
+  'sql\\tablediff' => 
+  array (
+    0 => '/SQL/TableDiff.php',
+    1 => 'class_exists',
+  ),
   'sql\\update' => 
   array (
     0 => '/SQL/Update.php',
@@ -188,6 +198,11 @@ spl_autoload_register(function ($class) {
   'sql\\altertable\\altertable' => 
   array (
     0 => 'sql\\statement',
+  ),
+  'sql\\altertable\\addindex' => 
+  array (
+    0 => 'sql\\statement',
+    1 => 'sql\\altertable\\altertable',
   ),
   'sql\\altertable\\changecolumn' => 
   array (

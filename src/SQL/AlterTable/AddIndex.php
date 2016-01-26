@@ -22,43 +22,35 @@
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
    THE SOFTWARE.
 */
-namespace SQLParser\Stmt;
+namespace SQL\AlterTable;
 
-class ExprList
+use SQLParser\Stmt\ExprList;
+
+class AddIndex extends AlterTable
 {
-    protected $expr = array();
+    protected $indexType;
+    protected $indexName;
+    protected $columns;
 
-    public function __construct($expr = null, $expr2 = null)
+    public function __construct($type, $name, ExprList $columns)
     {
-        if ($expr) {
-            $this->expr[] = $expr;
-        }
-        if ($expr2) {
-            $this->expr[] = $expr2;
-        }
+        $this->indexType = $type;
+        $this->indexName = $name;
+        $this->columns   = $columns;
     }
 
-    public function getExprs()
+    public function getIndexName()
     {
-        return $this->expr;
+        return $this->indexName;
+    }
+    
+    public function getIndexType()
+    {
+        return $this->indexType;
     }
 
-    public static function fromArray(Array $exprs)
+    public function getColumns()
     {
-        $self = new self;
-        $self->expr = $exprs;
-        return $self;
-    } 
-
-    public function setExprs(Array $expr)
-    {
-        $this->expr = $expr;
-        return $this;
-    }
-
-    public function addTerm($expr)
-    {
-        $this->expr[] = $expr;
-        return $this;
+        return $this->columns;
     }
 }

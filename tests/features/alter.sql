@@ -18,3 +18,4 @@ ALTER TABLE foobar RENAME AS foo;
 ALTER TABLE foobar RENAME dasda;
 alter table dasijdas RENAME KEY foo TO BAR;
 alter table dasijdas RENAME INDEX foo TO BAR;
+alter table foobar ADD INDEX foobar_index (foo, bar);
