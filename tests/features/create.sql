@@ -37,7 +37,7 @@ CREATE TABLE `all_strings` (
         `sectionid` int(11) NOT NULL,
         `timestamp` int(11) NOT NULL,
         `still_used` tinyint(4) DEFAULT '0',
-        PRIMARY KEY (`id`, `text`),
+        PRIMARY KEY (`id` asc, `text` desc),
         UNIQUE KEY `text` (`text`),
         KEY `still_used` (`still_used`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7575 DEFAULT CHARSET=latin1;

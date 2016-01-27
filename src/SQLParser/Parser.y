@@ -44,6 +44,7 @@ stmt(A) ::= update(B).          { A = B; }
 stmt(A) ::= delete(B).          { A = B; }
 stmt(A) ::= alter_table(B).     { A = B; }
 stmt(A) ::= create_table(B).    { A = B; }
+stmt(A) ::= create_index(B).    { A = B; }
 stmt(A) ::= create_view(B).     { A = B; }
 stmt(A) ::= . { A = null; }
 
@@ -76,6 +77,15 @@ alter_operation(A) ::= ADD optional_column create_column(Y) after(X). { A = new 
 alter_operation(A) ::= DROP optional_column colname(X) . { A = new SQL\AlterTable\DropColumn(X); }
 alter_operation(A) ::= RENAME to colname(X) . { A = new SQL\AlterTable\RenameTable(X); }
 alter_operation(A) ::= RENAME KEY|INDEX colname(F) TO colname(X) . { A = new SQL\AlterTable\RenameIndex(F, X); }
+alter_operation(A) ::= ADD index_type(B) KEY|INDEX colname(C) index_list(X) . { A = new SQL\AlterTable\AddIndex(B, C, X); }
+
+create_index(A) ::= CREATE index_type(B) INDEX colname(C) ON colname(T) index_list(X) . {
+    A = new SQL\AlterTable\AddIndex(B, C, X);
+    A->setTableName(T);
+}
+
+index_type(A) ::= UNIQUE . { A = 'UNIQUE'; }
+index_type(A) ::= . { A = ''; }
 
 to ::= TO|T_AS .
 to ::= .

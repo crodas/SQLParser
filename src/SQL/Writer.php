@@ -110,9 +110,19 @@ class Writer
             return self::$instance->renameTable($object);
         } else if ($object instanceof AlterTable\RenameIndex) {
             return self::$instance->renameIndex($object);
+        } else if ($object instanceof AlterTable\AddIndex) {
+            return self::$instance->addIndex($object);
         }
 
         throw new RuntimeException("Don't know how to create " . get_class($object));
+    }
+
+    public function addIndex(AlterTable\AddIndex $alterTable)
+    {
+        return 'CREATE ' . $alterTable->getIndexType() . ' INDEX ' 
+            . $this->escape($alterTable->getIndexName())
+            . ' ON ' . $this->escape($alterTable->getTableName())
+            . ' ( ' . $this->exprList($alterTable->getColumns()) . ')';
     }
 
     public function renameIndex(AlterTable\RenameIndex $alterTable)
@@ -127,13 +137,13 @@ class Writer
     public function renameTable(AlterTable\RenameTable $alterTable)
     {
         return "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " RENAME TO " 
-            . $this->escape($alterTable->getTableName());
+            . $this->escape($alterTable->getNewName());
     }
 
 
     public function dropColumn(AlterTable\DropColumn $alterTable)
     {
-        return "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " DROP INDEX " 
+        return "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " DROP  COLUMN" 
             . $this->escape($alterTable->getColumnName());
     }
 
@@ -171,7 +181,7 @@ class Writer
         if ($alterTable->isFirst()) {
             $sql .= " FIRST";
         } else if ($alterTable->getPosition()) {
-            $sql .= " AFTER " . $this->escape($this->getPosition());
+            $sql .= " AFTER " . $this->escape($alterTable->getPosition());
         }
 
         return $sql;
@@ -184,7 +194,7 @@ class Writer
         if ($alterTable->isFirst()) {
             $sql .= " FIRST";
         } else if ($alterTable->getPosition()) {
-            $sql .= " AFTER " . $this->escape($this->getPosition());
+            $sql .= " AFTER " . $this->escape($alterTable->getPosition());
         }
 
         return $sql;
@@ -279,7 +289,7 @@ class Writer
                 $expr .= "(" . $rawMember[1] . ")";
             }
             if (!empty($rawMember[2])) {
-                $expr .= " " . $member[2];
+                $expr .= " " . $rawMember[2];
             }
             return $expr;
         case 'VALUE': 
