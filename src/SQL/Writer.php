@@ -137,13 +137,13 @@ class Writer
     public function renameTable(AlterTable\RenameTable $alterTable)
     {
         return "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " RENAME TO " 
-            . $this->escape($alterTable->getTableName());
+            . $this->escape($alterTable->getNewName());
     }
 
 
     public function dropColumn(AlterTable\DropColumn $alterTable)
     {
-        return "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " DROP INDEX " 
+        return "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " DROP  COLUMN" 
             . $this->escape($alterTable->getColumnName());
     }
 
@@ -181,7 +181,7 @@ class Writer
         if ($alterTable->isFirst()) {
             $sql .= " FIRST";
         } else if ($alterTable->getPosition()) {
-            $sql .= " AFTER " . $this->escape($this->getPosition());
+            $sql .= " AFTER " . $this->escape($alterTable->getPosition());
         }
 
         return $sql;
@@ -194,7 +194,7 @@ class Writer
         if ($alterTable->isFirst()) {
             $sql .= " FIRST";
         } else if ($alterTable->getPosition()) {
-            $sql .= " AFTER " . $this->escape($this->getPosition());
+            $sql .= " AFTER " . $this->escape($alterTable->getPosition());
         }
 
         return $sql;

@@ -17,7 +17,7 @@
    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   AUTHORS OR COPYRIGHT HnewERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
    THE SOFTWARE.
@@ -26,16 +26,16 @@ namespace SQL\AlterTable;
 
 class RenameTable extends AlterTable
 {
-    protected $name;
+    protected $newName;
 
     public function __construct($name)
     {
-        $this->name = $name;
+        $this->newName = $name;
     }
 
-    public function getTableName()
+    public function getNewName()
     {
-        return $this->name;
+        return $this->newName;
     }
 }
 

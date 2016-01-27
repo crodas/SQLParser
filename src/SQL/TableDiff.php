@@ -1,5 +1,27 @@
 <?php
+/*
+   The MIT License (MIT)
 
+   Copyright (c) 2015 César Rodas
+
+   Permission is hereby granted, free of charge, to any person obtaining a copy
+   of this software and associated documentation files (the "Software"), to deal
+   in the Software without restriction, including without limitation the rights
+   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+   copies of the Software, and to permit persons to whom the Software is
+   furnished to do so, subject to the following conditions:
+
+   The above copyright notice and this permission notice shall be included in
+   all copies or substantial portions of the Software.
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   AUTHORS OR COPYRIGHT HnewERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+   THE SOFTWARE.
+*/
 namespace SQL;
 
 use SQLParser;
@@ -43,27 +65,47 @@ class TableDiff
         $checks = array('getType', 'getTypeSize', 'defaultValue', 'collate');
         foreach ($checks as $check) {
             if ($a->$check() !== $b->$check()) {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
+    }
+
+    protected function getColumns(Table $table)
+    {
+        $columns = $table->getColumns();
+        $names   = array();
+
+        foreach ($columns as $id => $column) {
+            $column->position = $id;
+            $names[$column->getName()] = $column;
+        }
+
+        return array($columns, $names);
     }
 
     public function getColumnChanges(Table $old, Table $current)
     {
         $changes = array();
-        $oldColumns = $old->getColumns();
-        $newColumns = $current->getColumns();
-        foreach ($newColumns as $position => $column) {
-            if (empty($oldColumns[$position])) {
-                $changes[] = new AlterTable\AddColumn($column, NULL);
+        list($oldColumns, $oldNames) = $this->getColumns($old);
+        list($newColumns, $newNames) = $this->getColumns($current);
+
+        foreach ($newNames as $name => $column) {
+            if (empty($oldNames[$name])) {
+                $changes[] = new AlterTable\AddColumn($column, $column->position === 0 ? TRUE : $newColumns[$column->position-1]->getName());
                 continue;
             }
-            $oldColumn = $oldColumns[$position];
-            if ($column->getName() !== $oldColumn->getName() || $this->compareTypes($column, $oldColumn)) {
-                $changes[] = new AlterTable\ChangeColumn($oldColumn->getName(), $column, NULL);
+            if ($this->compareTypes($column, $oldNames[$name])) {
+                $changes[] = new AlterTable\ChangeColumn($name, $column, $column->position === 0 ? TRUE : $newColumns[$column->position-1]->getName());
             }
         }
+
+        foreach ($oldNames as $name => $column) {
+            if (empty($newNames[$name])) {
+                $changes[] = new AlterTable\DropColumn($name);
+            }
+        }
+        
 
         return $changes;
     }
@@ -79,7 +121,9 @@ class TableDiff
         }
 
         if ($old[0]->getName() !== $current[0]->getName()) {
-            $changes[] = new AlterTable\RenameTable($current[0]->getName()); 
+            $rename = new AlterTable\RenameTable($current[0]->getName()); 
+            $rename->setTableName($old[0]->getName());
+            $changes[] = $rename;
         }
         
         $changes = array_merge(
