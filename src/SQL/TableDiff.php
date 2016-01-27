@@ -64,7 +64,7 @@ class TableDiff
     {
         $checks = array('getType', 'getTypeSize', 'defaultValue', 'collate');
         foreach ($checks as $check) {
-            if ($a->$check() !== $b->$check()) {
+            if ($a->$check() != $b->$check()) {
                 return true;
             }
         }
@@ -91,12 +91,14 @@ class TableDiff
         list($newColumns, $newNames) = $this->getColumns($current);
 
         foreach ($newNames as $name => $column) {
+            $after = $column->position === 0 ? TRUE : $newColumns[$column->position-1]->getName();
+            unset($column->position);
             if (empty($oldNames[$name])) {
-                $changes[] = new AlterTable\AddColumn($column, $column->position === 0 ? TRUE : $newColumns[$column->position-1]->getName());
+                $changes[] = new AlterTable\AddColumn($column, $after);
                 continue;
             }
             if ($this->compareTypes($column, $oldNames[$name])) {
-                $changes[] = new AlterTable\ChangeColumn($name, $column, $column->position === 0 ? TRUE : $newColumns[$column->position-1]->getName());
+                $changes[] = new AlterTable\ChangeColumn($name, $column, $after);
             }
         }
 
