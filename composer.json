@@ -9,10 +9,13 @@
             "email": "crodas@php.net"
         }
     ],
-    "version": "v0.1.1",
+    "version": "v0.1.2",
     "autoload": {
         "files": ["src/autoload.php"]
     },
     "minimum-stability": "stable",
-    "require": {}
+    "require": {},
+    "require-dev": {
+        "crodas/autoloader": "^0.1.16"
+    }
 }

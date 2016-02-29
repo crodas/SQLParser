@@ -1,2 +1,4 @@
 Lexer.phpbak
+vendor
+composer.lock
 Parser.out

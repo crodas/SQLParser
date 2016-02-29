@@ -31,7 +31,7 @@ class AllTest extends PHPUnit_Framework_TestCase
         return $args;
     }
 
-    public function featuresProvider()
+    public static function featuresProvider()
     {
         $args = [];
         $parser = new SQLParser;
@@ -51,6 +51,32 @@ class AllTest extends PHPUnit_Framework_TestCase
 
         return $args;
     }
+
+    public static function testFeaturesDiff()
+    {
+        $args = [];
+        $diff   = new SQL\TableDiff;
+        $parser = new SQLParser;
+        foreach (glob(__DIR__ . '/features/alter-table/*.sql') as $file) {
+            $sqls = $parser->parse(file_get_contents($file));
+            $args[] = [$diff, array_shift($sqls), array_shift($sqls), array_filter($sqls)];
+        }
+
+        return $args;
+    }
+
+    /**
+     *  @dataProvider testFeaturesDiff
+     */
+    public function testTableDiff($tableDiff, $prev, $current, Array $expected)
+    {
+        $changes = $tableDiff->diff((String)$prev, (string)$current);
+        $this->assertEquals(count($changes), count($expected));
+        foreach ($changes as $id => $change) {
+            $this->assertEquals($change, $expected[$id]);
+        }
+    }
+
 
     /**
      *  @dataProvider Provider 
@@ -114,7 +140,7 @@ class AllTest extends PHPUnit_Framework_TestCase
             foreach ([
                     'getOptions', 'hasHaving', 'hasGroupBy','hasWhere', 'hasOrderBy', 'hasLimit', 
                     'hasJoins', 'getView', 'getSelect', 'getName', 'getColumns', 'getIndexes',
-                    'getName', 'hasName', 'getOnDuplicate',
+                    'getName', 'hasName', 'getOnDuplicate', 'getPrimaryKey', 'getModifier',
                 ] as $q) {
                 if (!is_callable([$object, $q])) {
                     continue;

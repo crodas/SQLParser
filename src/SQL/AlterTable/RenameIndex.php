@@ -22,43 +22,28 @@
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
    THE SOFTWARE.
 */
-namespace SQLParser\Stmt;
+namespace SQL\AlterTable;
 
-class ExprList
+use SQLParser\Stmt\Column;
+
+class RenameIndex extends AlterTable
 {
-    protected $expr = array();
+    protected $oldName;
+    protected $newName;
 
-    public function __construct($expr = null, $expr2 = null)
+    public function getOldName()
     {
-        if ($expr) {
-            $this->expr[] = $expr;
-        }
-        if ($expr2) {
-            $this->expr[] = $expr2;
-        }
+        return $this->oldName;
     }
 
-    public function getExprs()
+    public function getNewName()
     {
-        return $this->expr;
+        return $this->newName;
     }
 
-    public static function fromArray(Array $exprs)
+    public function __construct($oldName, $newName)
     {
-        $self = new self;
-        $self->expr = $exprs;
-        return $self;
-    } 
-
-    public function setExprs(Array $expr)
-    {
-        $this->expr = $expr;
-        return $this;
-    }
-
-    public function addTerm($expr)
-    {
-        $this->expr[] = $expr;
-        return $this;
+        $this->oldName = $oldName;
+        $this->newName = $newName;
     }
 }

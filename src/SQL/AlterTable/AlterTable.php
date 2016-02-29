@@ -22,43 +22,39 @@
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
    THE SOFTWARE.
 */
-namespace SQLParser\Stmt;
+namespace SQL\AlterTable;
 
-class ExprList
+use SQL\Statement;
+
+abstract class AlterTable extends Statement
 {
-    protected $expr = array();
+    protected $table;
+    protected $column;
+    protected $position;
 
-    public function __construct($expr = null, $expr2 = null)
+    public function getTableName()
     {
-        if ($expr) {
-            $this->expr[] = $expr;
-        }
-        if ($expr2) {
-            $this->expr[] = $expr2;
-        }
+        return $this->table;
     }
 
-    public function getExprs()
+    public function isFirst()
     {
-        return $this->expr;
+        return $this->position === TRUE;
     }
 
-    public static function fromArray(Array $exprs)
+    public function getPosition()
     {
-        $self = new self;
-        $self->expr = $exprs;
-        return $self;
-    } 
-
-    public function setExprs(Array $expr)
-    {
-        $this->expr = $expr;
-        return $this;
+        return $this->position;
     }
 
-    public function addTerm($expr)
+    public function getColumn()
     {
-        $this->expr[] = $expr;
+        return $this->column;
+    }
+
+    public function setTableName($table)
+    {
+        $this->table = $table;
         return $this;
     }
 }

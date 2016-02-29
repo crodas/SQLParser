@@ -26,6 +26,7 @@ namespace SQL;
 
 use SQLParser\Stmt\ExprList;
 use SQLParser\Stmt\Expr;
+use SQL\AlterTable;
 use SQLParser\Stmt;
 use RuntimeException;
 use PDO;
@@ -93,9 +94,110 @@ class Writer
             return self::$instance->rollback($object);
         } else if ($object instanceof CommitTransaction) {
             return self::$instance->commit($object);
+        } else if ($object instanceof AlterTable\AddColumn) {
+            return self::$instance->addColumn($object);
+        } else if ($object instanceof AlterTable\ChangeColumn) {
+            return self::$instance->changeColumn($object);
+        } else if ($object instanceof AlterTable\SetDefault) {
+            return self::$instance->setDefault($object);
+        } else if ($object instanceof AlterTable\DropIndex) {
+            return self::$instance->dropIndex($object);
+        } else if ($object instanceof AlterTable\DropPrimaryKey) {
+            return self::$instance->dropPrimaryKey($object);
+        } else if ($object instanceof AlterTable\DropColumn) {
+            return self::$instance->dropColumn($object);
+        } else if ($object instanceof AlterTable\RenameTable) {
+            return self::$instance->renameTable($object);
+        } else if ($object instanceof AlterTable\RenameIndex) {
+            return self::$instance->renameIndex($object);
+        } else if ($object instanceof AlterTable\AddIndex) {
+            return self::$instance->addIndex($object);
         }
 
         throw new RuntimeException("Don't know how to create " . get_class($object));
+    }
+
+    public function addIndex(AlterTable\AddIndex $alterTable)
+    {
+        return 'CREATE ' . $alterTable->getIndexType() . ' INDEX ' 
+            . $this->escape($alterTable->getIndexName())
+            . ' ON ' . $this->escape($alterTable->getTableName())
+            . ' ( ' . $this->exprList($alterTable->getColumns()) . ')';
+    }
+
+    public function renameIndex(AlterTable\RenameIndex $alterTable)
+    {
+        return "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " RENAME INDEX " 
+            . $this->escape($alterTable->getOldName())
+            . ' TO '
+            . $this->escape($alterTable->getNewName());
+    }
+
+
+    public function renameTable(AlterTable\RenameTable $alterTable)
+    {
+        return "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " RENAME TO " 
+            . $this->escape($alterTable->getNewName());
+    }
+
+
+    public function dropColumn(AlterTable\DropColumn $alterTable)
+    {
+        return "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " DROP  COLUMN" 
+            . $this->escape($alterTable->getColumnName());
+    }
+
+
+    public function dropPrimaryKey(AlterTable\DropPrimaryKey $alterTable)
+    {
+        return "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " DROP PRIMARY KEY";
+    }
+
+    public function dropIndex(AlterTable\DropIndex $alterTable)
+    {
+        return "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " DROP INDEX " 
+            . $this->escape($alterTable->getIndexName());
+    }
+
+    public function setDefault(AlterTable\SetDefault $alterTable)
+    {
+        $sql = "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " CHANGE COLUMN " 
+            . $this->escape($alterTable->getColumn());
+        if ($alterTable->getValue() === NULL) {
+            $sql .= " DROP DEFAULT";
+        } else {
+            $sql .= " SET DEFAULT " . $this->expr($alterTable->getValue());
+        }
+
+        return $sql;
+    }
+
+    public function changeColumn(AlterTable\ChangeColumn $alterTable)
+    {
+        $sql = "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " CHANGE COLUMN " 
+            . $this->escape($alterTable->getOldName())
+            .  " "
+            . $this->columnDefinition($alterTable->getColumn());
+        if ($alterTable->isFirst()) {
+            $sql .= " FIRST";
+        } else if ($alterTable->getPosition()) {
+            $sql .= " AFTER " . $this->escape($alterTable->getPosition());
+        }
+
+        return $sql;
+    }
+
+    public function addColumn(AlterTable\AddColumn $alterTable)
+    {
+        $sql =  "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " ADD COLUMN " 
+            . $this->columnDefinition($alterTable->getColumn());
+        if ($alterTable->isFirst()) {
+            $sql .= " FIRST";
+        } else if ($alterTable->getPosition()) {
+            $sql .= " AFTER " . $this->escape($alterTable->getPosition());
+        }
+
+        return $sql;
     }
 
     public function variable(Stmt\VariablePlaceholder $stmt)
@@ -126,7 +228,6 @@ class Writer
         }
 
         if (!is_scalar($value)) {
-            var_dump(compact('value'));
             throw new \InvalidArgumentException;
         }
 
@@ -181,6 +282,16 @@ class Writer
             return "{$member[0]} {$type}";
         case 'EXPR':
             return "({$member[0]})";
+        case 'INDEX':
+            $rawMember = $expr->getMembers();
+            $expr = $member[0];
+            if (!empty($rawMember[1])) {
+                $expr .= "(" . $rawMember[1] . ")";
+            }
+            if (!empty($rawMember[2])) {
+                $expr .= " " . $rawMember[2];
+            }
+            return $expr;
         case 'VALUE': 
             return $member[0];
         case 'NOT':
@@ -299,8 +410,8 @@ class Writer
     {
         $sql = $this->escape($column->GetName()) 
             . " "
-            . $this->dataType($column->getType(), $column->getTypeSize());
-
+            . $this->dataType($column->getType(), $column->getTypeSize())
+            . $column->getModifier();
 
         if ($column->isNotNull()) {
             $sql .= " NOT NULL";

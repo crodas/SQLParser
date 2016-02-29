@@ -22,7 +22,6 @@
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
    THE SOFTWARE.
 */
-
 namespace SQLParser;
 
 use SQLParser_Parser as P;
@@ -71,11 +70,13 @@ alpha   = /[a-z_][a-z0-9_]*/
   }
   comment   { $this->token = "comment"; }
   "when"    { $this->token = P::WHEN; }
+  "unsigned" { $this->token = P::T_UNSIGNED; }
   "case"    { $this->token = P::T_CASE; }
   "create"  { $this->token = P::CREATE; }
   "then"    { $this->token = P::THEN; }
   "default" { $this->token = P::T_DEFAULT; }
   "else"    { $this->token = P::T_ELSE; }
+  "modify"  { $this->token = P::MODIFY; }
   "auto_increment" { $this->token = P::AUTO_INCREMENT; }
   "collate" { $this->token = P::COLLATE; }
   "end"     { $this->token = P::T_END; }
@@ -132,6 +133,13 @@ alpha   = /[a-z_][a-z0-9_]*/
   "like"    { $this->token = P::T_LIKE; }
   "order"   { $this->token = P::ORDER; }
   "primary" { $this->token = P::PRIMARY; }
+  "column"  { $this->token = P::T_COLUMN; }
+  "first"   { $this->token = P::T_FIRST ; }
+  "after"   { $this->token = P::T_AFTER; }
+  "change"  { $this->token = P::CHANGE; }
+  "index"   { $this->token = P::INDEX; }
+  "add"     { $this->token = P::ADD; }
+  "alter"   { $this->token = P::ALTER; }
   "unique"  { $this->token = P::UNIQUE; }
   "key"     { $this->token = P::KEY; }
   "desc"    { $this->token = P::DESC; }
@@ -150,6 +158,7 @@ alpha   = /[a-z_][a-z0-9_]*/
   "release"     { $this->token = P::RELEASE; }
   "to"          { $this->token = P::TO; }
   "as"      { $this->token = P::T_AS; }
+  "rename"  { $this->token = P::RENAME; }
   number    { $this->token = P::NUMBER; }
   string1   { $this->token = P::T_STRING; }
   string2   { $this->token = P::T_STRING; }

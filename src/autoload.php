@@ -12,6 +12,61 @@ spl_autoload_register(function ($class) {
         This array has a map of (class => file)
     */
     static $classes = array (
+  'sql\\altertable\\addcolumn' => 
+  array (
+    0 => '/SQL/AlterTable/AddColumn.php',
+    1 => 'class_exists',
+  ),
+  'sql\\altertable\\altertable' => 
+  array (
+    0 => '/SQL/AlterTable/AlterTable.php',
+    1 => 'class_exists',
+  ),
+  'sql\\altertable\\addindex' => 
+  array (
+    0 => '/SQL/AlterTable/AddIndex.php',
+    1 => 'class_exists',
+  ),
+  'sql\\statement' => 
+  array (
+    0 => '/SQL/Statement.php',
+    1 => 'class_exists',
+  ),
+  'sql\\altertable\\changecolumn' => 
+  array (
+    0 => '/SQL/AlterTable/ChangeColumn.php',
+    1 => 'class_exists',
+  ),
+  'sql\\altertable\\dropcolumn' => 
+  array (
+    0 => '/SQL/AlterTable/DropColumn.php',
+    1 => 'class_exists',
+  ),
+  'sql\\altertable\\dropindex' => 
+  array (
+    0 => '/SQL/AlterTable/DropIndex.php',
+    1 => 'class_exists',
+  ),
+  'sql\\altertable\\dropprimarykey' => 
+  array (
+    0 => '/SQL/AlterTable/DropPrimaryKey.php',
+    1 => 'class_exists',
+  ),
+  'sql\\altertable\\renameindex' => 
+  array (
+    0 => '/SQL/AlterTable/RenameIndex.php',
+    1 => 'class_exists',
+  ),
+  'sql\\altertable\\renametable' => 
+  array (
+    0 => '/SQL/AlterTable/RenameTable.php',
+    1 => 'class_exists',
+  ),
+  'sql\\altertable\\setdefault' => 
+  array (
+    0 => '/SQL/AlterTable/SetDefault.php',
+    1 => 'class_exists',
+  ),
   'sql\\begintransaction' => 
   array (
     0 => '/SQL/BeginTransaction.php',
@@ -30,11 +85,6 @@ spl_autoload_register(function ($class) {
   'sql\\delete' => 
   array (
     0 => '/SQL/Delete.php',
-    1 => 'class_exists',
-  ),
-  'sql\\statement' => 
-  array (
-    0 => '/SQL/Statement.php',
     1 => 'class_exists',
   ),
   'sql\\drop' => 
@@ -60,6 +110,11 @@ spl_autoload_register(function ($class) {
   'sql\\table' => 
   array (
     0 => '/SQL/Table.php',
+    1 => 'class_exists',
+  ),
+  'sql\\tablediff' => 
+  array (
+    0 => '/SQL/TableDiff.php',
     1 => 'class_exists',
   ),
   'sql\\update' => 
@@ -135,6 +190,55 @@ spl_autoload_register(function ($class) {
 );
 
     static $deps    = array (
+  'sql\\altertable\\addcolumn' => 
+  array (
+    0 => 'sql\\statement',
+    1 => 'sql\\altertable\\altertable',
+  ),
+  'sql\\altertable\\altertable' => 
+  array (
+    0 => 'sql\\statement',
+  ),
+  'sql\\altertable\\addindex' => 
+  array (
+    0 => 'sql\\statement',
+    1 => 'sql\\altertable\\altertable',
+  ),
+  'sql\\altertable\\changecolumn' => 
+  array (
+    0 => 'sql\\statement',
+    1 => 'sql\\altertable\\altertable',
+  ),
+  'sql\\altertable\\dropcolumn' => 
+  array (
+    0 => 'sql\\statement',
+    1 => 'sql\\altertable\\altertable',
+  ),
+  'sql\\altertable\\dropindex' => 
+  array (
+    0 => 'sql\\statement',
+    1 => 'sql\\altertable\\altertable',
+  ),
+  'sql\\altertable\\dropprimarykey' => 
+  array (
+    0 => 'sql\\statement',
+    1 => 'sql\\altertable\\altertable',
+  ),
+  'sql\\altertable\\renameindex' => 
+  array (
+    0 => 'sql\\statement',
+    1 => 'sql\\altertable\\altertable',
+  ),
+  'sql\\altertable\\renametable' => 
+  array (
+    0 => 'sql\\statement',
+    1 => 'sql\\altertable\\altertable',
+  ),
+  'sql\\altertable\\setdefault' => 
+  array (
+    0 => 'sql\\statement',
+    1 => 'sql\\altertable\\altertable',
+  ),
   'sql\\begintransaction' => 
   array (
     0 => 'sql\\statement',
@@ -207,21 +311,6 @@ if (
     return true;
 }
 
-    /**
-     * Autoloader that implements the PSR-0 spec for interoperability between
-     * PHP software.
-     *
-     * kudos to@alganet for this autoloader script.
-     * borrowed from https://github.com/Respect/Validation/blob/develop/tests/bootstrap.php
-     */
-    $fileParts = explode('\\', ltrim($class, '\\'));
-    if (false !== strpos(end($fileParts), '_')) {
-        array_splice($fileParts, -1, 1, explode('_', current($fileParts)));
-    }
-    $file = stream_resolve_include_path(implode(DIRECTORY_SEPARATOR, $fileParts) . '.php');
-    if ($file) {
-        return require $file;
-    }
 
     return false;
 } 

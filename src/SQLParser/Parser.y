@@ -44,6 +44,7 @@ stmt(A) ::= update(B).          { A = B; }
 stmt(A) ::= delete(B).          { A = B; }
 stmt(A) ::= alter_table(B).     { A = B; }
 stmt(A) ::= create_table(B).    { A = B; }
+stmt(A) ::= create_index(B).    { A = B; }
 stmt(A) ::= create_view(B).     { A = B; }
 stmt(A) ::= . { A = null; }
 
@@ -63,6 +64,41 @@ commit_keyword ::= T_END.
 
 inner_select(A) ::= PAR_OPEN inner_select(B) PAR_CLOSE . { A = B;}
 inner_select(A) ::= PAR_OPEN select(B) PAR_CLOSE . { A = B;}
+
+alter_table(A) ::= ALTER TABLE table_name(X) alter_operation(Y). { A = Y->setTableName(X); }
+
+alter_operation(A) ::= DROP PRIMARY KEY . { A = new SQL\AlterTable\DropPrimaryKey; }
+alter_operation(A) ::= DROP KEY|INDEX colname(Y) . { A = new SQL\AlterTable\DropIndex(Y); }
+alter_operation(A) ::= alter_change(X) SET T_DEFAULT expr(V) . { A = new SQL\AlterTable\SetDefault(X, V); }
+alter_operation(A) ::= alter_change(X) DROP T_DEFAULT. { A = new SQL\AlterTable\SetDefault(X, NULL); }
+alter_operation(A) ::= alter_change(X) create_column(Y) after(B). { A = new SQL\AlterTable\ChangeColumn(X, Y, B); }
+alter_operation(A) ::= MODIFY create_column(Y) after(B) . { A = new SQL\AlterTable\ChangeColumn(Y->getName(), Y, B); }
+alter_operation(A) ::= ADD optional_column create_column(Y) after(X). { A = new SQL\AlterTable\AddColumn(Y, X); }
+alter_operation(A) ::= DROP optional_column colname(X) . { A = new SQL\AlterTable\DropColumn(X); }
+alter_operation(A) ::= RENAME to colname(X) . { A = new SQL\AlterTable\RenameTable(X); }
+alter_operation(A) ::= RENAME KEY|INDEX colname(F) TO colname(X) . { A = new SQL\AlterTable\RenameIndex(F, X); }
+alter_operation(A) ::= ADD index_type(B) KEY|INDEX colname(C) index_list(X) . { A = new SQL\AlterTable\AddIndex(B, C, X); }
+
+create_index(A) ::= CREATE index_type(B) INDEX colname(C) ON colname(T) index_list(X) . {
+    A = new SQL\AlterTable\AddIndex(B, C, X);
+    A->setTableName(T);
+}
+
+index_type(A) ::= UNIQUE . { A = 'UNIQUE'; }
+index_type(A) ::= . { A = ''; }
+
+to ::= TO|T_AS .
+to ::= .
+
+alter_change(A) ::= CHANGE optional_column colname(X) . { A = X; }
+
+optional_column ::= T_COLUMN .
+optional_column ::= .
+
+after(A) ::= T_FIRST . { A = TRUE; }
+after(A) ::= T_AFTER colname(Y) . { A = Y; }
+after(A) ::= .
+
 
 /** Select */
 select(A) ::= SELECT select_opts(MM) expr_list_as(L) from(X) joins(J) where(W) group_by(GG) order_by(O) limit(LL) .  { 
@@ -224,18 +260,31 @@ table_key(A) ::= alpha(B). { A = [B]; }
 create_fields(A) ::= create_fields(B) COMMA create_column(C). { A = B; A[] = C; }
 create_fields(A) ::= create_column(C) . { A = array(C); }
 
-create_column(A) ::= PRIMARY KEY expr_list_par(X). {
+create_column(A) ::= PRIMARY KEY index_list(X). {
     A = ['primary', X];
 }
-create_column(A) ::= UNIQUE KEY alpha(C) expr_list_par(X). {
+create_column(A) ::= UNIQUE KEY alpha(C) index_list(X). {
     A = ['unique', C, X];
 }
-create_column(A) ::= KEY alpha(C) expr_list_par(X). {
+create_column(A) ::= KEY alpha(C) index_list(X). {
     A = ['key', C, X];
 }
 
+index_list(A) ::= PAR_OPEN indexes(B) PAR_CLOSE . { A = B; }
+indexes(A) ::= indexes(B) COMMA index_col_name(C)  . { A = B->addTerm(C); }
+indexes(A) ::= index_col_name(B) . { A = new Stmt\ExprList(B); }
+
+index_col_name(A) ::= expr(B) length(C) order(D) . {
+    A = new Stmt\Expr('INDEX', B, C, D);
+}
+
+order(Y)  ::= DESC|ASC(X) . { Y = strtoupper(@X); }
+order(Y)  ::= . { Y = NULL; }
+length(A) ::= PAR_OPEN NUMBER(B) PAR_CLOSE . { A = B; }
+length(A) ::= . { A = NULL; }
+
 create_column(A) ::= alpha(B) data_type(C) column_mods(X) . { 
-    A = new Stmt\Column(B, C[0], C[1]);
+    A = new Stmt\Column(B, C[0], C[1], C[2]);
     foreach (X as $setting) {
         if (is_array($setting)) {
             A->{$setting[0]}($setting[1]);
@@ -245,22 +294,29 @@ create_column(A) ::= alpha(B) data_type(C) column_mods(X) . {
     }
 }
 
-data_type(A) ::= alpha(B) . {
-    A = [B, NULL];
+data_type(A) ::= alpha(B) unsigned(Y) . {
+    A = [B, NULL, Y];
 }
 
-data_type(A) ::= alpha(B) PAR_OPEN NUMBER(X) PAR_CLOSE .{
-    A = [B, X];
+data_type(A) ::= alpha(B) PAR_OPEN NUMBER(X) PAR_CLOSE unsigned(Y) .{
+    A = [B, X, Y];
 }
+
+data_type(A) ::= alpha(B) PAR_OPEN NUMBER(X) PAR_CLOSE unsigned(Y) .{
+    A = [B, X, Y];
+}
+
+unsigned(A) ::= . { A = ''; }
+unsigned(A) ::= T_UNSIGNED(B) . { A = @B; }
 
 column_mods(A) ::= column_mods(B) column_mod(C). { A = B; A[] = C; }
 column_mods(A) ::= . { A = []; }
 
-column_mod(A) ::=   T_DEFAULT expr(C).  { A = ['defaultValue', C]; }
-column_mod(A) ::= COLLATE expr(C).  { A = ['collate', C]; }
-column_mod(A) ::= PRIMARY KEY.      { A = 'primaryKey'; }
-column_mod(A) ::= T_NOT T_NULL.     { A = 'notNull'; }
-column_mod(A) ::= AUTO_INCREMENT.   { A = 'autoincrement'; }
+column_mod(A) ::= T_DEFAULT term(C).    { A = ['defaultValue', C]; }
+column_mod(A) ::= COLLATE term(C).      { A = ['collate', C]; }
+column_mod(A) ::= PRIMARY KEY.          { A = 'primaryKey'; }
+column_mod(A) ::= T_NOT T_NULL.         {    A = 'notNull'; }
+column_mod(A) ::= AUTO_INCREMENT.       { A = 'autoincrement'; }
 
 /** Expression */
 expr(A) ::= expr(B) T_AND expr(C). { A = new Stmt\Expr('and', B, C); }

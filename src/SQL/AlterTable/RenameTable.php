@@ -17,48 +17,25 @@
    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   AUTHORS OR COPYRIGHT HnewERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
    THE SOFTWARE.
 */
-namespace SQLParser\Stmt;
+namespace SQL\AlterTable;
 
-class ExprList
+class RenameTable extends AlterTable
 {
-    protected $expr = array();
+    protected $newName;
 
-    public function __construct($expr = null, $expr2 = null)
+    public function __construct($name)
     {
-        if ($expr) {
-            $this->expr[] = $expr;
-        }
-        if ($expr2) {
-            $this->expr[] = $expr2;
-        }
+        $this->newName = $name;
     }
 
-    public function getExprs()
+    public function getNewName()
     {
-        return $this->expr;
-    }
-
-    public static function fromArray(Array $exprs)
-    {
-        $self = new self;
-        $self->expr = $exprs;
-        return $self;
-    } 
-
-    public function setExprs(Array $expr)
-    {
-        $this->expr = $expr;
-        return $this;
-    }
-
-    public function addTerm($expr)
-    {
-        $this->expr[] = $expr;
-        return $this;
+        return $this->newName;
     }
 }
+

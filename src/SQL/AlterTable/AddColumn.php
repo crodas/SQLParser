@@ -22,43 +22,15 @@
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
    THE SOFTWARE.
 */
-namespace SQLParser\Stmt;
+namespace SQL\AlterTable;
 
-class ExprList
+use SQLParser\Stmt\Column;
+
+class AddColumn extends AlterTable
 {
-    protected $expr = array();
-
-    public function __construct($expr = null, $expr2 = null)
+    public function __construct(Column $column, $position)
     {
-        if ($expr) {
-            $this->expr[] = $expr;
-        }
-        if ($expr2) {
-            $this->expr[] = $expr2;
-        }
-    }
-
-    public function getExprs()
-    {
-        return $this->expr;
-    }
-
-    public static function fromArray(Array $exprs)
-    {
-        $self = new self;
-        $self->expr = $exprs;
-        return $self;
-    } 
-
-    public function setExprs(Array $expr)
-    {
-        $this->expr = $expr;
-        return $this;
-    }
-
-    public function addTerm($expr)
-    {
-        $this->expr[] = $expr;
-        return $this;
+        $this->column  = $column;
+        $this->position = $position;
     }
 }
