@@ -9,7 +9,7 @@
             "email": "crodas@php.net"
         }
     ],
-    "version": "v0.1.1",
+    "version": "v0.1.2",
     "autoload": {
         "files": ["src/autoload.php"]
     },
