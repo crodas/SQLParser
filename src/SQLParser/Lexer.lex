@@ -77,6 +77,7 @@ alpha   = /[a-z_][a-z0-9_]*/
   "default" { $this->token = P::T_DEFAULT; }
   "else"    { $this->token = P::T_ELSE; }
   "modify"  { $this->token = P::MODIFY; }
+  "autoincrement" { $this->token = P::AUTO_INCREMENT; }
   "auto_increment" { $this->token = P::AUTO_INCREMENT; }
   "collate" { $this->token = P::COLLATE; }
   "end"     { $this->token = P::T_END; }
