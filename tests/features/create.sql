@@ -92,3 +92,9 @@ CREATE TABLE `wp_commentmeta` (
                     KEY `comment_id` (`comment_id`),
                       KEY `meta_key` (`meta_key`(191))
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE foobar (
+            id integer not null primary key auto_increment,
+                col1 int default NULL,
+                    col2 varchar default "cesar;  rodas \" dxx david\" "
+        ); CREATE INDEX foo ON foobar (col2);

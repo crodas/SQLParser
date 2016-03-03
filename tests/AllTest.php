@@ -39,7 +39,7 @@ class AllTest extends PHPUnit_Framework_TestCase
             if (basename($file) == 'exception.sql') {
                 continue;
             }
-            $stmts = explode(";", file_get_contents($file));
+            $stmts = preg_split("/;\s*(\n|$)/", file_get_contents($file));
             $type  = substr(basename($file), 0, -4);
 
             foreach ($stmts as $stmt) {
