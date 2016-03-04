@@ -243,7 +243,7 @@ create_view(A) ::= CREATE VIEW colname(N) T_AS select(S). {
     A = new SQL\View(N, S);
 }
 
-create_table(A) ::= CREATE TABLE alpha(N) PAR_OPEN create_fields(X) PAR_CLOSE table_opts(O) . {
+create_table(A) ::= CREATE TABLE colname(N) PAR_OPEN create_fields(X) PAR_CLOSE table_opts(O) . {
     A = new SQL\Table(N, X, O);
 }
 
@@ -263,10 +263,10 @@ create_fields(A) ::= create_column(C) . { A = array(C); }
 create_column(A) ::= PRIMARY KEY index_list(X). {
     A = ['primary', X];
 }
-create_column(A) ::= UNIQUE KEY alpha(C) index_list(X). {
+create_column(A) ::= UNIQUE KEY colname(C) index_list(X). {
     A = ['unique', C, X];
 }
-create_column(A) ::= KEY alpha(C) index_list(X). {
+create_column(A) ::= KEY colname(C) index_list(X). {
     A = ['key', C, X];
 }
 
@@ -274,7 +274,7 @@ index_list(A) ::= PAR_OPEN indexes(B) PAR_CLOSE . { A = B; }
 indexes(A) ::= indexes(B) COMMA index_col_name(C)  . { A = B->addTerm(C); }
 indexes(A) ::= index_col_name(B) . { A = new Stmt\ExprList(B); }
 
-index_col_name(A) ::= expr(B) length(C) order(D) . {
+index_col_name(A) ::= term_colname(B) length(C) order(D) . {
     A = new Stmt\Expr('INDEX', B, C, D);
 }
 
@@ -283,7 +283,7 @@ order(Y)  ::= . { Y = NULL; }
 length(A) ::= PAR_OPEN NUMBER(B) PAR_CLOSE . { A = B; }
 length(A) ::= . { A = NULL; }
 
-create_column(A) ::= alpha(B) data_type(C) column_mods(X) . { 
+create_column(A) ::= colname(B) data_type(C) column_mods(X) . { 
     A = new Stmt\Column(B, C[0], C[1], C[2]);
     foreach (X as $setting) {
         if (is_array($setting)) {
@@ -324,7 +324,13 @@ expr(A) ::= expr(B) T_OR expr(C). { A = new Stmt\Expr('or', B, C); }
 expr(A) ::= T_NOT expr(C). { A = new Stmt\Expr('not', C); }
 expr(A) ::= PAR_OPEN expr(B) PAR_CLOSE.    { A = new Stmt\Expr('expr', B); }
 expr(A) ::= term_select(B) . { A = B; }
-expr(A) ::= expr(B) T_EQ|T_LIKE|T_NE|T_GT|T_GE|T_LT|T_LE(X) expr(C). { A = new Stmt\Expr(@X, B, C); }
+expr(A) ::= expr(B) T_EQ|T_LIKE|T_NE|T_GT|T_GE|T_LT|T_LE(X) expr(C). { 
+    $members = B->getMembers();
+    if  (B->getType() === 'VALUE' && count($members) === 2&& $members[1] == 2) {
+        B = new Stmt\Expr('COLUMN', $members[0]);
+    }
+    A = new Stmt\Expr(@X, B, C); 
+}
 expr(A) ::= expr(B) T_IS T_NOT null(C). { A = new Stmt\Expr("!=", B, C); }
 expr(A) ::= expr(B) T_IS null(C). { A = new Stmt\Expr("=", B, C); }
 expr(A) ::= expr(B) T_PLUS|T_MINUS|T_TIMES|T_DIV|T_MOD(X) expr(C). { A = new Stmt\Expr(@X, B, C); }
@@ -354,7 +360,8 @@ term(A) ::= T_MINUS NUMBER(B).          { A = new Stmt\Expr('value', -1 * B); }
 term(A) ::= NUMBER(B).                  { A = new Stmt\Expr('value', 0+B); }
 term(A) ::= null(B).                    { A = B; }
 term(A) ::= function_call(B) .          { A = B; }
-term(A) ::= T_STRING(B).                { A = new Stmt\Expr('value', trim(B, "'\"")); }
+term(A) ::= T_STRING1(B).                { A = new Stmt\Expr('value', trim(B, "'\""), 1); }
+term(A) ::= T_STRING2(B).                { A = new Stmt\Expr('value', trim(B, "'\""), 2); }
 term(A) ::= alpha(B).                   { A = new Stmt\Expr('column', B); }
 term(A) ::= term_colname(B).            { A = B; }
 term_select(A)  ::= inner_select(B).    { A = new Stmt\Expr('expr', B); }
@@ -398,8 +405,10 @@ expr_as(A) ::= expr(B) alpha(C) .       { A = [B, C]; }
 
 table_name(A) ::= colname(B) . { A = B; }
 
-colname(A) ::= alpha(B) T_DOT alpha_or_all(C).        { A = [B, C]; }
-colname(A) ::= alpha_or_all(B).                       { A = B; }
+colname(A) ::= alpha(B) T_DOT alpha_or_all(C).  { A = [B, C]; }
+colname(A) ::= alpha_or_all(B).                 { A = B; }
+colname(A) ::= T_STRING1(B).                     { A = B; }
+colname(A) ::= T_STRING2(B).                     { A = B; }
 colname(A) ::= variable(B).                     { A = B; }
 
 alpha(A) ::= T_DEFAULT(X) .     { A = @X; }

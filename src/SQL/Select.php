@@ -74,6 +74,14 @@ class Select extends Statement
         if (is_string($expr)) {
             die($expr);
         }
+        foreach ($expr as $i => $e) {
+            if ($e[0]->getType() === 'VALUE') {
+                $parts = $e[0]->getMembers();
+                if (count($parts) === 2 && $parts[1] === 2) {
+                    $expr[$i][0] = new Expr('column', $parts[0]);
+                }
+            }
+        }
 
         $this->columns = $expr;
     }

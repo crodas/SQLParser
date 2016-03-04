@@ -206,7 +206,7 @@ ANYTHINGELSE = /./
   %statename INSTRING1
   "\"" {
     $this->value = $this->_string;
-    $this->token = P::T_STRING;
+    $this->token = P::T_STRING1;
     $this->N -= strlen($this->_string) - 1;
     $this->_string = '';
     $this->yybegin(self::YYINITIAL);
@@ -225,7 +225,7 @@ ANYTHINGELSE = /./
   %statename INSTRING2
   "SINGLE_QUOTE" {
     $this->value = $this->_string;
-    $this->token = P::T_STRING;
+    $this->token = P::T_STRING2;
     $this->N -= strlen($this->_string) - 1;
     $this->_string = '';
     $this->yybegin(self::YYINITIAL);
@@ -265,7 +265,6 @@ ANYTHINGELSE = /./
 ANYTHINGELSE {
     $this->yybegin(self::INSTRING1);
     $this->_string .= $this->value;
-    $this->N++;
 }
 */
 
@@ -274,7 +273,6 @@ ANYTHINGELSE {
 ANYTHINGELSE {
     $this->yybegin(self::INSTRING2);
     $this->_string .= $this->value;
-    $this->N++;
 }
 */
 /*!lex2php
@@ -282,7 +280,6 @@ ANYTHINGELSE {
 ANYTHINGELSE {
     $this->yybegin(self::INSTRING3);
     $this->_string .= $this->value;
-    $this->N++;
 }
 */
 
