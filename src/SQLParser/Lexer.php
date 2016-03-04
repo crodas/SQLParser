@@ -88,7 +88,7 @@ class Lexer
                 '/\Gdefault/i ',
                 '/\Gelse/i ',
                 '/\Gmodify/i ',
-                '/\Gauto_increment/i ',
+                '/\Gautoincrement/i ',
                 '/\Gauto_increment/i ',
                 '/\Gcollate/i ',
                 '/\Gend/i ',
