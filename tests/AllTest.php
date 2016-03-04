@@ -35,6 +35,10 @@ class AllTest extends PHPUnit_Framework_TestCase
         foreach (self::featuresProvider() as $arg) {
             $arg[3] = 'mysql';
             $args[] = $arg;
+            if (!preg_match('/LAST_INSERT_ID|SQL_CALC_FOUND_ROWS|SQL_CACHE|SQL_BUFFER_RESULT|engine|utf8_unicode_ci|collate/i', $arg[1])) {
+                $arg[3] = 'sqlite';
+                $args[] = $arg;
+            }
             if (!preg_match('/LAST_INSERT_ID|SQL_CALC_FOUND_ROWS|SQL_CACHE|SQL_BUFFER_RESULT|auto_?increment|engine|utf8_unicode_ci|collate/i', $arg[1])) {
                 $arg[3] = '';
                 $args[] = $arg;
