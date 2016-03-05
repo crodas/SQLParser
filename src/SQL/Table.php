@@ -87,6 +87,14 @@ class Table extends Statement
         }
     }
 
+    public function addIndex(AlterTable\AddIndex $index)
+    {
+        $this->keys[$index->getIndexName()] = array(
+            'unique' => $index->getIndexType() === 'UNIQUE',
+            'cols' => $this->listToArray($index->getColumns()),
+        );
+    }
+
     public function getOptions()
     {
         return $this->options;

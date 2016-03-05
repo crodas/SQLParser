@@ -112,31 +112,44 @@ class TableDiff
         return $changes;
     }
 
-    public function diff($oldSQL, $newSQL)
+    public function getTable($sql)
     {
-        $old     = $this->parser->parse($oldSQL);
-        $current = $this->parser->parse($newSQL);
-        $changes = array();
-
-        if (count($old) !== 1 || count($old) !== count($current)) {
-            throw new RuntimeException("We expect a single SQL");
+        $stmts = $this->parser->parse($sql);
+        if (!($stmts[0] instanceof Table)) {
+            throw new RuntimeException("Expecting a CREATE TABLE Statement, got " . get_class($stmts[0]) . ' class');
         }
 
-        if ($old[0]->getName() !== $current[0]->getName()) {
-            $rename = new AlterTable\RenameTable($current[0]->getName()); 
-            $rename->setTableName($old[0]->getName());
+        $table = array_shift($stmts);
+        foreach ($stmts as $stmt) {
+            if ($stmt instanceof AlterTable\AddIndex) {
+                $table->addIndex($stmt);
+            }
+        }
+
+        return $table;
+    }
+
+    public function diff($oldSQL, $newSQL)
+    {
+        $old     = $this->getTable($oldSQL);
+        $current = $this->getTable($newSQL);
+        $changes = array();
+
+        if ($old->getName() !== $current->getName()) {
+            $rename = new AlterTable\RenameTable($current->getName()); 
+            $rename->setTableName($old->getName());
             $changes[] = $rename;
         }
         
         $changes = array_merge(
             $changes,
-            $this->getColumnChanges($old[0], $current[0]),
-            $this->getIndexChanges($old[0], $current[0])
+            $this->getColumnChanges($old, $current),
+            $this->getIndexChanges($old, $current)
         );
 
         foreach ($changes as $change) {
             if (!$change->getTableName()) {
-                $change->setTableName($current[0]->getName());
+                $change->setTableName($current->getName());
             }
         }
 
