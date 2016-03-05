@@ -1,4 +1,10 @@
-<?php return array(
+<?php
+
+namespace SQL;
+
+class ReservedWords
+{
+    public static $words = array(
   "when" => 1,
   "unsigned" => 1,
   "case" => 1,
@@ -69,4 +75,4 @@
   "to" => 1,
   "as" => 1,
   "rename" => 1,
-);
+); }

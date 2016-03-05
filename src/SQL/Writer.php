@@ -567,15 +567,11 @@ class Writer
 
     public function escape($value)
     {
-        static $reserved = null;
-        if (empty($reserved)) {
-            $reserved = require __DIR__ . '/ReservedWords.php';
-        }
         if (!is_string($value)) {
             return $this->value($value);
         }
 
-        if (preg_match('/^[a-z0-9_]+$/i', $value) && empty($reserved[$value])) {
+        if (preg_match('/^[a-z0-9_]+$/i', $value) && empty(ReservedWords::$words[$value])) {
             return $value;
         }
 

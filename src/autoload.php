@@ -97,6 +97,11 @@ spl_autoload_register(function ($class) {
     0 => '/SQL/Insert.php',
     1 => 'class_exists',
   ),
+  'sql\\reservedwords' => 
+  array (
+    0 => '/SQL/ReservedWords.php',
+    1 => 'class_exists',
+  ),
   'sql\\rollbacktransaction' => 
   array (
     0 => '/SQL/RollbackTransaction.php',
