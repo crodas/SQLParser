@@ -97,6 +97,11 @@ spl_autoload_register(function ($class) {
     0 => '/SQL/Insert.php',
     1 => 'class_exists',
   ),
+  'sql\\reservedwords' => 
+  array (
+    0 => '/SQL/ReservedWords.php',
+    1 => 'class_exists',
+  ),
   'sql\\rollbacktransaction' => 
   array (
     0 => '/SQL/RollbackTransaction.php',
@@ -135,6 +140,11 @@ spl_autoload_register(function ($class) {
   'sql\\writer' => 
   array (
     0 => '/SQL/Writer.php',
+    1 => 'class_exists',
+  ),
+  'sql\\writer\\sqlite' => 
+  array (
+    0 => '/SQL/Writer/SQLite.php',
     1 => 'class_exists',
   ),
   'sqlparser\\lexer' => 
@@ -287,6 +297,10 @@ spl_autoload_register(function ($class) {
     0 => 'sql\\statement',
   ),
   'sql\\writer\\mysql' => 
+  array (
+    0 => 'sql\\writer',
+  ),
+  'sql\\writer\\sqlite' => 
   array (
     0 => 'sql\\writer',
   ),

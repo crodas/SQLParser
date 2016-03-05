@@ -116,14 +116,14 @@ return array(
     "SELECT * FROM table1 WHERE foo = bar AND foo = 'bar'" => function($query, $phpunit) {
         $phpunit->assertEquals(count($query), 1);
         $phpunit->assertEquals(
-            "SELECT * FROM `table1` WHERE `foo` = `bar` AND `foo` = 'bar'",
+            'SELECT * FROM `table1` WHERE `foo` = `bar` AND `foo` = "bar"',
             Writer::create($query[0])
         );
     },
     "SELECT ID, CONCAT(NAME, ' FROM ', DEPT) AS NAME, SALARY FROM employee" => function($query, $phpunit){
         $phpunit->assertEquals(count($query), 1);
         $phpunit->assertEquals(
-            "SELECT `ID`, CONCAT(`NAME`, ' FROM ', `DEPT`) AS `NAME`, `SALARY` FROM `employee`",
+            'SELECT `ID`, CONCAT(`NAME`, " FROM ", `DEPT`) AS `NAME`, `SALARY` FROM `employee`',
             Writer::create($query[0])
         );
     },
@@ -230,7 +230,7 @@ return array(
     " => function ($queries, $phpunit) {
         $phpunit->assertEquals(count($queries), 1);
         $phpunit->assertEquals(
-            "SELECT `subs`.*, `media`.`id` AS `media_id`, `media`.`size` AS `media_size`, `media`.`dim1` AS `media_dim1`, `media`.`dim2` AS `media_dim2`, `media`.`extension` AS `media_extension`, UNIX_TIMESTAMP(`media`.`date`) AS `media_date` FROM `subs` LEFT JOIN `media` ON (`media`.`type` = 'sub_logo' AND `media`.`id` = `subs`.`id` AND `media`.`version` = 0) WHERE `subs`.`name` = 'mnm'",
+            'SELECT `subs`.*, `media`.`id` AS `media_id`, `media`.`size` AS `media_size`, `media`.`dim1` AS `media_dim1`, `media`.`dim2` AS `media_dim2`, `media`.`extension` AS `media_extension`, UNIX_TIMESTAMP(`media`.`date`) AS `media_date` FROM `subs` LEFT JOIN `media` ON (`media`.`type` = "sub_logo" AND `media`.`id` = `subs`.`id` AND `media`.`version` = 0) WHERE `subs`.`name` = "mnm"',
             (string)$queries[0]
         );
     },
@@ -256,7 +256,7 @@ return array(
         $old = Writer::getInstance();
         Writer::setInstance('sqlite');
         $phpunit->assertEquals(
-            'SELECT ALL "a".* FROM "articles" AS "a" INNER JOIN "tags2articles" AS "ta" ON "a"."id" = "ta"."idArticle" INNER JOIN "tags" AS "t" ON "ta"."idTag" = "t"."id" WHERE "t"."id" IN (12, 13, 16) GROUP BY "a"."id" HAVING COUNT("t"."id") = 3',
+            "SELECT ALL a.* FROM articles AS a INNER JOIN tags2articles AS ta ON a.id = ta.idArticle INNER JOIN tags AS t ON ta.idTag = t.id WHERE t.id IN (12, 13, 16) GROUP BY a.id HAVING COUNT(t.id) = 3",
             (string)$queries[0]
         );
         Writer::setInstance($old);
@@ -268,7 +268,7 @@ return array(
     HAVING max(temp_lo) < 40" => function($queries, $phpunit) {
         $phpunit->assertEquals(count($queries), 1);
         $phpunit->assertEquals(
-            "SELECT `city`, max(`temp_lo`) FROM `weather` WHERE `city` LIKE 'S%' GROUP BY `city` HAVING max(`temp_lo`) < 40",
+            'SELECT `city`, max(`temp_lo`) FROM `weather` WHERE `city` LIKE "S%" GROUP BY `city` HAVING max(`temp_lo`) < 40',
             (string)$queries[0]
         );
 

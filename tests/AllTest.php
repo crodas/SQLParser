@@ -14,8 +14,6 @@ class AllTest extends PHPUnit_Framework_TestCase
             $args[] = [$parser, $sql, $next];
         }
 
-        Writer::setInstance('mysql');
-
         return $args;
     }
 
@@ -31,6 +29,24 @@ class AllTest extends PHPUnit_Framework_TestCase
         return $args;
     }
 
+    public static function featuresProviderEngines()
+    {
+        $args = array();
+        foreach (self::featuresProvider() as $arg) {
+            $arg[3] = 'mysql';
+            $args[] = $arg;
+            if (!preg_match('/LAST_INSERT_ID|SQL_CALC_FOUND_ROWS|SQL_CACHE|SQL_BUFFER_RESULT|engine|utf8_unicode_ci|collate/i', $arg[1])) {
+                $arg[3] = 'sqlite';
+                $args[] = $arg;
+            }
+            if (!preg_match('/LAST_INSERT_ID|SQL_CALC_FOUND_ROWS|SQL_CACHE|SQL_BUFFER_RESULT|auto_?increment|engine|utf8_unicode_ci|collate/i', $arg[1])) {
+                $arg[3] = '';
+                $args[] = $arg;
+            }
+        }
+        return $args;
+    }
+
     public static function featuresProvider()
     {
         $args = [];
@@ -39,7 +55,7 @@ class AllTest extends PHPUnit_Framework_TestCase
             if (basename($file) == 'exception.sql') {
                 continue;
             }
-            $stmts = explode(";", file_get_contents($file));
+            $stmts = preg_split("/;\s*(\n|$)/", file_get_contents($file));
             $type  = substr(basename($file), 0, -4);
 
             foreach ($stmts as $stmt) {
@@ -57,6 +73,7 @@ class AllTest extends PHPUnit_Framework_TestCase
         $args = [];
         $diff   = new SQL\TableDiff;
         $parser = new SQLParser;
+        Writer::setInstance('mysql');
         foreach (glob(__DIR__ . '/features/alter-table/*.sql') as $file) {
             $sqls = $parser->parse(file_get_contents($file));
             $args[] = [$diff, array_shift($sqls), array_shift($sqls), array_filter($sqls)];
@@ -129,13 +146,15 @@ class AllTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     *  @dataProvider featuresProvider
+     *  @dataProvider featuresProviderEngines
      */
-    public function testFeaturesGeneration($parser, $sql)
+    public function testFeaturesGeneration($parser, $sql, $file, $engine)
     {
         try {
+            Writer::setInstance($engine);
             $object = $parser->parse($sql)[0];
             $newsql = $parser->parse(SQL\Writer::create($object))[0];
+
 
             foreach ([
                     'getOptions', 'hasHaving', 'hasGroupBy','hasWhere', 'hasOrderBy', 'hasLimit', 
@@ -168,9 +187,11 @@ class AllTest extends PHPUnit_Framework_TestCase
             }
 
         } catch (\Exception $e) {
+            echo "\nEngine: $engine\n";
             echo $sql . "\n";
             echo SQL\Writer::create($object) . "\n";
             if (!empty($newsql)) {
+                echo "NEW SQL: ";
                 echo $newsql . "\n";
             }
             throw $e;

@@ -57,10 +57,14 @@ whitespace = /[ \t\n]+/
 comment = /\-\-[^\n]+/
 number  = /[0-9]+(\.[0-9]+)?|0x[0-9a-fA-F]+/
 
-string1 = /SINGLE_QUOTE[^SINGLE_QUOTE\\]*(?:\\.[^SINGLE_QUOTE\\]*)*SINGLE_QUOTE(?=[ \t\r]*[\n#;])/
-string2 = /"[^"\\]*(?:\\.[^"\\]*)*"(?=[ \t\r]*[\n#;])/
-string3 = /`[^`\\]*(?:\\.[^`\\]*)*`(?=[ \t\r]*[\n#;])/
 alpha   = /[a-z_][a-z0-9_]*/
+STRINGCONTENTS1 = /[^"\\]+/
+STRINGCONTENTS2 = /[^SINGLE_QUOTE\\]+/
+STRINGCONTENTS3 = /[^`\\]+/
+ESCAPEDTHING1 = @"|\\@
+ESCAPEDTHING2 = @SINGLE_QUOTE|\\@
+ESCAPEDTHING3 = @`|\\@
+ANYTHINGELSE = /./
 
 */
 /*!lex2php
@@ -68,6 +72,29 @@ alpha   = /[a-z_][a-z0-9_]*/
   whitespace {
     return false;
   }
+
+
+  "\"" {
+      $this->yybegin(self::INSTRING1);
+      $this->_string = '';
+      $this->N++;
+      return true;
+  }
+
+  "SINGLE_QUOTE" {
+      $this->yybegin(self::INSTRING2);
+      $this->N++;
+      $this->_string = '';
+      return true;
+  }
+
+  "`" {
+      $this->yybegin(self::INSTRING3);
+      $this->_string = '';
+      $this->N++;
+      return true;
+  }
+
   comment   { $this->token = "comment"; }
   "when"    { $this->token = P::WHEN; }
   "unsigned" { $this->token = P::T_UNSIGNED; }
@@ -77,6 +104,7 @@ alpha   = /[a-z_][a-z0-9_]*/
   "default" { $this->token = P::T_DEFAULT; }
   "else"    { $this->token = P::T_ELSE; }
   "modify"  { $this->token = P::MODIFY; }
+  "autoincrement" { $this->token = P::AUTO_INCREMENT; }
   "auto_increment" { $this->token = P::AUTO_INCREMENT; }
   "collate" { $this->token = P::COLLATE; }
   "end"     { $this->token = P::T_END; }
@@ -160,9 +188,6 @@ alpha   = /[a-z_][a-z0-9_]*/
   "as"      { $this->token = P::T_AS; }
   "rename"  { $this->token = P::RENAME; }
   number    { $this->token = P::NUMBER; }
-  string1   { $this->token = P::T_STRING; }
-  string2   { $this->token = P::T_STRING; }
-  string3   { $this->token = P::COLUMN; }
 
   // MySQL stuff
   "sql_cache"       { $this->token = P::SQL_CACHE; }
@@ -176,6 +201,86 @@ alpha   = /[a-z_][a-z0-9_]*/
 
   // Alpha-texts
   alpha     { $this->token = P::ALPHA; }
+*/
+/*!lex2php
+  %statename INSTRING1
+  "\"" {
+    $this->value = $this->_string;
+    $this->token = P::T_STRING1;
+    $this->N -= strlen($this->_string) - 1;
+    $this->_string = '';
+    $this->yybegin(self::YYINITIAL);
+  }
+  "\\" {
+    $this->yybegin(self::INESCAPE1);
+    $this->N++;
+    return true;
+  }
+  STRINGCONTENTS1 {
+    $this->_string .= $this->value;
+    return false;
+  }
+*/
+/*!lex2php
+  %statename INSTRING2
+  "SINGLE_QUOTE" {
+    $this->value = $this->_string;
+    $this->token = P::T_STRING2;
+    $this->N -= strlen($this->_string) - 1;
+    $this->_string = '';
+    $this->yybegin(self::YYINITIAL);
+  }
+  "\\" {
+    $this->yybegin(self::INESCAPE2);
+    $this->N++;
+    return true;
+  }
+  STRINGCONTENTS2 {
+    $this->_string .= $this->value;
+    return false;
+  }
+*/
+/*!lex2php
+  %statename INSTRING3
+  "`" {
+    $this->value = $this->_string;
+    $this->token = P::COLUMN;
+    $this->N -= strlen($this->_string) - 1;
+    $this->_string = '';
+    $this->yybegin(self::YYINITIAL);
+  }
+  "\\" {
+    $this->yybegin(self::INESCAPE3);
+    $this->N++;
+    return true;
+  }
+  STRINGCONTENTS3 {
+    $this->_string .= $this->value;
+    return false;
+  }
+*/
+
+/*!lex2php
+%statename INESCAPE1
+ANYTHINGELSE {
+    $this->yybegin(self::INSTRING1);
+    $this->_string .= $this->value;
+}
+*/
+
+/*!lex2php
+%statename INESCAPE2
+ANYTHINGELSE {
+    $this->yybegin(self::INSTRING2);
+    $this->_string .= $this->value;
+}
+*/
+/*!lex2php
+%statename INESCAPE3
+ANYTHINGELSE {
+    $this->yybegin(self::INSTRING3);
+    $this->_string .= $this->value;
+}
 */
 
 }

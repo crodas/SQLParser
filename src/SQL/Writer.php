@@ -231,7 +231,11 @@ class Writer
             throw new \InvalidArgumentException;
         }
 
-        return var_export($value, true);
+        if (is_int($value) || is_float($value)) {
+            return $value;
+        }
+
+        return '"' . str_replace('"', '\\"', trim(var_export($value, true), "'")) . '"';
     }
 
     public function expr(Stmt\Expr $expr)
@@ -566,6 +570,11 @@ class Writer
         if (!is_string($value)) {
             return $this->value($value);
         }
-        return '"' . addslashes($value) . '"';
+
+        if (preg_match('/^[a-z0-9_]+$/i', $value) && empty(ReservedWords::$words[$value])) {
+            return $value;
+        }
+
+        return "'" . addslashes($value) . "'";
     }
 }
