@@ -163,6 +163,7 @@ class Lexer
                 '/\G\\|\\|/i ',
                 '/\G!=/i ',
                 '/\Gbegin/i ',
+                '/\Gwork/i ',
                 '/\Gtransaction/i ',
                 '/\Gcommit/i ',
                 '/\Grollback/i ',
@@ -558,56 +559,59 @@ class Lexer
  $this->token = P::BEGIN;     }
     function yy_r1_88($yy_subpatterns)
     {
- $this->token = P::TRANSACTION;     }
+ $this->token = P::WORK;     }
     function yy_r1_89($yy_subpatterns)
     {
- $this->token = P::COMMIT;     }
+ $this->token = P::TRANSACTION;     }
     function yy_r1_90($yy_subpatterns)
     {
- $this->token = P::ROLLBACK;     }
+ $this->token = P::COMMIT;     }
     function yy_r1_91($yy_subpatterns)
     {
- $this->token = P::SAVEPOINT;     }
+ $this->token = P::ROLLBACK;     }
     function yy_r1_92($yy_subpatterns)
     {
- $this->token = P::RELEASE;     }
+ $this->token = P::SAVEPOINT;     }
     function yy_r1_93($yy_subpatterns)
     {
- $this->token = P::TO;     }
+ $this->token = P::RELEASE;     }
     function yy_r1_94($yy_subpatterns)
     {
- $this->token = P::T_AS;     }
+ $this->token = P::TO;     }
     function yy_r1_95($yy_subpatterns)
     {
- $this->token = P::RENAME;     }
+ $this->token = P::T_AS;     }
     function yy_r1_96($yy_subpatterns)
     {
- $this->token = P::NUMBER;     }
+ $this->token = P::RENAME;     }
     function yy_r1_97($yy_subpatterns)
     {
- $this->token = P::SQL_CACHE;     }
+ $this->token = P::NUMBER;     }
     function yy_r1_98($yy_subpatterns)
     {
- $this->token = P::SQL_CALC_FOUND_ROWS;     }
+ $this->token = P::SQL_CACHE;     }
     function yy_r1_99($yy_subpatterns)
     {
- $this->token = P::SQL_NO_CACHE;     }
+ $this->token = P::SQL_CALC_FOUND_ROWS;     }
     function yy_r1_100($yy_subpatterns)
     {
- $this->token = P::HIGH_PRIORITY;     }
+ $this->token = P::SQL_NO_CACHE;     }
     function yy_r1_101($yy_subpatterns)
     {
- $this->token = P::STRAIGHT_JOIN;     }
+ $this->token = P::HIGH_PRIORITY;     }
     function yy_r1_102($yy_subpatterns)
     {
- $this->token = P::SQL_BIG_RESULT;     }
+ $this->token = P::STRAIGHT_JOIN;     }
     function yy_r1_103($yy_subpatterns)
     {
  $this->token = P::SQL_BIG_RESULT;     }
     function yy_r1_104($yy_subpatterns)
     {
- $this->token = P::SQL_BUFFER_RESULT;     }
+ $this->token = P::SQL_BIG_RESULT;     }
     function yy_r1_105($yy_subpatterns)
+    {
+ $this->token = P::SQL_BUFFER_RESULT;     }
+    function yy_r1_106($yy_subpatterns)
     {
  $this->token = P::ALPHA;     }
 

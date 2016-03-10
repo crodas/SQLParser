@@ -55,7 +55,7 @@ commit(A) ::= RELEASE SAVEPOINT alpha(B).           { A = new SQL\CommitTransact
 rollback(A) ::= ROLLBACK transaction_keyword.       { A = new SQL\RollbackTransaction; }
 rollback(A) ::= ROLLBACK TO alpha(B).               { A = new SQL\RollbackTransaction(B); }
 
-transaction_keyword ::= TRANSACTION.
+transaction_keyword ::= TRANSACTION|WORK.
 transaction_keyword ::= .
 
 commit_keyword ::= COMMIT. 

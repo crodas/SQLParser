@@ -179,6 +179,7 @@ ANYTHINGELSE = /./
   "||"      { $this->token = P::T_OR; }
   "!="      { $this->token = P::T_NE; }
   "begin"   { $this->token = P::BEGIN; }
+  "work"        { $this->token = P::WORK; }
   "transaction" { $this->token = P::TRANSACTION; }
   "commit"      { $this->token = P::COMMIT; }
   "rollback"    { $this->token = P::ROLLBACK; }

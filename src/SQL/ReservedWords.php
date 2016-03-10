@@ -67,6 +67,7 @@ class ReservedWords
   "or" => 1,
   "is" => 1,
   "begin" => 1,
+  "work" => 1,
   "transaction" => 1,
   "commit" => 1,
   "rollback" => 1,
@@ -75,4 +76,5 @@ class ReservedWords
   "to" => 1,
   "as" => 1,
   "rename" => 1,
-); }
+);
+}
