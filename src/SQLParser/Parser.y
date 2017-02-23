@@ -422,4 +422,7 @@ alpha_or_all(A) ::= alpha(X).     { A = X; }
 alpha_or_all(A) ::= T_TIMES.      { A = new Stmt\Expr("ALL"); }
 
 variable(A) ::= QUESTION. { A = new Stmt\VariablePlaceholder; }
-variable(A) ::= T_DOLLAR|T_COLON ALPHA(X). { A = new Stmt\VariablePlaceholder(X); }
+variable(A) ::= T_DOLLAR|T_COLON variable_name(X). { A = new Stmt\VariablePlaceholder(X); }
+
+variable_name(A) ::= ALPHA(X) . { A = X; }
+variable_name(A) ::= LIMIT|INSERT|UPDATE|FROM|SELECT|COLLATE|AUTO_INCREMENT|T_DEFAULT|PRIMARY|KEY(X) . { A = @X; }

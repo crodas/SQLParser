@@ -481,3 +481,4 @@ SELECT city, max(temp_lo)
 select * from (select count(*) as total, hostname from urls group by hostname) as x order by total desc limit 10;
 select * from urls where finished = 0 and worker in ("later", "yyy");
 select * from urls where finished = 0 and worker not in ("later", "xxx");
+SELECT * From urls where foo = :limit;
