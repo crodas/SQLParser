@@ -207,4 +207,15 @@ class AllTest extends PHPUnit_Framework_TestCase
         $data = $parser->parse($sql);
     }
 
+    public function testGetSubQuery()
+    {
+        $parser = new SQLParser;
+        $parsed = $parser->parse("SELECT * FROM (select * from xxx) as y");
+        $subs = $parsed[0]->getSubQueries();
+        $this->assertTrue(is_array($subs));
+        $this->assertFalse(empty($subs));
+
+        $parsed = $parser->parse("SELECT * FROM foobar");
+        $this->assertEquals(array(), $parsed[0]->getSubQueries());
+    }
 }
