@@ -207,11 +207,15 @@ class Writer
     {
         $name = $stmt->getName();
 
+        if ($name === '?') {
+            return $name;
+        }
+
         if (array_key_exists($name, $this->varValues)) {
             return $this->value($this->varValues[$name]);
         }
 
-        return $name != "?"  ? ":{$name}" : "?";
+        return ":{$name}";
     }
 
     protected function value($value)
