@@ -34,6 +34,7 @@ use PDO;
 class Writer
 {
     protected static $instance;
+    protected $varValues = array();
 
     /**
      *  Set Write instance
@@ -68,11 +69,13 @@ class Writer
         return self::$instance;
     }
 
-    final public static function create($object)
+    final public static function create($object, Array $values = array())
     {
         if (empty(self::$instance)) {
             self::getInstance();
         }
+
+        self::$instance->varValues = $values;
 
         if ($object instanceof Select) {
             return self::$instance->select($object);
@@ -203,7 +206,16 @@ class Writer
     public function variable(Stmt\VariablePlaceholder $stmt)
     {
         $name = $stmt->getName();
-        return $name != "?"  ? ":{$name}" : "?";
+
+        if ($name === '?') {
+            return $name;
+        }
+
+        if (array_key_exists($name, $this->varValues)) {
+            return $this->value($this->varValues[$name]);
+        }
+
+        return ":{$name}";
     }
 
     protected function value($value)
@@ -215,7 +227,6 @@ class Writer
             'SQLParser\Stmt\ExprList' => 'exprList',
             'SQLParser\Stmt\VariablePlaceholder' => 'variable',
         ];
-        
 
         foreach ($map as $class => $callback) {
             if ($value instanceof $class) {
@@ -235,7 +246,7 @@ class Writer
             return $value;
         }
 
-        return '"' . str_replace('"', '\\"', trim(var_export($value, true), "'")) . '"';
+        return '"' . str_replace('"', '\\"', substr(var_export($value, true), 1, -1)) . '"';
     }
 
     public function expr(Stmt\Expr $expr)
@@ -575,6 +586,6 @@ class Writer
             return $value;
         }
 
-        return "'" . addslashes($value) . "'";
+        return var_export($value, true);
     }
 }

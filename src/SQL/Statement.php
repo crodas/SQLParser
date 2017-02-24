@@ -30,6 +30,8 @@ use SQLParser\Stmt\Expr;
 
 class Statement
 {
+    protected $varValues = array();
+
     protected $comments = array();
     protected $where;
     protected $orderBy;
@@ -80,15 +82,15 @@ class Statement
         ];
 
         foreach ($rules as $rule) {
-            $check = [];
+            $walk = [];
             foreach ($rule as $id) {
                 if (in_array($id, $mods)) {
-                    $check[] = $id;
+                    $walk[] = $id;
                 }
             }
 
-            if (count($check) > 1) {
-                throw new \RuntimeException("Invalid usage of " . implode(", ", $check));
+            if (count($walk) > 1) {
+                throw new \RuntimeException("Invalid usage of " . implode(", ", $walk));
             }
         }
 
@@ -241,21 +243,35 @@ class Statement
 
     public function getSubQueries()
     {
+        $values = array();
+        $walk = function($value) use (&$values) {
+            if ($value instanceof Select) {
+                $values[] = $value;
+            }
+        };
+        $this->iterate($walk);
+        return $values;
+    }
+
+    public function setValues(Array $variables)
+    {
+        $this->varValues = array_merge($this->varValues, $variables);
+        return $this;
     }
 
     public function getVariables($scope = null)
     {
         $vars = [];
-        $check = function($value) use (&$vars) {
+        $walk = function($value) use (&$vars) {
             if ($value instanceof VariablePlaceholder) {
                 $vars[] = $value->getName();
             }
         };
 
         if ($scope === null) {
-            $this->iterate($check);
+            $this->iterate($walk);
         } else {
-            $this->each($this->$scope, $check);
+            $this->each($this->$scope, $walk);
         }
         return $vars;
     }
@@ -273,7 +289,7 @@ class Statement
 
     public function __toString()
     {
-        return Writer::create($this);
+        return Writer::create($this, $this->varValues);
     }
 
 }
