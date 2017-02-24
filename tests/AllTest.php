@@ -218,4 +218,18 @@ class AllTest extends PHPUnit_Framework_TestCase
         $parsed = $parser->parse("SELECT * FROM foobar");
         $this->assertEquals(array(), $parsed[0]->getSubQueries());
     }
+
+    public function testVariableExtrapolation()
+    {
+        $parser = new SQLParser;
+        $q = $parser->parse("SELECT * FROM foobar LIMIT :limit");
+        $this->assertEquals("SELECT * FROM foobar LIMIT 33", (string)$q[0]->setValues(array('limit' => 33)));
+    }
+
+    public function testVariableExtrapolationMultipleCalls()
+    {
+        $parser = new SQLParser;
+        $q = $parser->parse("SELECT * FROM foobar LIMIT :limit,:offset");
+        $this->assertEquals("SELECT * FROM foobar LIMIT 33,10", (string)$q[0]->setValues(array('limit' => 33))->setValues(array('offset'=> 10)));
+    }
 }

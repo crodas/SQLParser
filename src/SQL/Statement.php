@@ -30,6 +30,8 @@ use SQLParser\Stmt\Expr;
 
 class Statement
 {
+    protected $varValues = array();
+
     protected $comments = array();
     protected $where;
     protected $orderBy;
@@ -251,6 +253,12 @@ class Statement
         return $values;
     }
 
+    public function setValues(Array $variables)
+    {
+        $this->varValues = array_merge($this->varValues, $variables);
+        return $this;
+    }
+
     public function getVariables($scope = null)
     {
         $vars = [];
@@ -281,7 +289,7 @@ class Statement
 
     public function __toString()
     {
-        return Writer::create($this);
+        return Writer::create($this, $this->varValues);
     }
 
 }
