@@ -25,6 +25,7 @@
 namespace SQL;
 
 use SQLParser\Stmt\Expr;
+use SQLParser\Stmt\Join;
 use SQLParser\Stmt\VariablePlaceholder;
 use SQLParser\Stmt\ExprList;
 
@@ -42,6 +43,28 @@ class Select extends Statement
     public function hasTable()
     {
         return !empty($this->tables);
+    }
+
+    public function getAllTables()
+    {
+        $tables = $this->tables;
+        
+        $this->iterate(function($stmt) use (&$tables) {
+            if ($stmt instanceof Select) {
+                $tables = array_merge($tables, $stmt->getAllTables());
+            } else if ($stmt instanceof Join) {
+                $tables[] = $stmt->getTable();
+            }
+        });
+
+        foreach ($tables as $id => $table) {
+            if ($table instanceof Select) {
+                unset($tables[$id]);
+                $tables = array_merge($tables, $table->getAllTables());
+            }
+        }
+
+        return array_unique(array_values($tables));
     }
 
     public function from($table, $alias = '')

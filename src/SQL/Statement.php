@@ -244,12 +244,11 @@ class Statement
     public function getSubQueries()
     {
         $values = array();
-        $walk = function($value) use (&$values) {
+        $this->iterate(function($value) use (&$values) {
             if ($value instanceof Select) {
                 $values[] = $value;
             }
-        };
-        $this->iterate($walk);
+        });
         return $values;
     }
 

@@ -232,4 +232,16 @@ class AllTest extends PHPUnit_Framework_TestCase
         $q = $parser->parse("SELECT * FROM foobar LIMIT :limit,:offset");
         $this->assertEquals("SELECT * FROM foobar LIMIT 33,10", (string)$q[0]->setValues(array('limit' => 33))->setValues(array('offset'=> 10)));
     }
+
+    public function testGetAllTables() {
+        $parser = new SQLParser;
+        $q = $parser->parse("SELECT * FROM (SELECT * FROM bar) as lol WHERE y in (SELECT x FROM y)");
+        $this->assertEquals(['bar', 'y'], $q[0]->getAllTables());
+    }
+
+    public function testGetAllTablesJoin() {
+        $parser = new SQLParser;
+        $q = $parser->parse("SELECT * FROM users INNER JOIN lol ON x = y");
+        $this->assertEquals(['users', 'lol'], $q[0]->getAllTables());
+    }
 }
