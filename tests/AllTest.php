@@ -68,7 +68,7 @@ class AllTest extends PHPUnit_Framework_TestCase
         return $args;
     }
 
-    public static function testFeaturesDiff()
+    public static function featuresDiff()
     {
         $args = [];
         $diff   = new SQL\TableDiff;
@@ -83,7 +83,7 @@ class AllTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     *  @dataProvider testFeaturesDiff
+     *  @dataProvider featuresDiff
      */
     public function testTableDiff($tableDiff, $prev, $current, Array $expected)
     {
@@ -124,7 +124,7 @@ class AllTest extends PHPUnit_Framework_TestCase
     public function testFeatures($parser, $sql)
     {
         try {
-            $parser->parse($sql);
+            $this->assertTrue( is_array( $parser->parse($sql) ) );
         } catch (\Exception $e) {
             echo $sql . "\n";
             throw $e;
