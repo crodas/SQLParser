@@ -12,7 +12,7 @@
     stopOnError                 = "true"
     stopOnFailure               = "true"
     stopOnIncomplete            = "true"
-    stopOnSkipped               = "ture"
+    stopOnSkipped               = "true"
     syntaxCheck                 = "true"
     verbose                     = "true"
     debug                       = "true"

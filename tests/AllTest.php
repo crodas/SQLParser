@@ -2,8 +2,9 @@
 
 use SQLParser\Stmt\Expr;
 use SQL\Writer;
+use PHPUnit\Framework\TestCase;
 
-class AllTest extends PHPUnit_Framework_TestCase
+class AllTest extends TestCase
 {
     public static function provider()
     {
