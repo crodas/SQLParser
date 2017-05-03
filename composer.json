@@ -16,6 +16,7 @@
     "minimum-stability": "stable",
     "require": {},
     "require-dev": {
-        "crodas/autoloader": "^0.1.16"
+        "crodas/autoloader": "^0.1.16",
+        "crodas/phpunit-compat": "dev-master"
     }
 }
