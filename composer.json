@@ -17,6 +17,6 @@
     "require": {},
     "require-dev": {
         "crodas/autoloader": "^0.1.16",
-        "crodas/phpunit-compat": "^1.1"
+        "crodas/phpunit-compat": "^1.7"
     }
 }
