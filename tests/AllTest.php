@@ -97,7 +97,7 @@ class AllTest extends TestCase
 
 
     /**
-     *  @dataProvider Provider 
+     *  @dataProvider Provider
      */
     public function testMain($parser, $sql, $callback)
     {
@@ -115,7 +115,7 @@ class AllTest extends TestCase
 
         if ($callback($parsed, $this) !== false) {
             // test if the generated SQL is good enough
-            $callback($parser->parse($newSql), $this); 
+            $callback($parser->parse($newSql), $this);
         }
     }
 
@@ -158,15 +158,15 @@ class AllTest extends TestCase
 
 
             foreach ([
-                    'getOptions', 'hasHaving', 'hasGroupBy','hasWhere', 'hasOrderBy', 'hasLimit', 
+                    'getOptions', 'hasHaving', 'hasGroupBy','hasWhere', 'hasOrderBy', 'hasLimit',
                     'hasJoins', 'getView', 'getSelect', 'getName', 'getColumns', 'getIndexes',
                     'getName', 'hasName', 'getOnDuplicate', 'getPrimaryKey', 'getModifier',
                 ] as $q) {
                 if (!is_callable([$object, $q])) {
                     continue;
-                } 
+                }
                 $this->assertEquals(
-                    $object->$q(), 
+                    $object->$q(),
                     $newsql->$q(),
                     "checking $q"
                 );
@@ -239,44 +239,75 @@ class AllTest extends TestCase
         $q = $parser->parse("SELECT * FROM (SELECT * FROM bar) as lol WHERE y in (SELECT x FROM y)");
         $this->assertEquals(['bar', 'y'], $q[0]->getAllTables());
     }
-
-    public function testTableWithSameAlias()
-    {
-        Writer::setInstance('mysql');
-        $parser = new SQLParser;
-        $queries = $parser->parse("SELECT * FROM stable as stable");
-        $sql = "SELECT * FROM `stable`";
-
-        $this->assertEquals($sql, (string)$queries[0]);
-    }
-
-    public function testQueryWithTableWithDatabaseName() {
-        Writer::setInstance('mysql');
-        $parser = new SQLParser;
-        $queries = $parser->parse("SELECT * FROM db.stable");
-        $sql = "SELECT * FROM `db`.`stable`";
-
-        $this->assertEquals($sql, (string)$queries[0]);
-
-        $queries = $parser->parse("SELECT * FROM db.stable as foo");
-        $sql = "SELECT * FROM `db`.`stable` AS `foo`";
-
-        $this->assertEquals($sql, (string)$queries[0]);
-    }
-
     public function testGetAllTablesJoin() {
         $parser = new SQLParser;
         $q = $parser->parse("SELECT * FROM users INNER JOIN lol ON x = y");
         $this->assertEquals(['users', 'lol'], $q[0]->getAllTables());
     }
 
-    public function testRewriteQueryParentheses()
+    public static function expectedRewrites()
     {
-        Writer::setInstance('mysql');
-        $parser = new SQLParser;
-        $queries = $parser->parse("SELECT * FROM db.stable WHERE (foo = :foo AND bar = :bar) OR xxx = :xxx");
-        $sql = "SELECT * FROM `db`.`stable` WHERE (`foo` = :foo AND `bar` = :bar) OR `xxx` = :xxx";
+        return [
+            [
+                'mysql',
+                'SELECT * FROM db.stable WHERE foo IS NULL',
+                'SELECT * FROM `db`.`stable` WHERE `foo` IS NULL',
+            ],
+            [
+                'mysql',
+                'SELECT * FROM db.stable WHERE foo IS NOT NULL',
+                'SELECT * FROM `db`.`stable` WHERE `foo` IS NOT NULL',
+            ],
+            [
+                'sqlite',
+                'SELECT * FROM db.stable WHERE foo IS NULL',
+                'SELECT * FROM db.stable WHERE foo IS NULL',
+            ],
+            [
+                'sqlite',
+                'SELECT * FROM db.`table` WHERE foo IS NOT NULL',
+                "SELECT * FROM db.'table' WHERE foo IS NOT NULL",
+            ],
+            [
+                'mysql',
+                'SELECT * FROM db.stable WHERE (foo = :foo AND bar = :bar) OR xxx = :xxx',
+                'SELECT * FROM `db`.`stable` WHERE (`foo` = :foo AND `bar` = :bar) OR `xxx` = :xxx',
+            ],
+            [
+                'mysql',
+                'SELECT * FROM db.stable',
+                'SELECT * FROM `db`.`stable`',
+            ],
+            [
+                'mysql',
+                'SELECT * FROM db.stable as foo',
+                'SELECT * FROM `db`.`stable` AS `foo`',
+            ],
+            [
+                'mysql',
+                'SELECT * FROM stable as stable',
+                'SELECT * FROM `stable` AS `stable`',
+            ],
+            [
+                'mysql',
+                'SELECT * FROM stable stable WHERE x = 1',
+                'SELECT * FROM `stable` AS `stable` WHERE `x` = 1',
+            ],
+        ];
+    }
 
-        $this->assertEquals($sql, (string)$queries[0]);
+    /**
+     * @dataProvider expectedRewrites
+     * @param $driver
+     * @param $input
+     * @param $output
+     */
+    public function testRewriteQuery($driver, $input, $output)
+    {
+        Writer::setInstance($driver);
+        $parser = new SQLParser;
+        $queries = $parser->parse($input);
+
+        $this->assertEquals($output, (string)$queries[0]);
     }
 }

@@ -12,144 +12,34 @@ spl_autoload_register(function ($class) {
         This array has a map of (class => file)
     */
     static $classes = array (
-  'sql\\altertable\\addcolumn' => 
+  'sqlparser' => 
   array (
-    0 => '/SQL/AlterTable/AddColumn.php',
+    0 => '/SQLParser.php',
     1 => 'class_exists',
   ),
-  'sql\\altertable\\altertable' => 
+  'sqlparser\\stmt\\join' => 
   array (
-    0 => '/SQL/AlterTable/AlterTable.php',
+    0 => '/SQLParser/Stmt/Join.php',
     1 => 'class_exists',
   ),
-  'sql\\altertable\\addindex' => 
+  'sqlparser\\stmt\\exprlist' => 
   array (
-    0 => '/SQL/AlterTable/AddIndex.php',
+    0 => '/SQLParser/Stmt/ExprList.php',
     1 => 'class_exists',
   ),
-  'sql\\statement' => 
+  'sqlparser\\stmt\\expr' => 
   array (
-    0 => '/SQL/Statement.php',
+    0 => '/SQLParser/Stmt/Expr.php',
     1 => 'class_exists',
   ),
-  'sql\\altertable\\changecolumn' => 
+  'sqlparser\\stmt\\variableplaceholder' => 
   array (
-    0 => '/SQL/AlterTable/ChangeColumn.php',
+    0 => '/SQLParser/Stmt/VariablePlaceholder.php',
     1 => 'class_exists',
   ),
-  'sql\\altertable\\dropcolumn' => 
+  'sqlparser\\stmt\\column' => 
   array (
-    0 => '/SQL/AlterTable/DropColumn.php',
-    1 => 'class_exists',
-  ),
-  'sql\\altertable\\dropindex' => 
-  array (
-    0 => '/SQL/AlterTable/DropIndex.php',
-    1 => 'class_exists',
-  ),
-  'sql\\altertable\\dropprimarykey' => 
-  array (
-    0 => '/SQL/AlterTable/DropPrimaryKey.php',
-    1 => 'class_exists',
-  ),
-  'sql\\altertable\\renameindex' => 
-  array (
-    0 => '/SQL/AlterTable/RenameIndex.php',
-    1 => 'class_exists',
-  ),
-  'sql\\altertable\\renametable' => 
-  array (
-    0 => '/SQL/AlterTable/RenameTable.php',
-    1 => 'class_exists',
-  ),
-  'sql\\altertable\\setdefault' => 
-  array (
-    0 => '/SQL/AlterTable/SetDefault.php',
-    1 => 'class_exists',
-  ),
-  'sql\\begintransaction' => 
-  array (
-    0 => '/SQL/BeginTransaction.php',
-    1 => 'class_exists',
-  ),
-  'sql\\transaction' => 
-  array (
-    0 => '/SQL/Transaction.php',
-    1 => 'class_exists',
-  ),
-  'sql\\committransaction' => 
-  array (
-    0 => '/SQL/CommitTransaction.php',
-    1 => 'class_exists',
-  ),
-  'sql\\delete' => 
-  array (
-    0 => '/SQL/Delete.php',
-    1 => 'class_exists',
-  ),
-  'sql\\drop' => 
-  array (
-    0 => '/SQL/Drop.php',
-    1 => 'class_exists',
-  ),
-  'sql\\insert' => 
-  array (
-    0 => '/SQL/Insert.php',
-    1 => 'class_exists',
-  ),
-  'sql\\reservedwords' => 
-  array (
-    0 => '/SQL/ReservedWords.php',
-    1 => 'class_exists',
-  ),
-  'sql\\rollbacktransaction' => 
-  array (
-    0 => '/SQL/RollbackTransaction.php',
-    1 => 'class_exists',
-  ),
-  'sql\\select' => 
-  array (
-    0 => '/SQL/Select.php',
-    1 => 'class_exists',
-  ),
-  'sql\\table' => 
-  array (
-    0 => '/SQL/Table.php',
-    1 => 'class_exists',
-  ),
-  'sql\\tablediff' => 
-  array (
-    0 => '/SQL/TableDiff.php',
-    1 => 'class_exists',
-  ),
-  'sql\\update' => 
-  array (
-    0 => '/SQL/Update.php',
-    1 => 'class_exists',
-  ),
-  'sql\\view' => 
-  array (
-    0 => '/SQL/View.php',
-    1 => 'class_exists',
-  ),
-  'sql\\writer\\mysql' => 
-  array (
-    0 => '/SQL/Writer/MySQL.php',
-    1 => 'class_exists',
-  ),
-  'sql\\writer' => 
-  array (
-    0 => '/SQL/Writer.php',
-    1 => 'class_exists',
-  ),
-  'sql\\writer\\sqlite' => 
-  array (
-    0 => '/SQL/Writer/SQLite.php',
-    1 => 'class_exists',
-  ),
-  'sqlparser\\lexer' => 
-  array (
-    0 => '/SQLParser/Lexer.php',
+    0 => '/SQLParser/Stmt/Column.php',
     1 => 'class_exists',
   ),
   'sqlparser_yytoken' => 
@@ -167,45 +57,158 @@ spl_autoload_register(function ($class) {
     0 => '/SQLParser/Parser.php',
     1 => 'class_exists',
   ),
-  'sqlparser\\stmt\\column' => 
+  'sqlparser\\lexer' => 
   array (
-    0 => '/SQLParser/Stmt/Column.php',
+    0 => '/SQLParser/Lexer.php',
     1 => 'class_exists',
   ),
-  'sqlparser\\stmt\\expr' => 
+  'sql\\insert' => 
   array (
-    0 => '/SQLParser/Stmt/Expr.php',
+    0 => '/SQL/Insert.php',
     1 => 'class_exists',
   ),
-  'sqlparser\\stmt\\exprlist' => 
+  'sql\\statement' => 
   array (
-    0 => '/SQLParser/Stmt/ExprList.php',
+    0 => '/SQL/Statement.php',
     1 => 'class_exists',
   ),
-  'sqlparser\\stmt\\join' => 
+  'sql\\transaction' => 
   array (
-    0 => '/SQLParser/Stmt/Join.php',
+    0 => '/SQL/Transaction.php',
     1 => 'class_exists',
   ),
-  'sqlparser\\stmt\\variableplaceholder' => 
+  'sql\\update' => 
   array (
-    0 => '/SQLParser/Stmt/VariablePlaceholder.php',
+    0 => '/SQL/Update.php',
     1 => 'class_exists',
   ),
-  'sqlparser' => 
+  'sql\\reservedwords' => 
   array (
-    0 => '/SQLParser.php',
+    0 => '/SQL/ReservedWords.php',
+    1 => 'class_exists',
+  ),
+  'sql\\writer' => 
+  array (
+    0 => '/SQL/Writer.php',
+    1 => 'class_exists',
+  ),
+  'sql\\altertable\\addindex' => 
+  array (
+    0 => '/SQL/AlterTable/AddIndex.php',
+    1 => 'class_exists',
+  ),
+  'sql\\altertable\\altertable' => 
+  array (
+    0 => '/SQL/AlterTable/AlterTable.php',
+    1 => 'class_exists',
+  ),
+  'sql\\altertable\\setdefault' => 
+  array (
+    0 => '/SQL/AlterTable/SetDefault.php',
+    1 => 'class_exists',
+  ),
+  'sql\\altertable\\renameindex' => 
+  array (
+    0 => '/SQL/AlterTable/RenameIndex.php',
+    1 => 'class_exists',
+  ),
+  'sql\\altertable\\dropprimarykey' => 
+  array (
+    0 => '/SQL/AlterTable/DropPrimaryKey.php',
+    1 => 'class_exists',
+  ),
+  'sql\\altertable\\dropcolumn' => 
+  array (
+    0 => '/SQL/AlterTable/DropColumn.php',
+    1 => 'class_exists',
+  ),
+  'sql\\altertable\\dropindex' => 
+  array (
+    0 => '/SQL/AlterTable/DropIndex.php',
+    1 => 'class_exists',
+  ),
+  'sql\\altertable\\addcolumn' => 
+  array (
+    0 => '/SQL/AlterTable/AddColumn.php',
+    1 => 'class_exists',
+  ),
+  'sql\\altertable\\changecolumn' => 
+  array (
+    0 => '/SQL/AlterTable/ChangeColumn.php',
+    1 => 'class_exists',
+  ),
+  'sql\\altertable\\renametable' => 
+  array (
+    0 => '/SQL/AlterTable/RenameTable.php',
+    1 => 'class_exists',
+  ),
+  'sql\\committransaction' => 
+  array (
+    0 => '/SQL/CommitTransaction.php',
+    1 => 'class_exists',
+  ),
+  'sql\\tablediff' => 
+  array (
+    0 => '/SQL/TableDiff.php',
+    1 => 'class_exists',
+  ),
+  'sql\\writer\\mysql' => 
+  array (
+    0 => '/SQL/Writer/MySQL.php',
+    1 => 'class_exists',
+  ),
+  'sql\\writer\\sqlite' => 
+  array (
+    0 => '/SQL/Writer/SQLite.php',
+    1 => 'class_exists',
+  ),
+  'sql\\drop' => 
+  array (
+    0 => '/SQL/Drop.php',
+    1 => 'class_exists',
+  ),
+  'sql\\rollbacktransaction' => 
+  array (
+    0 => '/SQL/RollbackTransaction.php',
+    1 => 'class_exists',
+  ),
+  'sql\\view' => 
+  array (
+    0 => '/SQL/View.php',
+    1 => 'class_exists',
+  ),
+  'sql\\delete' => 
+  array (
+    0 => '/SQL/Delete.php',
+    1 => 'class_exists',
+  ),
+  'sql\\begintransaction' => 
+  array (
+    0 => '/SQL/BeginTransaction.php',
+    1 => 'class_exists',
+  ),
+  'sql\\select' => 
+  array (
+    0 => '/SQL/Select.php',
+    1 => 'class_exists',
+  ),
+  'sql\\table' => 
+  array (
+    0 => '/SQL/Table.php',
     1 => 'class_exists',
   ),
 );
 
     static $deps    = array (
-  'sql\\altertable\\addcolumn' => 
+  'sql\\insert' => 
   array (
     0 => 'sql\\statement',
-    1 => 'sql\\altertable\\altertable',
   ),
-  'sql\\altertable\\altertable' => 
+  'sql\\transaction' => 
+  array (
+    0 => 'sql\\statement',
+  ),
+  'sql\\update' => 
   array (
     0 => 'sql\\statement',
   ),
@@ -214,7 +217,21 @@ spl_autoload_register(function ($class) {
     0 => 'sql\\statement',
     1 => 'sql\\altertable\\altertable',
   ),
-  'sql\\altertable\\changecolumn' => 
+  'sql\\altertable\\altertable' => 
+  array (
+    0 => 'sql\\statement',
+  ),
+  'sql\\altertable\\setdefault' => 
+  array (
+    0 => 'sql\\statement',
+    1 => 'sql\\altertable\\altertable',
+  ),
+  'sql\\altertable\\renameindex' => 
+  array (
+    0 => 'sql\\statement',
+    1 => 'sql\\altertable\\altertable',
+  ),
+  'sql\\altertable\\dropprimarykey' => 
   array (
     0 => 'sql\\statement',
     1 => 'sql\\altertable\\altertable',
@@ -229,12 +246,12 @@ spl_autoload_register(function ($class) {
     0 => 'sql\\statement',
     1 => 'sql\\altertable\\altertable',
   ),
-  'sql\\altertable\\dropprimarykey' => 
+  'sql\\altertable\\addcolumn' => 
   array (
     0 => 'sql\\statement',
     1 => 'sql\\altertable\\altertable',
   ),
-  'sql\\altertable\\renameindex' => 
+  'sql\\altertable\\changecolumn' => 
   array (
     0 => 'sql\\statement',
     1 => 'sql\\altertable\\altertable',
@@ -244,38 +261,37 @@ spl_autoload_register(function ($class) {
     0 => 'sql\\statement',
     1 => 'sql\\altertable\\altertable',
   ),
-  'sql\\altertable\\setdefault' => 
-  array (
-    0 => 'sql\\statement',
-    1 => 'sql\\altertable\\altertable',
-  ),
-  'sql\\begintransaction' => 
-  array (
-    0 => 'sql\\statement',
-    1 => 'sql\\transaction',
-  ),
-  'sql\\transaction' => 
-  array (
-    0 => 'sql\\statement',
-  ),
   'sql\\committransaction' => 
   array (
     0 => 'sql\\statement',
     1 => 'sql\\transaction',
   ),
-  'sql\\delete' => 
+  'sql\\writer\\mysql' => 
   array (
-    0 => 'sql\\statement',
+    0 => 'sql\\writer',
+  ),
+  'sql\\writer\\sqlite' => 
+  array (
+    0 => 'sql\\writer',
   ),
   'sql\\drop' => 
   array (
     0 => 'sql\\statement',
   ),
-  'sql\\insert' => 
+  'sql\\rollbacktransaction' => 
+  array (
+    0 => 'sql\\statement',
+    1 => 'sql\\transaction',
+  ),
+  'sql\\view' => 
   array (
     0 => 'sql\\statement',
   ),
-  'sql\\rollbacktransaction' => 
+  'sql\\delete' => 
+  array (
+    0 => 'sql\\statement',
+  ),
+  'sql\\begintransaction' => 
   array (
     0 => 'sql\\statement',
     1 => 'sql\\transaction',
@@ -287,22 +303,6 @@ spl_autoload_register(function ($class) {
   'sql\\table' => 
   array (
     0 => 'sql\\statement',
-  ),
-  'sql\\update' => 
-  array (
-    0 => 'sql\\statement',
-  ),
-  'sql\\view' => 
-  array (
-    0 => 'sql\\statement',
-  ),
-  'sql\\writer\\mysql' => 
-  array (
-    0 => 'sql\\writer',
-  ),
-  'sql\\writer\\sqlite' => 
-  array (
-    0 => 'sql\\writer',
   ),
 );
 

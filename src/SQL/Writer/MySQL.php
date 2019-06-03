@@ -97,11 +97,11 @@ class MySQL extends Writer
 
 
         foreach ($table->getIndexes() as $name => $definition) {
-            $keys[] = ($definition['unique']  ? "UNIQUE KEY " : "KEY ") 
+            $keys[] = ($definition['unique']  ? "UNIQUE KEY " : "KEY ")
                 . $this->escape($name) . "(" . $this->exprList($definition['cols']) . ")";
         }
 
-        $sql = "CREATE TABLE " . $this->escape($table->getName()) . "(" 
+        $sql = "CREATE TABLE " . $this->escape($table->getName()) . "("
             . implode(",", array_merge($columns, $keys))
             . ")";
         foreach ($table->getOptions() as $key => $value) {
@@ -121,7 +121,7 @@ class MySQL extends Writer
 
     public function columnDefinition(Stmt\Column $column)
     {
-        $sql = $this->escape($column->GetName()) 
+        $sql = $this->escape($column->GetName())
             . " "
             . $this->dataType($column->getType(), $column->getTypeSize())
             . $column->getModifier();
@@ -141,7 +141,7 @@ class MySQL extends Writer
 
         if ($column->collate()) {
             $sql .= " COLLATE" . $this->value($column->collate());
-        } 
+        }
 
         return $sql;
     }
