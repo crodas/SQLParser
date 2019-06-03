@@ -81,10 +81,9 @@ class Select extends Statement
         return array_unique(array_values($tables));
     }
 
-    public function from($table, $alias = '')
+    public function from($table, $alias = NULL)
     {
-        $alias = $alias ? $alias : $table;
-        if (is_array($alias)) {
+        if ($alias === NULL) {
             $alias = count($this->tables);
         }
         $this->tables[$alias] = $table;
