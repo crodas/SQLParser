@@ -482,3 +482,4 @@ select * from (select count(*) as total, hostname from urls group by hostname) a
 select * from urls where finished = 0 and worker in ("later", "yyy");
 select * from urls where finished = 0 and worker not in ("later", "xxx");
 SELECT * From urls where foo = :limit;
+select * from database_name.urls;

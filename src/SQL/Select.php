@@ -34,6 +34,20 @@ class Select extends Statement
     protected $tables = array();
     protected $columns;
 
+    public function __construct($expr = NULL)
+    {
+        foreach ($expr as $i => $e) {
+            if ($e[0]->getType() === 'VALUE') {
+                $parts = $e[0]->getMembers();
+                if (count($parts) === 2 && $parts[1] === 2) {
+                    $expr[$i][0] = new Expr('column', $parts[0]);
+                }
+            }
+        }
+
+        $this->columns = $expr;
+    }
+
     public function setTables(Array $tables)
     {
         $this->tables = $tables;
@@ -67,9 +81,11 @@ class Select extends Statement
         return array_unique(array_values($tables));
     }
 
-    public function from($table, $alias = '')
+    public function from($table, $alias = NULL)
     {
-        $alias = $alias ? $alias : $table;
+        if ($alias === NULL) {
+            $alias = count($this->tables);
+        }
         $this->tables[$alias] = $table;
         return $this;
     }
@@ -91,22 +107,4 @@ class Select extends Statement
     {
         return $this->columns;
     }
-
-    public function __construct($expr = NULL)
-    {
-        if (is_string($expr)) {
-            die($expr);
-        }
-        foreach ($expr as $i => $e) {
-            if ($e[0]->getType() === 'VALUE') {
-                $parts = $e[0]->getMembers();
-                if (count($parts) === 2 && $parts[1] === 2) {
-                    $expr[$i][0] = new Expr('column', $parts[0]);
-                }
-            }
-        }
-
-        $this->columns = $expr;
-    }
-
 }
