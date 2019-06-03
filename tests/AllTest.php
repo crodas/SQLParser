@@ -240,6 +240,20 @@ class AllTest extends TestCase
         $this->assertEquals(['bar', 'y'], $q[0]->getAllTables());
     }
 
+    public function testQueryWithTableWithDatabaseName() {
+        Writer::setInstance('mysql');
+        $parser = new SQLParser;
+        $queries = $parser->parse("SELECT * FROM db.stable");
+        $sql = "SELECT * FROM `db`.`stable`";
+
+        $this->assertEquals($sql, (string)$queries[0]);
+
+        $queries = $parser->parse("SELECT * FROM db.stable as foo");
+        $sql = "SELECT * FROM `db`.`stable` AS `foo`";
+
+        $this->assertEquals($sql, (string)$queries[0]);
+    }
+
     public function testGetAllTablesJoin() {
         $parser = new SQLParser;
         $q = $parser->parse("SELECT * FROM users INNER JOIN lol ON x = y");
