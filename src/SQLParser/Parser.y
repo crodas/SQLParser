@@ -16,9 +16,9 @@ use SQLParser\Stmt;
     throw new RuntimeException('Unexpected ' . $this->tokenName($yymajor) . '(' . $TOKEN. ') Expecting ' . implode(",", $expect));
 }
 
-%right T_NOT.
-%left T_AND.
 %left T_OR.
+%left T_AND.
+%right T_NOT.
 %left T_QUESTION T_COLON.
 %nonassoc T_EQ T_LIKE T_NE.
 %nonassoc T_GT T_GE T_LT T_LE.
@@ -321,7 +321,14 @@ column_mod(A) ::= AUTO_INCREMENT.       { A = 'autoincrement'; }
 /** Expression */
 expr(A) ::= expr(B) T_AND expr(C). { A = new Stmt\Expr('and', B, C); }
 expr(A) ::= expr(B) T_OR expr(C). { A = new Stmt\Expr('or', B, C); }
-expr(A) ::= T_NOT expr(C). { A = new Stmt\Expr('not', C); }
+expr(A) ::= T_NOT expr(C). {
+    if (C->getType() === 'IS NULL') {
+        $parts = C->getMembers();
+        A = new Stmt\Expr('IS NOT NULL', $parts[0]);
+        return;
+    }
+    A = new Stmt\Expr('not', C);
+}
 expr(A) ::= PAR_OPEN expr(B) PAR_CLOSE.    { A = new Stmt\Expr('expr', B); }
 expr(A) ::= term_select(B) . { A = B; }
 expr(A) ::= expr(B) T_EQ|T_LIKE|T_NE|T_GT|T_GE|T_LT|T_LE(X) expr(C). { 
@@ -331,8 +338,8 @@ expr(A) ::= expr(B) T_EQ|T_LIKE|T_NE|T_GT|T_GE|T_LT|T_LE(X) expr(C). {
     }
     A = new Stmt\Expr(@X, B, C); 
 }
-expr(A) ::= expr(B) T_IS T_NOT null(C). { A = new Stmt\Expr("!=", B, C); }
-expr(A) ::= expr(B) T_IS null(C). { A = new Stmt\Expr("=", B, C); }
+expr(A) ::= expr(B) T_IS T_NOT null(C). { A = new Stmt\Expr("IS NOT NULL", B); }
+expr(A) ::= expr(B) T_IS null(C). { A = new Stmt\Expr("IS NULL", B); }
 expr(A) ::= expr(B) T_PLUS|T_MINUS|T_TIMES|T_DIV|T_MOD(X) expr(C). { A = new Stmt\Expr(@X, B, C); }
 expr(A) ::= expr(B) in(Y) term_select(X).       { A = new Stmt\Expr(Y, B, X); }
 expr(A) ::= expr(B) in(Y) expr_list_par(X).     { A = new Stmt\Expr(Y, B, new Stmt\Expr('expr', X)); }
@@ -377,7 +384,19 @@ term_colname(A) ::= colname(B) .                {
 
 null(A) ::= T_NULL.        { A = new Stmt\Expr('value', NULL);}
 
-function_call(A) ::= ALPHA(C) expr_list_par_or_null(D) . { A = new Stmt\Expr('CALL', C, D); }
+function_call(A) ::= ALPHA(C) expr_list_par_or_null(D) . {
+    if (strtolower(C) === 'isnull') {
+        $parts = D->getExprs();
+        if (!empty($parts[0]) && $parts[0]->getType() === 'COLUMN') {
+            // This is a "isnull" function call, we must convert
+            // `isnull(col)` to `col IS NULL` (which is the correct
+            // SQL-standard way of representing that statement)
+            A = new Stmt\Expr('IS NULL', $parts[0]);
+            return;
+        }
+    }
+    A = new Stmt\Expr('CALL', C, D);
+}
 
 columns(A) ::= columns(B) COMMA alpha(C) . { A = B->addTerm(C); }
 columns(A) ::= alpha(B) . { A = new Stmt\ExprList(B); }

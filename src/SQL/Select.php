@@ -62,7 +62,7 @@ class Select extends Statement
     public function getAllTables()
     {
         $tables = $this->tables;
-        
+
         $this->iterate(function($stmt) use (&$tables) {
             if ($stmt instanceof Select) {
                 $tables = array_merge($tables, $stmt->getAllTables());
@@ -92,15 +92,7 @@ class Select extends Statement
 
     public function getTables()
     {
-        $tables = array();
-        foreach ($this->tables as $id => $table) {
-            if ($id === $table) {
-                $tables[] = $table;
-            } else {
-                $tables[$id] = $table;
-            }
-        }
-        return $tables;
+        return $this->tables;
     }
 
     public function getColumns()

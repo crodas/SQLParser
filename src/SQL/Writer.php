@@ -122,7 +122,7 @@ class Writer
 
     public function addIndex(AlterTable\AddIndex $alterTable)
     {
-        return 'CREATE ' . $alterTable->getIndexType() . ' INDEX ' 
+        return 'CREATE ' . $alterTable->getIndexType() . ' INDEX '
             . $this->escape($alterTable->getIndexName())
             . ' ON ' . $this->escape($alterTable->getTableName())
             . ' ( ' . $this->exprList($alterTable->getColumns()) . ')';
@@ -130,7 +130,7 @@ class Writer
 
     public function renameIndex(AlterTable\RenameIndex $alterTable)
     {
-        return "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " RENAME INDEX " 
+        return "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " RENAME INDEX "
             . $this->escape($alterTable->getOldName())
             . ' TO '
             . $this->escape($alterTable->getNewName());
@@ -139,14 +139,14 @@ class Writer
 
     public function renameTable(AlterTable\RenameTable $alterTable)
     {
-        return "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " RENAME TO " 
+        return "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " RENAME TO "
             . $this->escape($alterTable->getNewName());
     }
 
 
     public function dropColumn(AlterTable\DropColumn $alterTable)
     {
-        return "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " DROP  COLUMN" 
+        return "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " DROP  COLUMN"
             . $this->escape($alterTable->getColumnName());
     }
 
@@ -158,13 +158,13 @@ class Writer
 
     public function dropIndex(AlterTable\DropIndex $alterTable)
     {
-        return "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " DROP INDEX " 
+        return "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " DROP INDEX "
             . $this->escape($alterTable->getIndexName());
     }
 
     public function setDefault(AlterTable\SetDefault $alterTable)
     {
-        $sql = "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " CHANGE COLUMN " 
+        $sql = "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " CHANGE COLUMN "
             . $this->escape($alterTable->getColumn());
         if ($alterTable->getValue() === NULL) {
             $sql .= " DROP DEFAULT";
@@ -177,7 +177,7 @@ class Writer
 
     public function changeColumn(AlterTable\ChangeColumn $alterTable)
     {
-        $sql = "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " CHANGE COLUMN " 
+        $sql = "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " CHANGE COLUMN "
             . $this->escape($alterTable->getOldName())
             .  " "
             . $this->columnDefinition($alterTable->getColumn());
@@ -192,7 +192,7 @@ class Writer
 
     public function addColumn(AlterTable\AddColumn $alterTable)
     {
-        $sql =  "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " ADD COLUMN " 
+        $sql =  "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " ADD COLUMN "
             . $this->columnDefinition($alterTable->getColumn());
         if ($alterTable->isFirst()) {
             $sql .= " FIRST";
@@ -251,8 +251,8 @@ class Writer
 
     public function expr(Stmt\Expr $expr)
     {
-        $method = 'expr' . $expr->getType();
-        if (is_callable([$this, $method])) {
+        $method = 'expr' . preg_replace("/[^a-z0-9_]+/i", "", $expr->getType());
+        if ($method !== 'expr' && is_callable([$this, $method])) {
             return $this->$method($expr);
         }
 
@@ -268,6 +268,10 @@ class Writer
 
         case 'ALPHA':
             return $member[0];
+
+        case 'IS NULL':
+        case 'IS NOT NULL':
+            return $member[0] . ' ' . $type;
 
         case 'CASE':
             $else = NULL;
@@ -307,7 +311,7 @@ class Writer
                 $expr .= " " . $rawMember[2];
             }
             return $expr;
-        case 'VALUE': 
+        case 'VALUE':
             return $member[0];
         case 'NOT':
             return "NOT {$member[0]}";
@@ -339,7 +343,7 @@ class Writer
             }
         }
 
-        return implode(", ", $columns); 
+        return implode(", ", $columns);
     }
 
     protected function tableList(Array $tables)
@@ -423,7 +427,7 @@ class Writer
 
     public function columnDefinition(Stmt\Column $column)
     {
-        $sql = $this->escape($column->GetName()) 
+        $sql = $this->escape($column->GetName())
             . " "
             . $this->dataType($column->getType(), $column->getTypeSize())
             . $column->getModifier();
@@ -449,7 +453,7 @@ class Writer
         foreach ($table->getColumns() as $column) {
             $columns[] = $this->columnDefinition($column);
         }
-        return "CREATE TABLE " . $this->escape($table->getName()) . "(" 
+        return "CREATE TABLE " . $this->escape($table->getName()) . "("
             . implode(",", $columns)
             . ")";
     }
@@ -476,7 +480,7 @@ class Writer
         return $stmt;
     }
 
-    public function Insert(Insert $insert)
+    public function insert(Insert $insert)
     {
         $sql = $insert->getOperation() . " INTO " . $this->escape($insert->getTable());
         if ($insert->hasFields()) {
@@ -559,7 +563,7 @@ class Writer
         }
     }
 
-    public function Select(Select $select)
+    public function select(Select $select)
     {
         $stmt  = 'SELECT ';
         $stmt .= $this->selectOptions($select);
