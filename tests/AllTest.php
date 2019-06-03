@@ -240,6 +240,16 @@ class AllTest extends TestCase
         $this->assertEquals(['bar', 'y'], $q[0]->getAllTables());
     }
 
+    public function testTableWithSameAlias()
+    {
+        Writer::setInstance('mysql');
+        $parser = new SQLParser;
+        $queries = $parser->parse("SELECT * FROM stable as stable");
+        $sql = "SELECT * FROM `stable`";
+
+        $this->assertEquals($sql, (string)$queries[0]);
+    }
+
     public function testQueryWithTableWithDatabaseName() {
         Writer::setInstance('mysql');
         $parser = new SQLParser;

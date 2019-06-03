@@ -356,7 +356,7 @@ class Writer
                 $table = $this->escape($table);
             }
 
-            if (is_numeric($key) || $key === $table) {
+            if (is_numeric($key)) {
                 $list[] = $table;
             } else {
                 $list[] = $table . ' AS ' . $this->escape($key);
