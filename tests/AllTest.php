@@ -269,4 +269,14 @@ class AllTest extends TestCase
         $q = $parser->parse("SELECT * FROM users INNER JOIN lol ON x = y");
         $this->assertEquals(['users', 'lol'], $q[0]->getAllTables());
     }
+
+    public function testRewriteQueryParentheses()
+    {
+        Writer::setInstance('mysql');
+        $parser = new SQLParser;
+        $queries = $parser->parse("SELECT * FROM db.stable WHERE (foo = :foo AND bar = :bar) OR xxx = :xxx");
+        $sql = "SELECT * FROM `db`.`stable` WHERE (`foo` = :foo AND `bar` = :bar) OR `xxx` = :xxx";
+
+        $this->assertEquals($sql, (string)$queries[0]);
+    }
 }
