@@ -33,16 +33,38 @@ use SQL\CommitTransaction;
 use SQL\BeginTransaction;
 use SQL\RollbackTransaction;
 
+/**
+ * MySQL Query writer
+ *
+ * This class extends the standard SQL writer to add MySQL flavoured
+ * SQL statements.
+ *
+ * Class MySQL
+ * @package SQL\Writer
+ */
 class MySQL extends Writer
 {
+    /**
+     * Returns "escaped" value.
+     *
+     * @param $value
+     * @return string
+     */
     public function escape($value)
     {
         if (!is_string($value)) {
             return $this->value($value);
         }
         return "`$value`";
-     }
+    }
 
+    /**
+     * Returns any special "option" defined in the query. Options are
+     * unique to MySQL.
+     *
+     * @param Select $select
+     * @return string
+     */
     public function selectOptions(Select $select)
     {
         $options = $select->getOptions();
@@ -51,6 +73,12 @@ class MySQL extends Writer
         }
     }
 
+    /**
+     * Returns the SQL statement for a commit or a save point (for nested transactions).
+     *
+     * @param CommitTransaction $transaction
+     * @return string
+     */
     public function commit(CommitTransaction $transaction)
     {
         if ($transaction->getName()) {
@@ -60,6 +88,12 @@ class MySQL extends Writer
         return "COMMIT WORK";
     }
 
+    /**
+     * Returns the SQL statement for rollback a transaction or a save point (for nested transactions).
+     *
+     * @param RollbackTransaction $transaction
+     * @return string
+     */
     public function rollback(RollbackTransaction $transaction)
     {
         if ($transaction->getName()) {
@@ -69,6 +103,12 @@ class MySQL extends Writer
         return "ROLLBACK WORK";
     }
 
+    /**
+     * Returns the SQL statement for start a transaction or any save point (for nested transactions).
+     *
+     * @param BeginTransaction $transaction
+     * @return string
+     */
     public function begin(BeginTransaction $transaction)
     {
         if ($transaction->getName()) {
@@ -78,6 +118,15 @@ class MySQL extends Writer
         return "BEGIN WORK";
     }
 
+    /**
+     * Returns the SQL statement for creating a table.
+     *
+     * Create statements in MySQL are special because they may include indexes
+     * definitions within the same CREATE TABLE statement.
+     *
+     * @param Table $table
+     * @return string
+     */
     public function createTable(Table $table)
     {
         $columns = array();
@@ -110,6 +159,14 @@ class MySQL extends Writer
         return $sql;
     }
 
+    /**
+     * Returns the SQL statement for an INSERT.
+     *
+     * This method adds MySQL support ON DUPLICATE KEY UPDATE.
+     *
+     * @param Insert $insert
+     * @return string
+     */
     public function insert(Insert $insert)
     {
         $stmt = parent::insert($insert);
@@ -119,6 +176,12 @@ class MySQL extends Writer
         return $stmt;
     }
 
+    /**
+     * Returns SQL statements for definition of columns.
+     *
+     * @param Stmt\Column $column
+     * @return string
+     */
     public function columnDefinition(Stmt\Column $column)
     {
         $sql = $this->escape($column->GetName())
