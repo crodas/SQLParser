@@ -29,15 +29,15 @@ class Drop extends Statement
     protected $type;
     protected $table;
 
-    public function getTable()
-    {
-        return $this->table;
-    }
-
     public function __construct($type, Array $table)
     {
         $this->type  = $type;
         $this->table = $table;
+    }
+
+    public function getTable()
+    {
+        return $this->table;
     }
 
     public function getType()

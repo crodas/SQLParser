@@ -2098,7 +2098,6 @@ static public $yy_action = array(
         50 => 4,
         56 => 4,
         80 => 4,
-        82 => 4,
         106 => 4,
         108 => 4,
         149 => 4,
@@ -2191,6 +2190,7 @@ static public $yy_action = array(
         107 => 79,
         129 => 79,
         131 => 79,
+        82 => 82,
         86 => 86,
         87 => 87,
         89 => 89,
@@ -2446,28 +2446,34 @@ static public $yy_action = array(
 #line 158 "src/SQLParser/Parser.y"
     function yy_r79(){ $this->_retvalue = NULL;     }
 #line 2454 "src/SQLParser/Parser.php"
-#line 169 "src/SQLParser/Parser.y"
-    function yy_r86(){ $this->_retvalue = new Stmt\Expr(strtoupper(@$this->yystack[$this->yyidx + 0]->minor), $this->yystack[$this->yyidx + -1]->minor);     }
-#line 2457 "src/SQLParser/Parser.php"
-#line 170 "src/SQLParser/Parser.y"
-    function yy_r87(){ $this->_retvalue = new Stmt\Expr("ASC", $this->yystack[$this->yyidx + 0]->minor);     }
+#line 163 "src/SQLParser/Parser.y"
+    function yy_r82(){
+    $this->_retvalue = new Stmt\ExprList;
+    $this->_retvalue->setExprs($this->yystack[$this->yyidx + 0]->minor);
+    }
 #line 2460 "src/SQLParser/Parser.php"
-#line 173 "src/SQLParser/Parser.y"
-    function yy_r89(){ $this->_retvalue = [$this->yystack[$this->yyidx + 0]->minor, $this->yystack[$this->yyidx + -2]->minor];     }
+#line 172 "src/SQLParser/Parser.y"
+    function yy_r86(){ $this->_retvalue = new Stmt\Expr(strtoupper(@$this->yystack[$this->yyidx + 0]->minor), $this->yystack[$this->yyidx + -1]->minor);     }
 #line 2463 "src/SQLParser/Parser.php"
-#line 177 "src/SQLParser/Parser.y"
-    function yy_r92(){ $this->_retvalue = [$this->yystack[$this->yyidx + 0]->minor, null];     }
+#line 173 "src/SQLParser/Parser.y"
+    function yy_r87(){ $this->_retvalue = new Stmt\Expr("ASC", $this->yystack[$this->yyidx + 0]->minor);     }
 #line 2466 "src/SQLParser/Parser.php"
-#line 181 "src/SQLParser/Parser.y"
-    function yy_r95(){ $this->_retvalue = $this->yystack[$this->yyidx + -1]->minor; $this->yystack[$this->yyidx + -1]->minor->values($this->yystack[$this->yyidx + 0]->minor);     }
+#line 176 "src/SQLParser/Parser.y"
+    function yy_r89(){ $this->_retvalue = [$this->yystack[$this->yyidx + 0]->minor, $this->yystack[$this->yyidx + -2]->minor];     }
 #line 2469 "src/SQLParser/Parser.php"
-#line 183 "src/SQLParser/Parser.y"
+#line 180 "src/SQLParser/Parser.y"
+    function yy_r92(){ $this->_retvalue = [$this->yystack[$this->yyidx + 0]->minor, null];     }
+#line 2472 "src/SQLParser/Parser.php"
+#line 184 "src/SQLParser/Parser.y"
+    function yy_r95(){ $this->_retvalue = $this->yystack[$this->yyidx + -1]->minor; $this->yystack[$this->yyidx + -1]->minor->values($this->yystack[$this->yyidx + 0]->minor);     }
+#line 2475 "src/SQLParser/Parser.php"
+#line 186 "src/SQLParser/Parser.y"
     function yy_r97(){ 
     $this->_retvalue = $this->yystack[$this->yyidx + -3]->minor; $this->yystack[$this->yyidx + -3]->minor->values($this->yystack[$this->yyidx + -1]->minor); 
     if ($this->yystack[$this->yyidx + 0]->minor) $this->_retvalue->onDuplicate($this->yystack[$this->yyidx + 0]->minor);
     }
-#line 2475 "src/SQLParser/Parser.php"
-#line 187 "src/SQLParser/Parser.y"
+#line 2481 "src/SQLParser/Parser.php"
+#line 190 "src/SQLParser/Parser.y"
     function yy_r98(){ 
     $this->_retvalue = $this->yystack[$this->yyidx + -2]->minor; 
     $keys   = [];
@@ -2480,21 +2486,21 @@ static public $yy_action = array(
     $this->yystack[$this->yyidx + -2]->minor->values([$values])->fields($keys);
     if ($this->yystack[$this->yyidx + 0]->minor) $this->_retvalue->onDuplicate($this->yystack[$this->yyidx + 0]->minor);
     }
-#line 2489 "src/SQLParser/Parser.php"
-#line 200 "src/SQLParser/Parser.y"
+#line 2495 "src/SQLParser/Parser.php"
+#line 203 "src/SQLParser/Parser.y"
     function yy_r99(){
     $this->_retvalue = new SQL\Drop('TABLE', $this->yystack[$this->yyidx + 0]->minor);
     }
-#line 2494 "src/SQLParser/Parser.php"
-#line 204 "src/SQLParser/Parser.y"
+#line 2500 "src/SQLParser/Parser.php"
+#line 207 "src/SQLParser/Parser.y"
     function yy_r100(){
     $this->_retvalue = new SQL\Delete($this->yystack[$this->yyidx + -3]->minor[0], $this->yystack[$this->yyidx + -3]->minor[1]);
     if ($this->yystack[$this->yyidx + -2]->minor) $this->_retvalue->where($this->yystack[$this->yyidx + -2]->minor);
     if ($this->yystack[$this->yyidx + -1]->minor) $this->_retvalue->orderBy($this->yystack[$this->yyidx + -1]->minor);
     if ($this->yystack[$this->yyidx + 0]->minor) $this->_retvalue->limit($this->yystack[$this->yyidx + 0]->minor[0], $this->yystack[$this->yyidx + 0]->minor[1]);
     }
-#line 2502 "src/SQLParser/Parser.php"
-#line 211 "src/SQLParser/Parser.y"
+#line 2508 "src/SQLParser/Parser.php"
+#line 214 "src/SQLParser/Parser.y"
     function yy_r101(){
     $this->_retvalue = new SQL\Update($this->yystack[$this->yyidx + -5]->minor, $this->yystack[$this->yyidx + -3]->minor);
     if ($this->yystack[$this->yyidx + -4]->minor) $this->_retvalue->joins($this->yystack[$this->yyidx + -4]->minor);
@@ -2502,78 +2508,78 @@ static public $yy_action = array(
     if ($this->yystack[$this->yyidx + -1]->minor) $this->_retvalue->orderBy($this->yystack[$this->yyidx + -1]->minor);
     if ($this->yystack[$this->yyidx + 0]->minor) $this->_retvalue->limit($this->yystack[$this->yyidx + 0]->minor[0], $this->yystack[$this->yyidx + 0]->minor[1]);
     }
-#line 2511 "src/SQLParser/Parser.php"
-#line 219 "src/SQLParser/Parser.y"
+#line 2517 "src/SQLParser/Parser.php"
+#line 222 "src/SQLParser/Parser.y"
     function yy_r102(){ 
     $this->_retvalue = new SQL\Insert(@$this->yystack[$this->yyidx + -2]->minor);
     $this->_retvalue->into($this->yystack[$this->yyidx + 0]->minor[0])->fields($this->yystack[$this->yyidx + 0]->minor[1]);
     }
-#line 2517 "src/SQLParser/Parser.php"
-#line 223 "src/SQLParser/Parser.y"
+#line 2523 "src/SQLParser/Parser.php"
+#line 226 "src/SQLParser/Parser.y"
     function yy_r103(){ 
     $this->_retvalue = new SQL\Insert(@$this->yystack[$this->yyidx + -1]->minor);
     $this->_retvalue->into($this->yystack[$this->yyidx + 0]->minor[0]); 
     }
-#line 2523 "src/SQLParser/Parser.php"
-#line 228 "src/SQLParser/Parser.y"
-    function yy_r104(){ $this->_retvalue = [$this->yystack[$this->yyidx + 0]->minor, []];    }
-#line 2526 "src/SQLParser/Parser.php"
-#line 229 "src/SQLParser/Parser.y"
-    function yy_r105(){ $this->_retvalue = [$this->yystack[$this->yyidx + -3]->minor, $this->yystack[$this->yyidx + -1]->minor];     }
 #line 2529 "src/SQLParser/Parser.php"
-#line 236 "src/SQLParser/Parser.y"
-    function yy_r109(){ $this->_retvalue = $this->yystack[$this->yyidx + -2]->minor->addTerm($this->yystack[$this->yyidx + 0]->minor);     }
+#line 231 "src/SQLParser/Parser.y"
+    function yy_r104(){ $this->_retvalue = [$this->yystack[$this->yyidx + 0]->minor, []];    }
 #line 2532 "src/SQLParser/Parser.php"
-#line 237 "src/SQLParser/Parser.y"
-    function yy_r110(){ $this->_retvalue = new Stmt\ExprList($this->yystack[$this->yyidx + 0]->minor);     }
+#line 232 "src/SQLParser/Parser.y"
+    function yy_r105(){ $this->_retvalue = [$this->yystack[$this->yyidx + -3]->minor, $this->yystack[$this->yyidx + -1]->minor];     }
 #line 2535 "src/SQLParser/Parser.php"
-#line 238 "src/SQLParser/Parser.y"
+#line 239 "src/SQLParser/Parser.y"
+    function yy_r109(){ $this->_retvalue = $this->yystack[$this->yyidx + -2]->minor->addTerm($this->yystack[$this->yyidx + 0]->minor);     }
+#line 2538 "src/SQLParser/Parser.php"
+#line 240 "src/SQLParser/Parser.y"
+    function yy_r110(){ $this->_retvalue = new Stmt\ExprList($this->yystack[$this->yyidx + 0]->minor);     }
+#line 2541 "src/SQLParser/Parser.php"
+#line 241 "src/SQLParser/Parser.y"
     function yy_r111(){ 
     $this->_retvalue = new Stmt\Expr("=", $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor); 
     }
-#line 2540 "src/SQLParser/Parser.php"
-#line 242 "src/SQLParser/Parser.y"
+#line 2546 "src/SQLParser/Parser.php"
+#line 245 "src/SQLParser/Parser.y"
     function yy_r112(){
     $this->_retvalue = new SQL\View($this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);
     }
-#line 2545 "src/SQLParser/Parser.php"
-#line 246 "src/SQLParser/Parser.y"
+#line 2551 "src/SQLParser/Parser.php"
+#line 249 "src/SQLParser/Parser.y"
     function yy_r113(){
     $this->_retvalue = new SQL\Table($this->yystack[$this->yyidx + -4]->minor, $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);
     }
-#line 2550 "src/SQLParser/Parser.php"
-#line 250 "src/SQLParser/Parser.y"
-    function yy_r114(){ $this->_retvalue = array_merge($this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + 0]->minor);     }
-#line 2553 "src/SQLParser/Parser.php"
+#line 2556 "src/SQLParser/Parser.php"
 #line 253 "src/SQLParser/Parser.y"
+    function yy_r114(){ $this->_retvalue = array_merge($this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + 0]->minor);     }
+#line 2559 "src/SQLParser/Parser.php"
+#line 256 "src/SQLParser/Parser.y"
     function yy_r116(){  
     $this->_retvalue[implode(" ", $this->yystack[$this->yyidx + -2]->minor)] = $this->yystack[$this->yyidx + 0]->minor->getMember(0); 
     }
-#line 2558 "src/SQLParser/Parser.php"
-#line 261 "src/SQLParser/Parser.y"
+#line 2564 "src/SQLParser/Parser.php"
+#line 264 "src/SQLParser/Parser.y"
     function yy_r120(){ $this->_retvalue = array($this->yystack[$this->yyidx + 0]->minor);     }
-#line 2561 "src/SQLParser/Parser.php"
-#line 263 "src/SQLParser/Parser.y"
+#line 2567 "src/SQLParser/Parser.php"
+#line 266 "src/SQLParser/Parser.y"
     function yy_r121(){
     $this->_retvalue = ['primary', $this->yystack[$this->yyidx + 0]->minor];
     }
-#line 2566 "src/SQLParser/Parser.php"
-#line 266 "src/SQLParser/Parser.y"
+#line 2572 "src/SQLParser/Parser.php"
+#line 269 "src/SQLParser/Parser.y"
     function yy_r122(){
     $this->_retvalue = ['unique', $this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + 0]->minor];
     }
-#line 2571 "src/SQLParser/Parser.php"
-#line 269 "src/SQLParser/Parser.y"
+#line 2577 "src/SQLParser/Parser.php"
+#line 272 "src/SQLParser/Parser.y"
     function yy_r123(){
     $this->_retvalue = ['key', $this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + 0]->minor];
     }
-#line 2576 "src/SQLParser/Parser.php"
-#line 277 "src/SQLParser/Parser.y"
+#line 2582 "src/SQLParser/Parser.php"
+#line 280 "src/SQLParser/Parser.y"
     function yy_r127(){
     $this->_retvalue = new Stmt\Expr('INDEX', $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + 0]->minor);
     }
-#line 2581 "src/SQLParser/Parser.php"
-#line 286 "src/SQLParser/Parser.y"
+#line 2587 "src/SQLParser/Parser.php"
+#line 289 "src/SQLParser/Parser.y"
     function yy_r132(){ 
     $this->_retvalue = new Stmt\Column($this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + -1]->minor[0], $this->yystack[$this->yyidx + -1]->minor[1], $this->yystack[$this->yyidx + -1]->minor[2]);
     foreach ($this->yystack[$this->yyidx + 0]->minor as $setting) {
@@ -2584,42 +2590,42 @@ static public $yy_action = array(
         }
     }
     }
-#line 2593 "src/SQLParser/Parser.php"
-#line 297 "src/SQLParser/Parser.y"
+#line 2599 "src/SQLParser/Parser.php"
+#line 300 "src/SQLParser/Parser.y"
     function yy_r133(){
     $this->_retvalue = [$this->yystack[$this->yyidx + -1]->minor, NULL, $this->yystack[$this->yyidx + 0]->minor];
     }
-#line 2598 "src/SQLParser/Parser.php"
-#line 301 "src/SQLParser/Parser.y"
+#line 2604 "src/SQLParser/Parser.php"
+#line 304 "src/SQLParser/Parser.y"
     function yy_r134(){
     $this->_retvalue = [$this->yystack[$this->yyidx + -4]->minor, $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor];
     }
-#line 2603 "src/SQLParser/Parser.php"
-#line 310 "src/SQLParser/Parser.y"
-    function yy_r137(){ $this->_retvalue = @$this->yystack[$this->yyidx + 0]->minor;     }
-#line 2606 "src/SQLParser/Parser.php"
-#line 315 "src/SQLParser/Parser.y"
-    function yy_r140(){ $this->_retvalue = ['defaultValue', $this->yystack[$this->yyidx + 0]->minor];     }
 #line 2609 "src/SQLParser/Parser.php"
-#line 316 "src/SQLParser/Parser.y"
-    function yy_r141(){ $this->_retvalue = ['collate', $this->yystack[$this->yyidx + 0]->minor];     }
+#line 313 "src/SQLParser/Parser.y"
+    function yy_r137(){ $this->_retvalue = @$this->yystack[$this->yyidx + 0]->minor;     }
 #line 2612 "src/SQLParser/Parser.php"
-#line 317 "src/SQLParser/Parser.y"
-    function yy_r142(){ $this->_retvalue = 'primaryKey';     }
-#line 2615 "src/SQLParser/Parser.php"
 #line 318 "src/SQLParser/Parser.y"
-    function yy_r143(){    $this->_retvalue = 'notNull';     }
-#line 2618 "src/SQLParser/Parser.php"
+    function yy_r140(){ $this->_retvalue = ['defaultValue', $this->yystack[$this->yyidx + 0]->minor];     }
+#line 2615 "src/SQLParser/Parser.php"
 #line 319 "src/SQLParser/Parser.y"
-    function yy_r144(){ $this->_retvalue = 'autoincrement';     }
+    function yy_r141(){ $this->_retvalue = ['collate', $this->yystack[$this->yyidx + 0]->minor];     }
+#line 2618 "src/SQLParser/Parser.php"
+#line 320 "src/SQLParser/Parser.y"
+    function yy_r142(){ $this->_retvalue = 'primaryKey';     }
 #line 2621 "src/SQLParser/Parser.php"
-#line 322 "src/SQLParser/Parser.y"
-    function yy_r145(){ $this->_retvalue = new Stmt\Expr('and', $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);     }
+#line 321 "src/SQLParser/Parser.y"
+    function yy_r143(){    $this->_retvalue = 'notNull';     }
 #line 2624 "src/SQLParser/Parser.php"
-#line 323 "src/SQLParser/Parser.y"
-    function yy_r146(){ $this->_retvalue = new Stmt\Expr('or', $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);     }
+#line 322 "src/SQLParser/Parser.y"
+    function yy_r144(){ $this->_retvalue = 'autoincrement';     }
 #line 2627 "src/SQLParser/Parser.php"
-#line 324 "src/SQLParser/Parser.y"
+#line 325 "src/SQLParser/Parser.y"
+    function yy_r145(){ $this->_retvalue = new Stmt\Expr('and', $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);     }
+#line 2630 "src/SQLParser/Parser.php"
+#line 326 "src/SQLParser/Parser.y"
+    function yy_r146(){ $this->_retvalue = new Stmt\Expr('or', $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);     }
+#line 2633 "src/SQLParser/Parser.php"
+#line 327 "src/SQLParser/Parser.y"
     function yy_r147(){
     if ($this->yystack[$this->yyidx + 0]->minor->getType() === 'IS NULL') {
         $parts = $this->yystack[$this->yyidx + 0]->minor->getMembers();
@@ -2628,11 +2634,11 @@ static public $yy_action = array(
     }
     $this->_retvalue = new Stmt\Expr('not', $this->yystack[$this->yyidx + 0]->minor);
     }
-#line 2637 "src/SQLParser/Parser.php"
-#line 332 "src/SQLParser/Parser.y"
+#line 2643 "src/SQLParser/Parser.php"
+#line 335 "src/SQLParser/Parser.y"
     function yy_r148(){ $this->_retvalue = new Stmt\Expr('expr', $this->yystack[$this->yyidx + -1]->minor);     }
-#line 2640 "src/SQLParser/Parser.php"
-#line 334 "src/SQLParser/Parser.y"
+#line 2646 "src/SQLParser/Parser.php"
+#line 337 "src/SQLParser/Parser.y"
     function yy_r150(){ 
     $members = $this->yystack[$this->yyidx + -2]->minor->getMembers();
     if  ($this->yystack[$this->yyidx + -2]->minor->getType() === 'VALUE' && count($members) === 2&& $members[1] == 2) {
@@ -2640,71 +2646,71 @@ static public $yy_action = array(
     }
     $this->_retvalue = new Stmt\Expr(@$this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor); 
     }
-#line 2649 "src/SQLParser/Parser.php"
-#line 341 "src/SQLParser/Parser.y"
-    function yy_r151(){ $this->_retvalue = new Stmt\Expr("IS NOT NULL", $this->yystack[$this->yyidx + -3]->minor);     }
-#line 2652 "src/SQLParser/Parser.php"
-#line 342 "src/SQLParser/Parser.y"
-    function yy_r152(){ $this->_retvalue = new Stmt\Expr("IS NULL", $this->yystack[$this->yyidx + -2]->minor);     }
 #line 2655 "src/SQLParser/Parser.php"
-#line 343 "src/SQLParser/Parser.y"
-    function yy_r153(){ $this->_retvalue = new Stmt\Expr(@$this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);     }
-#line 2658 "src/SQLParser/Parser.php"
 #line 344 "src/SQLParser/Parser.y"
-    function yy_r154(){ $this->_retvalue = new Stmt\Expr($this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);     }
-#line 2661 "src/SQLParser/Parser.php"
+    function yy_r151(){ $this->_retvalue = new Stmt\Expr("IS NOT NULL", $this->yystack[$this->yyidx + -3]->minor);     }
+#line 2658 "src/SQLParser/Parser.php"
 #line 345 "src/SQLParser/Parser.y"
-    function yy_r155(){ $this->_retvalue = new Stmt\Expr($this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + -2]->minor, new Stmt\Expr('expr', $this->yystack[$this->yyidx + 0]->minor));     }
+    function yy_r152(){ $this->_retvalue = new Stmt\Expr("IS NULL", $this->yystack[$this->yyidx + -2]->minor);     }
+#line 2661 "src/SQLParser/Parser.php"
+#line 346 "src/SQLParser/Parser.y"
+    function yy_r153(){ $this->_retvalue = new Stmt\Expr(@$this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);     }
 #line 2664 "src/SQLParser/Parser.php"
-#line 349 "src/SQLParser/Parser.y"
-    function yy_r158(){ $this->_retvalue = 'nin';     }
+#line 347 "src/SQLParser/Parser.y"
+    function yy_r154(){ $this->_retvalue = new Stmt\Expr($this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);     }
 #line 2667 "src/SQLParser/Parser.php"
-#line 350 "src/SQLParser/Parser.y"
-    function yy_r159(){ $this->_retvalue = 'in';     }
+#line 348 "src/SQLParser/Parser.y"
+    function yy_r155(){ $this->_retvalue = new Stmt\Expr($this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + -2]->minor, new Stmt\Expr('expr', $this->yystack[$this->yyidx + 0]->minor));     }
 #line 2670 "src/SQLParser/Parser.php"
 #line 352 "src/SQLParser/Parser.y"
+    function yy_r158(){ $this->_retvalue = 'nin';     }
+#line 2673 "src/SQLParser/Parser.php"
+#line 353 "src/SQLParser/Parser.y"
+    function yy_r159(){ $this->_retvalue = 'in';     }
+#line 2676 "src/SQLParser/Parser.php"
+#line 355 "src/SQLParser/Parser.y"
     function yy_r160(){ 
     $this->yystack[$this->yyidx + -1]->minor = array_merge(['CASE'], $this->yystack[$this->yyidx + -1]->minor);
     $this->_retvalue = new Stmt\Expr($this->yystack[$this->yyidx + -1]->minor);
     }
-#line 2676 "src/SQLParser/Parser.php"
-#line 356 "src/SQLParser/Parser.y"
+#line 2682 "src/SQLParser/Parser.php"
+#line 359 "src/SQLParser/Parser.y"
     function yy_r161(){ 
     $this->yystack[$this->yyidx + -3]->minor = array_merge(['CASE'], $this->yystack[$this->yyidx + -3]->minor, [$this->yystack[$this->yyidx + -1]->minor]);
     $this->_retvalue = new Stmt\Expr($this->yystack[$this->yyidx + -3]->minor);
     }
-#line 2682 "src/SQLParser/Parser.php"
-#line 361 "src/SQLParser/Parser.y"
-    function yy_r162(){ $this->_retvalue = $this->yystack[$this->yyidx + -4]->minor; $this->yystack[$this->yyidx + -4]->minor[] = new Stmt\Expr("WHEN", $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);     }
-#line 2685 "src/SQLParser/Parser.php"
-#line 362 "src/SQLParser/Parser.y"
-    function yy_r163(){ $this->_retvalue = array(new Stmt\Expr("WHEN", $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor));     }
 #line 2688 "src/SQLParser/Parser.php"
 #line 364 "src/SQLParser/Parser.y"
-    function yy_r164(){ $this->_retvalue = new Stmt\Expr('timeinterval', $this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + 0]->minor);     }
+    function yy_r162(){ $this->_retvalue = $this->yystack[$this->yyidx + -4]->minor; $this->yystack[$this->yyidx + -4]->minor[] = new Stmt\Expr("WHEN", $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);     }
 #line 2691 "src/SQLParser/Parser.php"
 #line 365 "src/SQLParser/Parser.y"
-    function yy_r165(){ $this->_retvalue = new Stmt\Expr('value', $this->yystack[$this->yyidx + 0]->minor);     }
+    function yy_r163(){ $this->_retvalue = array(new Stmt\Expr("WHEN", $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor));     }
 #line 2694 "src/SQLParser/Parser.php"
-#line 366 "src/SQLParser/Parser.y"
-    function yy_r166(){ $this->_retvalue = new Stmt\Expr('value', -1 * $this->yystack[$this->yyidx + 0]->minor);     }
-#line 2697 "src/SQLParser/Parser.php"
 #line 367 "src/SQLParser/Parser.y"
-    function yy_r167(){ $this->_retvalue = new Stmt\Expr('value', 0+$this->yystack[$this->yyidx + 0]->minor);     }
+    function yy_r164(){ $this->_retvalue = new Stmt\Expr('timeinterval', $this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + 0]->minor);     }
+#line 2697 "src/SQLParser/Parser.php"
+#line 368 "src/SQLParser/Parser.y"
+    function yy_r165(){ $this->_retvalue = new Stmt\Expr('value', $this->yystack[$this->yyidx + 0]->minor);     }
 #line 2700 "src/SQLParser/Parser.php"
-#line 370 "src/SQLParser/Parser.y"
-    function yy_r170(){ $this->_retvalue = new Stmt\Expr('value', trim($this->yystack[$this->yyidx + 0]->minor, "'\""), 1);     }
+#line 369 "src/SQLParser/Parser.y"
+    function yy_r166(){ $this->_retvalue = new Stmt\Expr('value', -1 * $this->yystack[$this->yyidx + 0]->minor);     }
 #line 2703 "src/SQLParser/Parser.php"
-#line 371 "src/SQLParser/Parser.y"
-    function yy_r171(){ $this->_retvalue = new Stmt\Expr('value', trim($this->yystack[$this->yyidx + 0]->minor, "'\""), 2);     }
+#line 370 "src/SQLParser/Parser.y"
+    function yy_r167(){ $this->_retvalue = new Stmt\Expr('value', 0+$this->yystack[$this->yyidx + 0]->minor);     }
 #line 2706 "src/SQLParser/Parser.php"
-#line 372 "src/SQLParser/Parser.y"
-    function yy_r172(){ $this->_retvalue = new Stmt\Expr('column', $this->yystack[$this->yyidx + 0]->minor);     }
+#line 373 "src/SQLParser/Parser.y"
+    function yy_r170(){ $this->_retvalue = new Stmt\Expr('value', trim($this->yystack[$this->yyidx + 0]->minor, "'\""), 1);     }
 #line 2709 "src/SQLParser/Parser.php"
 #line 374 "src/SQLParser/Parser.y"
-    function yy_r174(){ $this->_retvalue = new Stmt\Expr('expr', $this->yystack[$this->yyidx + 0]->minor);     }
+    function yy_r171(){ $this->_retvalue = new Stmt\Expr('value', trim($this->yystack[$this->yyidx + 0]->minor, "'\""), 2);     }
 #line 2712 "src/SQLParser/Parser.php"
 #line 375 "src/SQLParser/Parser.y"
+    function yy_r172(){ $this->_retvalue = new Stmt\Expr('column', $this->yystack[$this->yyidx + 0]->minor);     }
+#line 2715 "src/SQLParser/Parser.php"
+#line 377 "src/SQLParser/Parser.y"
+    function yy_r174(){ $this->_retvalue = new Stmt\Expr('expr', $this->yystack[$this->yyidx + 0]->minor);     }
+#line 2718 "src/SQLParser/Parser.php"
+#line 378 "src/SQLParser/Parser.y"
     function yy_r175(){ 
     if ($this->yystack[$this->yyidx + 0]->minor instanceof Stmt\VariablePlaceholder) {
         $this->_retvalue = $this->yystack[$this->yyidx + 0]->minor;
@@ -2714,11 +2720,11 @@ static public $yy_action = array(
         $this->_retvalue = new Stmt\Expr('column', $this->yystack[$this->yyidx + 0]->minor);
     }
     }
-#line 2723 "src/SQLParser/Parser.php"
-#line 385 "src/SQLParser/Parser.y"
+#line 2729 "src/SQLParser/Parser.php"
+#line 388 "src/SQLParser/Parser.y"
     function yy_r176(){ $this->_retvalue = new Stmt\Expr('value', NULL);    }
-#line 2726 "src/SQLParser/Parser.php"
-#line 387 "src/SQLParser/Parser.y"
+#line 2732 "src/SQLParser/Parser.php"
+#line 390 "src/SQLParser/Parser.y"
     function yy_r177(){
     if (strtolower($this->yystack[$this->yyidx + -1]->minor) === 'isnull') {
         $parts = $this->yystack[$this->yyidx + 0]->minor->getExprs();
@@ -2732,22 +2738,22 @@ static public $yy_action = array(
     }
     $this->_retvalue = new Stmt\Expr('CALL', $this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + 0]->minor);
     }
-#line 2741 "src/SQLParser/Parser.php"
-#line 405 "src/SQLParser/Parser.y"
-    function yy_r181(){ $this->_retvalue = new Stmt\ExprList();     }
-#line 2744 "src/SQLParser/Parser.php"
-#line 438 "src/SQLParser/Parser.y"
-    function yy_r205(){ $this->_retvalue = trim($this->yystack[$this->yyidx + 0]->minor, "` \r\n\t");     }
 #line 2747 "src/SQLParser/Parser.php"
-#line 441 "src/SQLParser/Parser.y"
-    function yy_r207(){ $this->_retvalue = new Stmt\Expr("ALL");     }
+#line 408 "src/SQLParser/Parser.y"
+    function yy_r181(){ $this->_retvalue = new Stmt\ExprList();     }
 #line 2750 "src/SQLParser/Parser.php"
-#line 443 "src/SQLParser/Parser.y"
-    function yy_r208(){ $this->_retvalue = new Stmt\VariablePlaceholder;     }
+#line 441 "src/SQLParser/Parser.y"
+    function yy_r205(){ $this->_retvalue = trim($this->yystack[$this->yyidx + 0]->minor, "` \r\n\t");     }
 #line 2753 "src/SQLParser/Parser.php"
 #line 444 "src/SQLParser/Parser.y"
-    function yy_r209(){ $this->_retvalue = new Stmt\VariablePlaceholder($this->yystack[$this->yyidx + 0]->minor);     }
+    function yy_r207(){ $this->_retvalue = new Stmt\Expr("ALL");     }
 #line 2756 "src/SQLParser/Parser.php"
+#line 446 "src/SQLParser/Parser.y"
+    function yy_r208(){ $this->_retvalue = new Stmt\VariablePlaceholder;     }
+#line 2759 "src/SQLParser/Parser.php"
+#line 447 "src/SQLParser/Parser.y"
+    function yy_r209(){ $this->_retvalue = new Stmt\VariablePlaceholder($this->yystack[$this->yyidx + 0]->minor);     }
+#line 2762 "src/SQLParser/Parser.php"
 
     /**
      * placeholder for the left hand side in a reduce operation.
@@ -2866,7 +2872,7 @@ static public $yy_action = array(
         $expect[] = self::$yyTokenName[$token];
     }
     throw new RuntimeException('Unexpected ' . $this->tokenName($yymajor) . '(' . $TOKEN. ') Expecting ' . implode(",", $expect));
-#line 2876 "src/SQLParser/Parser.php"
+#line 2882 "src/SQLParser/Parser.php"
     }
 
     /**

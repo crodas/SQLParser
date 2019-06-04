@@ -27,54 +27,119 @@ namespace SQL;
 use SQLParser\Stmt\VariablePlaceholder;
 use SQLParser\Stmt\ExprList;
 use SQLParser\Stmt\Expr;
+use RuntimeException;
 
-class Statement
+/**
+ * Class Statement
+ *
+ * Base statement class with all the things that INSERT, UPDATE,
+ * SELECT, DELETE, DROP and any other similar statement may have in
+ * common.
+ *
+ * @package SQL
+ */
+abstract class Statement
 {
     protected $varValues = array();
 
     protected $comments = array();
     protected $where;
+
+    /**
+     * @var ExprList
+     */
     protected $orderBy;
-    protected $limit;
-    protected $offset;
-    protected $joins;
-    protected $mods = array();
+
+    /**
+     * @var ExprList
+     */
     protected $group;
 
+    /**
+     * @var Expr
+     */
+    protected $having;
+
+    protected $limit;
+    protected $offset;
+
+    /**
+     * @var array
+     */
+    protected $joins = [];
+
+    protected $mods = array();
+
+    /**
+     * Returns whether the current expression has any GROUP BY object.
+     *
+     * @return bool
+     */
     public function hasGroupBy()
     {
         return !empty($this->group);
     }
 
+    /**
+     * Returns the GROUP BY object
+     *
+     * @return ExprList|null
+     */
     public function getGroupBy()
     {
         return $this->group;
     }
 
-    public function groupBy(ExprList $group, $having)
+    /**
+     * Returns whether the current expression has any HAVING
+     *
+     * @return bool
+     */
+    public function hasHaving()
+    {
+        return !empty($this->having);
+    }
+
+    /**
+     * Returns the current HAVING expression object.
+     *
+     * @return Expr|null
+     */
+    public function getHaving()
+    {
+        return $this->having;
+    }
+
+    /**
+     * Adds GROUP BY to the current object.
+     *
+     * @param ExprList $group
+     * @param Expr|null $having
+     * @return $this
+     */
+    public function groupBy(ExprList $group, Expr $having = null)
     {
         $this->group  = $group;
         $this->having = $having;
         return $this;
     }
 
-    public function getHaving()
-    {
-        return $this->having;
-    }
-
-    public function hasHaving()
-    {
-        return !empty($this->having);
-    }
-
-
+    /**
+     * Returns all the available options for the current
+     * @return array
+     */
     public function getOptions()
     {
         return $this->mods;
     }
 
-    public function setOptions(Array $mods)
+    /**
+     * Add options for the current statement.
+     *
+     * @param array $mods
+     * @return $this
+     */
+    public function setOptions(array $mods)
     {
         $rules = [
             ['SQL_CACHE', 'SQL_NO_CACHE'],
@@ -90,7 +155,7 @@ class Statement
             }
 
             if (count($walk) > 1) {
-                throw new \RuntimeException("Invalid usage of " . implode(", ", $walk));
+                throw new RuntimeException("Invalid usage of " . implode(", ", $walk));
             }
         }
 
@@ -99,26 +164,41 @@ class Statement
         return $this;
     }
 
-
-    public function hasWhere()
-    {
-        return !empty($this->where);
-    }
-
-    public function joins(Array $joins)
+    /**
+     * Add JOINs to the current statements.
+     *
+     * @param array $joins
+     * @return $this
+     */
+    public function joins(array $joins)
     {
         $this->joins = $joins;
         return $this;
     }
 
+    /**
+     * Returns whether the current statement has any JOIN.
+     *
+     * @return bool
+     */
     public function hasJoins()
     {
         return !empty($this->joins);
     }
 
+    /**
+     * Returns all the JOINs in the current statement.
+     *
+     * @return array
+     */
     public function getJoins()
     {
         return $this->joins;
+    }
+
+    public function hasWhere()
+    {
+        return !empty($this->where);
     }
 
     public function getWhere()
@@ -151,23 +231,36 @@ class Statement
         return $this->limit;
     }
 
+    /**
+     * Returns whether the current statement has ORDER BY
+     *
+     * @return bool
+     */
     public function hasOrderBy()
     {
         return !empty($this->orderBy);
     }
 
-    public function orderBy($orderBy)
-    {
-        if (is_string($orderBy)) {
-            die('here');
-        }
-        $this->orderBy = $orderBy;
-        return $this;
-    }
-
+    /**
+     * Returns the ORDER BY object from the current object.
+     *
+     * @return ExprList
+     */
     public function getOrderBy()
     {
         return $this->orderBy;
+    }
+
+    /**
+     * Add ORDER BY to the current statement.
+     *
+     * @param ExprList $orderBy
+     * @return $this
+     */
+    public function orderBy(ExprList $orderBy)
+    {
+        $this->orderBy = $orderBy;
+        return $this;
     }
 
     public function limit($limit, $offset = NULL)
@@ -194,7 +287,7 @@ class Statement
     }
 
 
-    public function setComments(Array $comments)
+    public function setComments(array $comments)
     {
         $this->comments = $comments;
         return $this;
@@ -252,7 +345,7 @@ class Statement
         return $values;
     }
 
-    public function setValues(Array $variables)
+    public function setValues(array $variables)
     {
         $this->varValues = array_merge($this->varValues, $variables);
         return $this;

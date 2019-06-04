@@ -160,7 +160,10 @@ join_condition(A) ::= . { A = NULL; }
 where(A) ::= WHERE expr(B) . { A = B; }
 where(A) ::= . { A = NULL; }
 
-order_by(A) ::= ORDER BY order_by_fields(B) . { A = B; }
+order_by(A) ::= ORDER BY order_by_fields(B) . {
+    A = new Stmt\ExprList;
+    A->setExprs(B);
+}
 order_by(A) ::= . { A = NULL; }
 
 order_by_fields(A) ::= order_by_fields(B) COMMA order_by_field(C) . { A = B; A[] = C; }

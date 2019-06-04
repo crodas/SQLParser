@@ -33,7 +33,6 @@ class Delete extends Statement
         $this->table = $table;
     }
 
-
     public function getTable()
     {
         return $this->table;
