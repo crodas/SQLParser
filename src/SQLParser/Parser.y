@@ -118,7 +118,7 @@ select(A) ::= SELECT select_opts(MM) expr_list_as(L) from(X) joins(J) where(W) g
 
 select_opts(A) ::= select_opts(B) select_mod(C) . { A = B; A[] = C; }
 select_opts(A) ::= . { A = array(); }
-select_mod(A) ::= ALL|DISTINCT|DISTINCTROW|HIGH_PRIORITY|STRAIGHT_JOIN|SQL_SMALL_RESULT|SQL_BIG_RESULT|SQL_CACHE|SQL_CALC_FOUND_ROWS|SQL_BUFFER_RESULT|SQL_NO_CACHE(X). { A = strtoupper(@X); }
+select_mod(A) ::= ALL|DISTINCT|DISTINCTROW|HIGH_PRIORITY|STRAIGHT_JOIN|SQL_SMALL_RESULT|SQL_BIG_RESULT|SQL_CACHE|SQL_CALC_FOUND_ROWS|SQL_BUFFER_RESULT|SQL_NO_CACHE(X). { A = strtoupper(X); }
 
 from(A) ::= FROM table_list(X). { A = X; }
 from(A) ::= .
@@ -169,7 +169,9 @@ order_by(A) ::= . { A = NULL; }
 order_by_fields(A) ::= order_by_fields(B) COMMA order_by_field(C) . { A = B; A[] = C; }
 order_by_fields(A) ::= order_by_field(B) . { A = [B]; }
 
-order_by_field(A) ::= expr(X) DESC|ASC(Y) . { A = new Stmt\Expr(strtoupper(@Y), X); }
+order_by_field(A) ::= expr(X) DESC|ASC(Y) . {
+    A = new Stmt\Expr(strtoupper(Y), X);
+}
 order_by_field(A) ::= expr(X) . { A = new Stmt\Expr("ASC", X); }
 
 limit(A) ::= LIMIT expr(B) OFFSET expr(C).  { A = [B, C]; }
@@ -220,11 +222,11 @@ update(A) ::= UPDATE table_list(B) joins(JJ) set_expr(S) where(W) order_by(O) li
 }
 
 insert_stmt(A) ::= INSERT|REPLACE(X) INTO insert_table(T). { 
-    A = new SQL\Insert(@X);
+    A = new SQL\Insert(X);
     A->into(T[0])->fields(T[1]);
 }
 insert_stmt(A) ::= INSERT|REPLACE(X) insert_table(T). { 
-    A = new SQL\Insert(@X);
+    A = new SQL\Insert(X);
     A->into(T[0]); 
 }
 
@@ -281,7 +283,7 @@ index_col_name(A) ::= term_colname(B) length(C) order(D) . {
     A = new Stmt\Expr('INDEX', B, C, D);
 }
 
-order(Y)  ::= DESC|ASC(X) . { Y = strtoupper(@X); }
+order(Y)  ::= DESC|ASC(X) . { Y = strtoupper(X); }
 order(Y)  ::= . { Y = NULL; }
 length(A) ::= PAR_OPEN NUMBER(B) PAR_CLOSE . { A = B; }
 length(A) ::= . { A = NULL; }
@@ -310,7 +312,7 @@ data_type(A) ::= alpha(B) PAR_OPEN NUMBER(X) PAR_CLOSE unsigned(Y) .{
 }
 
 unsigned(A) ::= . { A = ''; }
-unsigned(A) ::= T_UNSIGNED(B) . { A = @B; }
+unsigned(A) ::= T_UNSIGNED(B) . { A = B; }
 
 column_mods(A) ::= column_mods(B) column_mod(C). { A = B; A[] = C; }
 column_mods(A) ::= . { A = []; }
@@ -339,11 +341,11 @@ expr(A) ::= expr(B) T_EQ|T_LIKE|T_NE|T_GT|T_GE|T_LT|T_LE(X) expr(C). {
     if  (B->getType() === 'VALUE' && count($members) === 2&& $members[1] == 2) {
         B = new Stmt\Expr('COLUMN', $members[0]);
     }
-    A = new Stmt\Expr(@X, B, C); 
+    A = new Stmt\Expr(X, B, C); 
 }
 expr(A) ::= expr(B) T_IS T_NOT null(C). { A = new Stmt\Expr("IS NOT NULL", B); }
 expr(A) ::= expr(B) T_IS null(C). { A = new Stmt\Expr("IS NULL", B); }
-expr(A) ::= expr(B) T_PLUS|T_MINUS|T_TIMES|T_DIV|T_MOD(X) expr(C). { A = new Stmt\Expr(@X, B, C); }
+expr(A) ::= expr(B) T_PLUS|T_MINUS|T_TIMES|T_DIV|T_MOD(X) expr(C). { A = new Stmt\Expr(X, B, C); }
 expr(A) ::= expr(B) in(Y) term_select(X).       { A = new Stmt\Expr(Y, B, X); }
 expr(A) ::= expr(B) in(Y) expr_list_par(X).     { A = new Stmt\Expr(Y, B, new Stmt\Expr('expr', X)); }
 expr(A) ::= case(B) . { A = B; }
@@ -433,10 +435,10 @@ colname(A) ::= T_STRING1(B).                     { A = B; }
 colname(A) ::= T_STRING2(B).                     { A = B; }
 colname(A) ::= variable(B).                     { A = B; }
 
-alpha(A) ::= T_DEFAULT(X) .     { A = @X; }
-alpha(A) ::= COLLATE(X) .       { A = @X; }
-alpha(A) ::= INTERVAL(X) .      { A = @X; }
-alpha(A) ::= AUTO_INCREMENT(X). { A = @X; }
+alpha(A) ::= T_DEFAULT(X) .     { A = X; }
+alpha(A) ::= COLLATE(X) .       { A = X; }
+alpha(A) ::= INTERVAL(X) .      { A = X; }
+alpha(A) ::= AUTO_INCREMENT(X). { A = X; }
 alpha(A) ::= ALPHA(B).          { A = B; }
 alpha(A) ::= COLUMN(B).         { A = trim(B, "` \r\n\t"); }
 
@@ -447,4 +449,4 @@ variable(A) ::= QUESTION. { A = new Stmt\VariablePlaceholder; }
 variable(A) ::= T_DOLLAR|T_COLON variable_name(X). { A = new Stmt\VariablePlaceholder(X); }
 
 variable_name(A) ::= ALPHA(X) . { A = X; }
-variable_name(A) ::= LIMIT|INSERT|UPDATE|FROM|SELECT|COLLATE|AUTO_INCREMENT|T_DEFAULT|PRIMARY|OFFSET|KEY(X) . { A = @X; }
+variable_name(A) ::= LIMIT|INSERT|UPDATE|FROM|SELECT|COLLATE|AUTO_INCREMENT|T_DEFAULT|PRIMARY|OFFSET|KEY(X) . { A = X; }
