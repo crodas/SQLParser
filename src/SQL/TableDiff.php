@@ -107,7 +107,7 @@ class TableDiff
                 $changes[] = new AlterTable\DropColumn($name);
             }
         }
-        
+
 
         return $changes;
     }
@@ -136,11 +136,11 @@ class TableDiff
         $changes = array();
 
         if ($old->getName() !== $current->getName()) {
-            $rename = new AlterTable\RenameTable($current->getName()); 
+            $rename = new AlterTable\RenameTable($current->getName());
             $rename->setTableName($old->getName());
             $changes[] = $rename;
         }
-        
+
         $changes = array_merge(
             $changes,
             $this->getColumnChanges($old, $current),

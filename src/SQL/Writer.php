@@ -363,9 +363,6 @@ class Writer
         case 'COLUMN':
             return implode(".", array_map([$this, 'escape'], $expr->getMembers()));
 
-        case 'ALPHA':
-            return $member[0];
-
         case 'IS NULL':
         case 'IS NOT NULL':
             return $member[0] . ' ' . $type;
@@ -389,9 +386,6 @@ class Writer
 
         case 'WHEN':
             return "WHEN {$member[0]} THEN {$member[1]}";
-
-        case 'ALIAS':
-            return "{$member[0]} AS {$member[1]}";
 
         case 'ALL':
             return "*";

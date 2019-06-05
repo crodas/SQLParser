@@ -31,7 +31,7 @@ class Update extends Statement
     protected $set;
     protected $table;
 
-    public function __construct(Array $table, ExprList $set)
+    public function __construct(array $table, ExprList $set)
     {
         $this->table = $table;
         $this->set   = $set;

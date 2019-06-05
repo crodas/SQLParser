@@ -95,7 +95,6 @@ class AllTest extends TestCase
         }
     }
 
-
     /**
      *  @dataProvider Provider
      */
