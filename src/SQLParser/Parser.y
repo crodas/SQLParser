@@ -191,11 +191,11 @@ insert(A) ::= insert_stmt(X) VALUES expr_list_par_many(L) on_dup(DU).   {
 }
 insert(A) ::= insert_stmt(X) set_expr(S) on_dup(DU). { 
     A = X; 
-    $keys   = [];
+    $keys   = new Stmt\ExprList;
     $values = [];
     foreach (S->getExprs() as $field) {
         $member = $field->getMembers();
-        $keys[]   = $member[0];
+        $keys->addTerm($member[0]);
         $values[] = $member[1];
     }
     X->values([$values])->fields($keys);
@@ -223,14 +223,16 @@ update(A) ::= UPDATE table_list(B) joins(JJ) set_expr(S) where(W) order_by(O) li
 
 insert_stmt(A) ::= INSERT|REPLACE(X) INTO insert_table(T). { 
     A = new SQL\Insert(X);
-    A->into(T[0])->fields(T[1]);
+    A->into(T[0]);
+    if (T[1]) A->fields(T[1]);
 }
 insert_stmt(A) ::= INSERT|REPLACE(X) insert_table(T). { 
     A = new SQL\Insert(X);
-    A->into(T[0]); 
+    A->into(T[0]);
+    if (T[1]) A->fields(T[1]);
 }
 
-insert_table(A) ::= table_name(B) . { A = [B, []];}
+insert_table(A) ::= table_name(B) . { A = [B, null];}
 insert_table(A) ::= table_name(B) PAR_OPEN columns(L) PAR_CLOSE.  { A = [B, L]; }
 
 on_dup(A) ::= ON DUPLICATE KEY UPDATE set_expr_values(X) . { A = X; }

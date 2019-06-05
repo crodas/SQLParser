@@ -29,12 +29,24 @@ use SQLParser\Stmt\Join;
 use SQLParser\Stmt\VariablePlaceholder;
 use SQLParser\Stmt\ExprList;
 
+/**
+ * Class Select
+ *
+ * @package SQL
+ */
 class Select extends Statement
 {
+    /**
+     * @var array
+     */
     protected $tables = array();
+
+    /**
+     * @var array
+     */
     protected $columns;
 
-    public function __construct($expr = NULL)
+    public function __construct(array $expr = NULL)
     {
         foreach ($expr as $i => $e) {
             if ($e[0]->getType() === 'VALUE') {
@@ -48,17 +60,46 @@ class Select extends Statement
         $this->columns = $expr;
     }
 
-    public function setTables(Array $tables)
+    /**
+     * Adds tables for the current SELECT
+     *
+     * @param array $tables
+     * @return $this
+     */
+    public function setTables(array $tables)
     {
         $this->tables = $tables;
         return $this;
     }
 
+    /**
+     * Returns whether the current statement has any table
+     *
+     * @return bool
+     */
     public function hasTable()
     {
         return !empty($this->tables);
     }
 
+    /**
+     * Returns the list of tables associated with this statement
+     *
+     * @return array
+     */
+    public function getTables()
+    {
+        return $this->tables;
+    }
+
+    /**
+     * Returns all the tables in the statement
+     *
+     * This function will return all tables, including JOINs and
+     * sub-queries.
+     *
+     * @return array
+     */
     public function getAllTables()
     {
         $tables = $this->tables;
@@ -81,6 +122,13 @@ class Select extends Statement
         return array_unique(array_values($tables));
     }
 
+    /**
+     * Adds a table to the current statement
+     *
+     * @param string $table
+     * @param string|null $alias
+     * @return $this
+     */
     public function from($table, $alias = NULL)
     {
         if ($alias === NULL) {
@@ -90,11 +138,11 @@ class Select extends Statement
         return $this;
     }
 
-    public function getTables()
-    {
-        return $this->tables;
-    }
-
+    /**
+     * Returns the list of columns in this statement
+     *
+     * @return array|null
+     */
     public function getColumns()
     {
         return $this->columns;

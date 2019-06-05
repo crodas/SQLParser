@@ -42,7 +42,14 @@ abstract class Statement
 {
     protected $varValues = array();
 
+    /**
+     * @var array
+     */
     protected $comments = array();
+
+    /**
+     * @var Expr
+     */
     protected $where;
 
     /**
@@ -60,7 +67,14 @@ abstract class Statement
      */
     protected $having;
 
+    /**
+     * @var Expr|VariablePlaceholder
+     */
     protected $limit;
+
+    /**
+     * @var Expr|VariablePlaceholder
+     */
     protected $offset;
 
     /**
@@ -134,7 +148,7 @@ abstract class Statement
     }
 
     /**
-     * Add options for the current statement.
+     * Adds options for the current statement.
      *
      * @param array $mods
      * @return $this
@@ -165,7 +179,7 @@ abstract class Statement
     }
 
     /**
-     * Add JOINs to the current statements.
+     * Adds JOINs to the current statements.
      *
      * @param array $joins
      * @return $this
@@ -196,39 +210,89 @@ abstract class Statement
         return $this->joins;
     }
 
+    /**
+     * Returns whether the current statement has a WHERE
+     *
+     * @return bool
+     */
     public function hasWhere()
     {
         return !empty($this->where);
     }
 
+    /**
+     * Returns the WHERE expression for this statement
+     *
+     * @return Expr|null
+     */
     public function getWhere()
     {
         return $this->where;
     }
 
+    /**
+     * Adds a WHERE expression to the current statement
+     *
+     * @param Expr $expr
+     * @return $this
+     */
+    public function where(Expr $expr)
+    {
+        $this->where = $expr;
+        return $this;
+    }
+
+    /**
+     * Returns the OFFSET for the current statement
+     *
+     * @return Expr|VariablePlaceholder
+     */
     public function getOffset()
     {
         return $this->offset;
     }
 
+    /**
+     * Returns whether the current statement has an OFFSET
+     *
+     * @return bool
+     */
     public function hasOffset()
     {
         return $this->offset !== NULL;
     }
 
+    /**
+     * Returns whether the current statement has any LIMIT
+     *
+     * @return bool
+     */
     public function hasLimit()
     {
         return $this->limit !== NULL;
     }
 
-    public function Offset()
-    {
-        return $this->offset;
-    }
-
+    /**
+     * Returns the LIMIT for the current statement
+     *
+     * @return Expr|VariablePlaceholder
+     */
     public function getLimit()
     {
         return $this->limit;
+    }
+
+    /**
+     * @param Expr|VariablePlaceholder $limit
+     * @param Expr|VariablePlaceholder|null $offset
+     * @return $this
+     */
+    public function limit($limit, $offset = NULL)
+    {
+        $this->limit  = $limit;
+        $this->offset = $offset;
+
+        return $this;
     }
 
     /**
@@ -252,7 +316,7 @@ abstract class Statement
     }
 
     /**
-     * Add ORDER BY to the current statement.
+     * Adds ORDER BY to the current statement.
      *
      * @param ExprList $orderBy
      * @return $this
@@ -263,41 +327,35 @@ abstract class Statement
         return $this;
     }
 
-    public function limit($limit, $offset = NULL)
-    {
-        foreach (['limit', 'offset'] as $var) {
-            if ($$var instanceof Expr) {
-                $$var = $$var->getValue();
-            }
-            $this->$var = $$var;
-        }
-
-        return $this;
-    }
-
-    public function where($expr)
-    {
-        if (is_string($expr)) {
-            die($expr);
-        }
-
-        $this->where = $expr;
-
-        return $this;
-    }
-
-
+    /**
+     * Add a list of comments associated with this statement
+     *
+     * @param array $comments
+     * @return $this
+     */
     public function setComments(array $comments)
     {
         $this->comments = $comments;
         return $this;
     }
 
+    /**
+     * Return a list of comments
+     *
+     * @return array
+     */
     public function getComments()
     {
         return $this->comments;
     }
 
+    /**
+     * Iterates recursively over a given $variable, calling a $callback
+     * for each value.
+     *
+     * @param $variable
+     * @param callable $callback
+     */
     protected function each(&$variable, Callable $callback)
     {
         if ($variable instanceof ExprList) {
@@ -327,6 +385,15 @@ abstract class Statement
         }
     }
 
+    /**
+     * Iterates recursively over all parts of the current statement. The $callback is called
+     * for each value.
+     *
+     * This function is useful to get information (Expr, Functions, Sub queries) that may exists
+     * somewhere in this statement.
+     *
+     * @param callable $callback
+     */
     public function iterate(Callable $callback)
     {
         foreach ($this as &$value) {
@@ -334,6 +401,11 @@ abstract class Statement
         }
     }
 
+    /**
+     * Returns all the sub queries (SELECT) that exists in the current statement.
+     *
+     * @return array
+     */
     public function getSubQueries()
     {
         $values = array();
@@ -345,12 +417,30 @@ abstract class Statement
         return $values;
     }
 
+    /**
+     * Assign values to any variables that may exists.
+     *
+     * This function do not check if a given variable exists.
+     *
+     * @param array $variables
+     * @return $this
+     */
     public function setValues(array $variables)
     {
-        $this->varValues = array_merge($this->varValues, $variables);
+        $this->varValues = array_merge(
+            $this->varValues,
+            $variables
+        );
         return $this;
     }
 
+    /**
+     * Returns all the variables defined in the entire statement or in a given
+     * scope.
+     *
+     * @param null $scope
+     * @return array
+     */
     public function getVariables($scope = null)
     {
         $vars = [];
@@ -368,6 +458,11 @@ abstract class Statement
         return $vars;
     }
 
+    /**
+     * Returns all the function calls that may exists in the statements
+     *
+     * @return array
+     */
     public function getFunctionCalls()
     {
         $vars = [];
@@ -379,9 +474,13 @@ abstract class Statement
         return $vars;
     }
 
+    /**
+     * Converts the current statement into an string, using the default writer.
+     *
+     * @return string
+     */
     public function __toString()
     {
         return Writer::create($this, $this->varValues);
     }
-
 }

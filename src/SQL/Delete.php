@@ -24,15 +24,33 @@
 */
 namespace SQL;
 
+/**
+ * Represents DELETE statement
+ *
+ * Class Delete
+ * @package SQL
+ */
 class Delete extends Statement
 {
+    /**
+     * @var string
+     */
     protected $table;
 
+    /**
+     * Delete constructor.
+     * @param string $table
+     */
     public function __construct($table)
     {
         $this->table = $table;
     }
 
+    /**
+     * Returns table name
+     *
+     * @return string
+     */
     public function getTable()
     {
         return $this->table;

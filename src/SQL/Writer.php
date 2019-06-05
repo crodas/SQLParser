@@ -643,7 +643,7 @@ class Writer
      */
     public function drop(Drop $drop)
     {
-        return "DROP " . $drop->getType() . " " . $this->tableList($drop->getTable());
+        return "DROP " . $drop->getType() . " " . $this->tableList($drop->getTables());
     }
 
     /**
@@ -670,7 +670,7 @@ class Writer
      */
     public function insert(Insert $insert)
     {
-        $sql = $insert->getOperation() . " INTO " . $this->escape($insert->getTable());
+        $sql = $insert->getType() . " INTO " . $this->escape($insert->getTable());
         if ($insert->hasFields()) {
             $sql .= "(" . $this->exprList($insert->getFields()) . ")";
         }
