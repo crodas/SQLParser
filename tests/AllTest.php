@@ -309,4 +309,10 @@ class AllTest extends TestCase
 
         $this->assertEquals($output, (string)$queries[0]);
     }
+
+    public function testExprReturnsNull()
+    {
+        $x = new SQLParser\Stmt\Expr('xxx');
+        $this->assertNull($x->getMember(10));
+    }
 }
