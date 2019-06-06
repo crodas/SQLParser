@@ -24,20 +24,40 @@
 */
 namespace SQL;
 
+/**
+ * Class Transaction
+ * @package SQL
+ */
 abstract class Transaction extends Statement
 {
+    /**
+     * @var string
+     */
     protected $name;
 
+    /**
+     * Transaction constructor.
+     * @param null $name
+     */
     public function __construct($name = NULL)
     {
         $this->name = $name;
     }
 
+    /**
+     * Returns whether the current transaction statement has a name
+     * @return bool
+     */
     public function hasName()
     {
         return !empty($this->name);
     }
 
+    /**
+     * Returns the current transaction name
+     *
+     * @return string|null
+     */
     public function getName()
     {
         return $this->name;

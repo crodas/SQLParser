@@ -42,7 +42,11 @@ use PDO;
  */
 class Writer
 {
+    /**
+     * @var Writer
+     */
     protected static $instance;
+
     protected $varValues = array();
 
     /**
@@ -491,7 +495,7 @@ class Writer
      */
     public function update(Update $update)
     {
-        $stmt  = 'UPDATE ' . $this->tableList($update->getTable());
+        $stmt  = 'UPDATE ' . $this->tableList($update->getTables());
         $stmt .= $this->doJoins($update);
         $stmt .= " SET " . $this->exprList($update->getSet());
         $stmt .= $this->doWhere($update);
@@ -626,7 +630,7 @@ class Writer
 
     public function view(View $view)
     {
-        return "CREATE VIEW " . $this->escape($view->getView()) . " AS " . $this->select($view->getSelect());
+        return "CREATE VIEW " . $this->escape($view->getName()) . " AS " . $this->select($view->getSelect());
     }
 
     /**
