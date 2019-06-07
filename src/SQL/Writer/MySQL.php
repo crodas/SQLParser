@@ -209,4 +209,35 @@ class MySQL extends Writer
         return $sql;
     }
 
+    /**
+     * Write MySQL GLOB equivalent statement using LIKE BINARY
+     *
+     * @param Stmt\Expr $expr
+     * @return string
+     */
+    public function exprGlob(Stmt\Expr $expr)
+    {
+        $members = [];
+        foreach ($expr->getMembers() as $part) {
+            $members[] = $this->value($part);
+        }
+
+        return "{$members[0]} LIKE BINARY {$members[1]}";
+    }
+
+    /**
+     * Write MySQL NOT GLOB equivalent statement using NOT LIKE BINARY
+     *
+     * @param Stmt\Expr $expr
+     * @return string
+     */
+    public function exprNotGlob(Stmt\Expr $expr)
+    {
+        $members = [];
+        foreach ($expr->getMembers() as $part) {
+            $members[] = $this->value($part);
+        }
+
+        return "{$members[0]} NOT LIKE BINARY {$members[1]}";
+    }
 }

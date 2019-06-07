@@ -11,13 +11,13 @@ INNER JOIN recipes AS re ON re.id = memfav.recipeid
 
 where flow.follower_id = 1;
 SELECT
-   SQL_CALC_FOUND_ROWS a.* 
-   FROM 
+   SQL_CALC_FOUND_ROWS a.*
+   FROM
      articles AS a
        JOIN tags2articles AS ta  ON a.id=ta.idArticle
          JOIN tags AS t ON ta.idTag=t.id
-         WHERE 
-           t.id IN (12,13,16) 
+         WHERE
+           t.id IN (12,13,16)
     GROUP BY a.id
     HAVING
       COUNT(t.id)=3
@@ -44,19 +44,19 @@ SELECT count(*), max(a) FROM t1 GROUP BY b;
 SELECT count(*), max(a) FROM t1 GROUP BY b HAVING count(*)=1;
 SELECT count(*), max(a) FROM t1 GROUP BY b HAVING count(*)=2;
 SELECT DISTINCT count(*), max(a) FROM t1 GROUP BY b;
-SELECT DISTINCT count(*), max(a) FROM t1 
+SELECT DISTINCT count(*), max(a) FROM t1
 GROUP BY b HAVING count(*)=1;
-SELECT DISTINCT count(*), max(a) FROM t1 
+SELECT DISTINCT count(*), max(a) FROM t1
 GROUP BY b HAVING count(*)=2;
 SELECT ALL count(*), max(a) FROM t1 GROUP BY b;
-SELECT ALL count(*), max(a) FROM t1 
+SELECT ALL count(*), max(a) FROM t1
 GROUP BY b HAVING count(*)=1;
-SELECT ALL count(*), max(a) FROM t1 
+SELECT ALL count(*), max(a) FROM t1
 GROUP BY b HAVING count(*)=2;
 SELECT count(*), max(a) FROM t1 WHERE a="a" GROUP BY b;
-SELECT count(*), max(a) FROM t1 
+SELECT count(*), max(a) FROM t1
 WHERE a="c" GROUP BY b HAVING count(*)=1;
-SELECT count(*), max(a) FROM t1 
+SELECT count(*), max(a) FROM t1
 WHERE 0 GROUP BY b HAVING count(*)=2;
 SELECT DISTINCT count(*), max(a) FROM t1 WHERE a<"c" GROUP BY b;
 SELECT DISTINCT count(*), max(a) FROM t1 WHERE a>"a"
@@ -66,7 +66,7 @@ GROUP BY b HAVING count(*)=2;
 SELECT ALL count(*), max(a) FROM t1 WHERE b>"one" GROUP BY b;
 SELECT ALL count(*), max(a) FROM t1 WHERE a!="b"
 GROUP BY b HAVING count(*)=1;
-SELECT ALL count(*), max(a) FROM t1 
+SELECT ALL count(*), max(a) FROM t1
 WHERE 0 GROUP BY b HAVING count(*)=2;
 SELECT * FROM t1 a;
 SELECT t1.* FROM t1 a;
@@ -267,12 +267,12 @@ SELECT count(*) FROM f1 GROUP BY a/5 ORDER BY 1 LIMIT 10;
 SELECT b FROM f1 ORDER BY a LIMIT 2 OFFSET "hello";
 SELECT b FROM f1 ORDER BY a LIMIT 2 OFFSET NULL;
 SELECT b FROM f1 ORDER BY a LIMIT 2 OFFSET 5.1;
-SELECT b FROM f1 ORDER BY a 
+SELECT b FROM f1 ORDER BY a
 LIMIT 2 OFFSET (SELECT group_concat(b) FROM f1);
 SELECT b FROM f1 ORDER BY a LIMIT 10 OFFSET 5;
 SELECT b FROM f1 ORDER BY a LIMIT 2+3 OFFSET 10;
-SELECT b FROM f1 ORDER BY a 
-LIMIT  (SELECT a FROM f1 WHERE b="j") 
+SELECT b FROM f1 ORDER BY a
+LIMIT  (SELECT a FROM f1 WHERE b="j")
 OFFSET (SELECT a FROM f1 WHERE b="b");
 SELECT b FROM f1 ORDER BY a LIMIT "5" OFFSET 3.0;
 SELECT b FROM f1 ORDER BY a LIMIT "5" OFFSET 0;
@@ -285,7 +285,7 @@ SELECT b FROM f1 ORDER BY a LIMIT 5 OFFSET -500;
 SELECT b FROM f1 ORDER BY a LIMIT 5 OFFSET 0;
 SELECT b FROM f1 ORDER BY a LIMIT 5, 10;
 SELECT b FROM f1 ORDER BY a LIMIT 10, 2+3;
-SELECT b FROM f1 ORDER BY a 
+SELECT b FROM f1 ORDER BY a
 LIMIT (SELECT a FROM f1 WHERE b="b"), (SELECT a FROM f1 WHERE b="j");
 SELECT b FROM f1 ORDER BY a LIMIT 3.0, "5";
 SELECT b FROM f1 ORDER BY a LIMIT 0, "5";
@@ -414,27 +414,27 @@ SELECT subs.*, media.id as media_id, media.size as media_size, media.dim1 as med
 select link_tags FROM links, sub_statuses WHERE id = 0 AND link_id = link and link_date > "2015-08-22 22:18:00" and link_status = "published";
 SELECT UNIX_TIMESTAMP(annotation_time) as time, UNIX_TIMESTAMP(annotation_expire) as expire, annotation_text as text FROM annotations WHERE annotation_key = "top-link-mnm" and (annotation_expire is null or annotation_expire > now());
 SELECT SQL_CACHE count(*) FROM sub_statuses  WHERE sub_statuses.id = 0 AND status="published";
-SELECT 
+SELECT
 DISTINCT
 SQL_BUFFER_RESULT
 t.id,
-    t.tag, 
+    t.tag,
     c.title AS Category
     FROM
-    tags2Articles t2a 
+    tags2Articles t2a
     INNER JOIN tags t ON t.id = t2a.idTag
     INNER JOIN categories c ON t.tagCategory = c.id
     INNER JOIN (
             SELECT
-            a.id 
-            FROM 
+            a.id
+            FROM
             articles AS a
             JOIN tags2articles AS ta  ON a.id=ta.idArticle
             JOIN tags AS tsub ON ta.idTag=tsub.id
-            WHERE 
-            tsub.id IN (12,13,16) 
+            WHERE
+            tsub.id IN (12,13,16)
             GROUP BY a.id
-            HAVING COUNT(tsub.id)=3 
+            HAVING COUNT(tsub.id)=3
             ) asub ON t2a.idArticle = asub.id;
 SELECT city, (temp_hi+temp_lo)/2 AS temp_avg, date FROM weather;
 SELECT * FROM weather
@@ -491,3 +491,8 @@ ORDER BY
     WHEN City IS NULL THEN Country
     ELSE City
 END);
+--SELECT CAST('12.5' AS REAL) ToReal, CAST(12.5 AS INTEGER) AS ToInteger
+SELECT 'jack' NOT LIKE "%j";
+SELECT 'Jack' LIKE "j%";
+SELECT 'Jack' GLOB "j%";
+SELECT 'Jack' NOT GLOB "j%";

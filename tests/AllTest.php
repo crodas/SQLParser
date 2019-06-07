@@ -165,7 +165,9 @@ class AllTest extends TestCase
         } catch (\Exception $e) {
             echo "\nEngine: $engine\n";
             echo $sql . "\n";
-            echo SQL\Writer::create($object) . "\n";
+            if (!empty($object)) {
+                echo SQL\Writer::create($object) . "\n";
+            }
             if (!empty($newsql)) {
                 echo "NEW SQL: ";
                 echo $newsql . "\n";

@@ -359,7 +359,7 @@ class Writer
         }
 
         $members = [];
-        foreach ($expr->GetMembers() as $part) {
+        foreach ($expr->getMembers() as $part) {
             $members[] = $this->value($part);
         }
 
@@ -383,11 +383,6 @@ class Writer
             }
             $stmt .= " END";
             return $stmt;
-        case 'IN':
-            return $this->escape($expr->getMember(0)) . " IN {$members[1]}";
-
-        case 'NIN':
-            return $this->escape($expr->getMember(0)) . " NOT IN {$members[1]}";
 
         case 'WHEN':
             return "WHEN {$members[0]} THEN {$members[1]}";
