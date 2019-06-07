@@ -24,8 +24,6 @@
 */
 namespace SQL;
 
-use SQLParser\Stmt;
-
 /**
  * Class Table
  * @package SQL

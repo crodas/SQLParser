@@ -28,7 +28,7 @@ use SQLParser\Stmt\ExprList;
 use SQLParser\Stmt\Expr;
 use SQL\AlterTable;
 use SQLParser\Stmt;
-use RuntimeException;
+use InvalidArgumentException;
 use PDO;
 
 /**
@@ -47,13 +47,18 @@ class Writer
      */
     protected static $instance;
 
-    protected $varValues = array();
+    /**
+     * @var array
+     */
+    protected $varValues = [];
 
     /**
-     *  Set Write instance
+     * Set Write instance
      *
-     *  Change the Writer instance to generate SQL-compatible
-     *  with another engine.
+     * Change the Writer instance to generate SQL-compatible
+     * with another engine.
+     *
+     * @param $instance
      */
     final public static function setInstance($instance)
     {
@@ -70,7 +75,7 @@ class Writer
         }
 
         if (!($instance instanceof self)) {
-            throw new RuntimeException('$instance must an instanceof SQL\Writer');
+            throw new InvalidArgumentException('$instance must an instanceof SQL\Writer');
         }
 
         self::$instance = $instance;
@@ -96,11 +101,7 @@ class Writer
      */
     final public static function create($object, array $values = array())
     {
-        if (empty(self::$instance)) {
-            self::getInstance();
-        }
-
-        self::$instance->varValues = $values;
+        self::getInstance()->varValues = $values;
 
         if ($object instanceof Select) {
             return self::$instance->select($object);
@@ -142,7 +143,7 @@ class Writer
             return self::$instance->addIndex($object);
         }
 
-        throw new RuntimeException("Don't know how to create " . get_class($object));
+        throw new InvalidArgumentException("Don't know how to create " . get_class($object));
     }
 
     /**
@@ -330,7 +331,7 @@ class Writer
         }
 
         if (!is_scalar($value)) {
-            throw new \InvalidArgumentException;
+            throw new InvalidArgumentException;
         }
 
         if (is_int($value) || is_float($value)) {
@@ -357,9 +358,9 @@ class Writer
             return $this->$method($expr);
         }
 
-        $member = array();
+        $members = [];
         foreach ($expr->GetMembers() as $part) {
-            $member[] = $this->value($part);
+            $members[] = $this->value($part);
         }
 
         $type = $expr->getType();
@@ -369,44 +370,44 @@ class Writer
 
         case 'IS NULL':
         case 'IS NOT NULL':
-            return $member[0] . ' ' . $type;
+            return $members[0] . ' ' . $type;
 
         case 'CASE':
             $else = NULL;
             if ($expr->getMember(-1) instanceof Stmt\Expr) {
-                $else = array_pop($member);
+                $else = array_pop($members);
             }
-            $stmt = "CASE " . implode(" ", $member);
+            $stmt = "CASE " . implode(" ", $members);
             if ($else !== NULL) {
                 $stmt .= " ELSE " . $else;
             }
             $stmt .= " END";
             return $stmt;
         case 'IN':
-            return $this->escape($expr->getMember(0)) . " IN {$member[1]}";
+            return $this->escape($expr->getMember(0)) . " IN {$members[1]}";
 
         case 'NIN':
-            return $this->escape($expr->getMember(0)) . " NOT IN {$member[1]}";
+            return $this->escape($expr->getMember(0)) . " NOT IN {$members[1]}";
 
         case 'WHEN':
-            return "WHEN {$member[0]} THEN {$member[1]}";
+            return "WHEN {$members[0]} THEN {$members[1]}";
 
         case 'ALL':
             return "*";
 
         case 'CALL':
-            return $expr->getMember(0) . "({$member[1]})";
+            return $expr->getMember(0) . "({$members[1]})";
 
         case 'ASC':
         case 'DESC':
-            return "{$member[0]} {$type}";
+            return "{$members[0]} {$type}";
 
         case 'EXPR':
-            return "({$member[0]})";
+            return "({$members[0]})";
 
         case 'INDEX':
             $rawMember = $expr->getMembers();
-            $expr = $member[0];
+            $expr = $members[0];
             if (!empty($rawMember[1])) {
                 $expr .= "(" . $rawMember[1] . ")";
             }
@@ -416,16 +417,16 @@ class Writer
             return $expr;
 
         case 'VALUE':
-            return $member[0];
+            return $members[0];
 
         case 'NOT':
-            return "NOT {$member[0]}";
+            return "NOT {$members[0]}";
 
         case 'TIMEINTERVAL':
-            return "INTERVAL {$member[0]} " . $expr->getMember(1);
+            return "INTERVAL {$members[0]} " . $expr->getMember(1);
         }
 
-        return "{$member[0]} {$type} {$member[1]}";
+        return "{$members[0]} {$type} {$members[1]}";
     }
 
     /**
@@ -439,7 +440,7 @@ class Writer
         if ($list instanceof ExprList) {
             $list = $list->getExprs();
         }
-        $columns = array();
+        $columns = [];
         foreach ($list as $column) {
             if ($column instanceof Expr || $column instanceof Stmt\VariablePlaceholder) {
                 $columns[] = $this->value($column);
@@ -466,7 +467,7 @@ class Writer
      */
     protected function tableList(array $tables)
     {
-        $list = array();
+        $list = [];
         foreach ($tables as $key => $table) {
             if (is_array($table) && $table[1]) {
                 $table = $this->escape($table[0]) . '.' . $this->escape($table[1]);
@@ -558,7 +559,7 @@ class Writer
     public function selectOptions(Select $select)
     {
         $options = array_intersect(
-            array("ALL", "DISTINCT", "DISTINCTROW"),
+            ["ALL", "DISTINCT", "DISTINCTROW"],
             $select->getOptions()
         );
 
@@ -735,7 +736,7 @@ class Writer
      */
     public function join(Stmt\Join $join)
     {
-        $str = $join->getType() . " " . $this->tableList(array($join->getTable()));
+        $str = $join->getType() . " " . $this->tableList([$join->getTable()]);
         if ($join->hasAlias()) {
             $str .= " AS " . $this->escape($join->getAlias());
         }
@@ -759,7 +760,7 @@ class Writer
             return '';
         }
 
-        $joins = array();
+        $joins = [];
         foreach ($stmt->getJoins() as $join) {
             $joins[] = $this->join($join);
         }

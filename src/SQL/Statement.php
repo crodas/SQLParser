@@ -353,6 +353,9 @@ abstract class Statement
      * Iterates recursively over a given $variable, calling a $callback
      * for each value.
      *
+     * This function is also useful to replace Statements or Expressions if the callback returns
+     * something other than NULL.
+     *
      * @param $variable
      * @param callable $callback
      */
@@ -391,6 +394,9 @@ abstract class Statement
      *
      * This function is useful to get information (Expr, Functions, Sub queries) that may exists
      * somewhere in this statement.
+     *
+     * This function is also useful to replace Statements or Expressions if the callback returns
+     * something other than NULL.
      *
      * @param callable $callback
      */

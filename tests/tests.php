@@ -5,7 +5,7 @@ use SQLParser\Stmt\VariablePlaceholder;
 use SQLParser\Stmt\Expr;
 use SQLParser\Writer\SQL;
 
-return array(
+return [
     "SELECT x, 5+10 as a, 90*10" => function($query, $phpunit) {
         $phpunit->assertEquals(count($query), 1);
         $query = $query[0];
@@ -31,7 +31,7 @@ return array(
     "((SELECT * FROM `table` X))" => function($query, $phpunit) {
         $phpunit->assertEquals(count($query), 1);
         $query  = $query[0];
-        $tables = $query->getTables(); 
+        $tables = $query->getTables();
         $phpunit->assertEquals(['X' => 'table'], $tables);
 
         $tables = ['X' => 'foobar'];
@@ -130,7 +130,7 @@ return array(
     "SELECT * FROM (SELECT * FROM `table`) X" => function($query, $phpunit) {
         $phpunit->assertEquals(count($query), 1);
         $query  = $query[0];
-        $tables = $query->getTables(); 
+        $tables = $query->getTables();
         $phpunit->assertTrue($tables['X'] instanceof \SQL\Select);
         $phpunit->assertEquals("SELECT * FROM (SELECT * FROM `table`) AS `X`", Writer::create($query));
 
@@ -288,7 +288,7 @@ return array(
         );
     },
     'SELECT * FROM url WHERE hash = url($sha1)' => function($queries, $phpunit) {
-        $phpunit->assertEquals(count($queries), 1);
+        $phpunit->assertEquals(1, count($queries));
         $query = $queries[0];
         $phpunit->assertEquals(1, count($query->getFunctionCalls()));
         $query->iterate(function($expr) {
@@ -296,9 +296,22 @@ return array(
                 return new VariablePlaceholder("xxx");
             }
         });
+
+        $phpunit->assertEquals(['xxx'], $query->getVariables('where'));
+
         $phpunit->assertEquals(
             "SELECT * FROM `url` WHERE `hash` = :xxx",
             (string)$query
         );
     },
-);
+    'alter table xxx change column yyy yyy int first' => function($queries, $phpunit) {
+        $phpunit->assertEquals(1, count($queries));
+        $phpunit->assertTrue($queries[0] instanceof \SQL\AlterTable\AlterTable);
+        $phpunit->assertTrue($queries[0]->isFirst());
+    },
+    'alter table xxx change column yyy yyy int after xxx' => function($queries, $phpunit) {
+        $phpunit->assertEquals(1, count($queries));
+        $phpunit->assertTrue($queries[0] instanceof \SQL\AlterTable\AlterTable);
+        $phpunit->assertFalse($queries[0]->isFirst());
+    },
+];

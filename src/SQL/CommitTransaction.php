@@ -24,6 +24,10 @@
 */
 namespace SQL;
 
+/**
+ * Class CommitTransaction
+ * @package SQL
+ */
 class CommitTransaction extends Transaction
 {
 }

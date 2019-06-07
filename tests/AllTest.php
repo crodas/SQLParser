@@ -69,46 +69,6 @@ class AllTest extends TestCase
         return $args;
     }
 
-    public static function featuresDiff()
-    {
-        $args = [];
-        $diff   = new SQL\TableDiff;
-        $parser = new SQLParser;
-        Writer::setInstance('mysql');
-        foreach (glob(__DIR__ . '/features/alter-table/*.sql') as $file) {
-            $content = file_get_contents($file);
-            if ($parts = preg_split("/--\s*(END|NEW|EXPECTED)/", $content)) {
-                $old  = $parts[0];
-                $new  = $parts[1];
-                $sqls = $parser->parse($parts[2]);
-                $args[] = [$diff, $old, $new, array_filter($sqls)];
-            }
-        }
-
-        return $args;
-    }
-
-    /**
-     *  @dataProvider featuresDiff
-     */
-    public function testTableDiff($tableDiff, $prev, $current, Array $expected)
-    {
-        $changes = $tableDiff->diff((String)$prev, (string)$current);
-        $this->assertEquals(count($changes), count($expected));
-        foreach ($changes as $id => $change) {
-            $this->assertEquals($change, $expected[$id]);
-        }
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testTableDiffException()
-    {
-        $diff = new SQL\TableDiff;
-        $diff->diff("SELECT 1", "SELECT 2");
-    }
-
     /**
      *  @dataProvider Provider
      */
@@ -120,9 +80,11 @@ class AllTest extends TestCase
             throw $e;
         }
 
+        Writer::setInstance('mysql');
+
         $strs = [];
         foreach ($parsed as $sql) {
-            $strs[] = SQL\Writer::Create($sql);
+            $strs[] = Writer::Create($sql);
         }
         $newSql = implode(";", $strs);
 
@@ -218,7 +180,7 @@ class AllTest extends TestCase
      */
     public function testFeaturesParsingErrors($sql, $parser)
     {
-        $data = $parser->parse($sql);
+        $parser->parse($sql);
     }
 
     public function testGetSubQuery()
@@ -258,75 +220,4 @@ class AllTest extends TestCase
         $this->assertEquals(['users', 'lol'], $q[0]->getAllTables());
     }
 
-    public static function expectedRewrites()
-    {
-        return [
-            [
-                'mysql',
-                'SELECT * FROM db.stable WHERE foo IS NULL',
-                'SELECT * FROM `db`.`stable` WHERE `foo` IS NULL',
-            ],
-            [
-                'mysql',
-                'SELECT * FROM db.stable WHERE foo IS NOT NULL',
-                'SELECT * FROM `db`.`stable` WHERE `foo` IS NOT NULL',
-            ],
-            [
-                'sqlite',
-                'SELECT * FROM db.stable WHERE foo IS NULL',
-                'SELECT * FROM db.stable WHERE foo IS NULL',
-            ],
-            [
-                'sqlite',
-                'SELECT * FROM db.`table` WHERE foo IS NOT NULL',
-                "SELECT * FROM db.'table' WHERE foo IS NOT NULL",
-            ],
-            [
-                'mysql',
-                'SELECT * FROM db.stable WHERE (foo = :foo AND bar = :bar) OR xxx = :xxx',
-                'SELECT * FROM `db`.`stable` WHERE (`foo` = :foo AND `bar` = :bar) OR `xxx` = :xxx',
-            ],
-            [
-                'mysql',
-                'SELECT * FROM db.stable',
-                'SELECT * FROM `db`.`stable`',
-            ],
-            [
-                'mysql',
-                'SELECT * FROM db.stable as foo',
-                'SELECT * FROM `db`.`stable` AS `foo`',
-            ],
-            [
-                'mysql',
-                'SELECT * FROM stable as stable',
-                'SELECT * FROM `stable` AS `stable`',
-            ],
-            [
-                'mysql',
-                'SELECT * FROM stable stable WHERE x = 1',
-                'SELECT * FROM `stable` AS `stable` WHERE `x` = 1',
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider expectedRewrites
-     * @param $driver
-     * @param $input
-     * @param $output
-     */
-    public function testRewriteQuery($driver, $input, $output)
-    {
-        Writer::setInstance($driver);
-        $parser = new SQLParser;
-        $queries = $parser->parse($input);
-
-        $this->assertEquals($output, (string)$queries[0]);
-    }
-
-    public function testExprReturnsNull()
-    {
-        $x = new SQLParser\Stmt\Expr('xxx');
-        $this->assertNull($x->getMember(10));
-    }
 }
