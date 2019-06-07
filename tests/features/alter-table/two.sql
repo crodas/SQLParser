@@ -14,6 +14,10 @@ create table foobarx(
     key foo(y desc, x asc)
 );
 
+CREATE INDEX foo ON foobarx (y desc, x asc);
+
+-- EXPECTED
+
 ALTER TABLE `foobar` RENAME TO `foobarx`;
 ALTER TABLE `foobarx` ADD COLUMN `x` int NOT NULL AFTER `id`;
 ALTER TABLE `foobarx` ADD COLUMN `y` int NOT NULL DEFAULT 99 AFTER `x`;

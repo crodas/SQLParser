@@ -20,8 +20,8 @@ use SQLParser\Stmt;
 %left T_AND.
 %right T_NOT.
 %left T_QUESTION T_COLON.
-%nonassoc T_EQ T_LIKE T_NE.
-%nonassoc T_GT T_GE T_LT T_LE.
+%nonassoc T_EQ T_LIKE T_GLOB T_NE.
+%nonassoc T_GT T_GE T_LT T_LE .
 %nonassoc T_IN.
 %left T_PLUS T_MINUS T_CONCAT.
 %left T_TIMES T_DIV T_MOD.
@@ -58,8 +58,8 @@ rollback(A) ::= ROLLBACK TO alpha(B).               { A = new SQL\RollbackTransa
 transaction_keyword ::= TRANSACTION|WORK.
 transaction_keyword ::= .
 
-commit_keyword ::= COMMIT. 
-commit_keyword ::= T_END. 
+commit_keyword ::= COMMIT.
+commit_keyword ::= T_END.
 
 
 inner_select(A) ::= PAR_OPEN inner_select(B) PAR_CLOSE . { A = B;}
@@ -101,7 +101,7 @@ after(A) ::= .
 
 
 /** Select */
-select(A) ::= SELECT select_opts(MM) expr_list_as(L) from(X) joins(J) where(W) group_by(GG) order_by(O) limit(LL) .  { 
+select(A) ::= SELECT select_opts(MM) expr_list_as(L) from(X) joins(J) where(W) group_by(GG) order_by(O) limit(LL) .  {
     A = new SQL\Select(L);
     if (X)  {
         foreach (X as $table) {
@@ -118,7 +118,7 @@ select(A) ::= SELECT select_opts(MM) expr_list_as(L) from(X) joins(J) where(W) g
 
 select_opts(A) ::= select_opts(B) select_mod(C) . { A = B; A[] = C; }
 select_opts(A) ::= . { A = array(); }
-select_mod(A) ::= ALL|DISTINCT|DISTINCTROW|HIGH_PRIORITY|STRAIGHT_JOIN|SQL_SMALL_RESULT|SQL_BIG_RESULT|SQL_CACHE|SQL_CALC_FOUND_ROWS|SQL_BUFFER_RESULT|SQL_NO_CACHE(X). { A = strtoupper(@X); }
+select_mod(A) ::= ALL|DISTINCT|DISTINCTROW|HIGH_PRIORITY|STRAIGHT_JOIN|SQL_SMALL_RESULT|SQL_BIG_RESULT|SQL_CACHE|SQL_CALC_FOUND_ROWS|SQL_BUFFER_RESULT|SQL_NO_CACHE(X). { A = strtoupper(X); }
 
 from(A) ::= FROM table_list(X). { A = X; }
 from(A) ::= .
@@ -132,11 +132,11 @@ table_with_alias(A) ::= table_name(X) T_AS alpha(Y) .     { A = [X, Y]; }
 table_with_alias(A) ::= table_name(X) alpha(Y) .          { A = [X, Y]; }
 table_with_alias(A) ::= table_name(X).                    { A = [X, NULL]; }
 
-joins(A) ::= joins(B) join(C). { A = B; A[] = C; } 
+joins(A) ::= joins(B) join(C). { A = B; A[] = C; }
 joins(A) ::= . { A = []; }
 
 join(A) ::= join_type(B) JOIN table_with_alias(C) join_condition(D). {
-    A = B->setTable(C[0], C[1]); 
+    A = B->setTable(C[0], C[1]);
     if (D[0]) {
         A->{D[0]}(D[1]);
     }
@@ -160,13 +160,18 @@ join_condition(A) ::= . { A = NULL; }
 where(A) ::= WHERE expr(B) . { A = B; }
 where(A) ::= . { A = NULL; }
 
-order_by(A) ::= ORDER BY order_by_fields(B) . { A = B; }
+order_by(A) ::= ORDER BY order_by_fields(B) . {
+    A = new Stmt\ExprList;
+    A->setExprs(B);
+}
 order_by(A) ::= . { A = NULL; }
 
 order_by_fields(A) ::= order_by_fields(B) COMMA order_by_field(C) . { A = B; A[] = C; }
 order_by_fields(A) ::= order_by_field(B) . { A = [B]; }
 
-order_by_field(A) ::= expr(X) DESC|ASC(Y) . { A = new Stmt\Expr(strtoupper(@Y), X); }
+order_by_field(A) ::= expr(X) DESC|ASC(Y) . {
+    A = new Stmt\Expr(strtoupper(Y), X);
+}
 order_by_field(A) ::= expr(X) . { A = new Stmt\Expr("ASC", X); }
 
 limit(A) ::= LIMIT expr(B) OFFSET expr(C).  { A = [B, C]; }
@@ -180,17 +185,17 @@ group_by(A) ::= .
 
 insert(A) ::= insert_stmt(X) select(S).                 { A = X; X->values(S); }
 insert(A) ::= insert_stmt(X) inner_select(S)    .       { A = X; X->values(S); }
-insert(A) ::= insert_stmt(X) VALUES expr_list_par_many(L) on_dup(DU).   { 
-    A = X; X->values(L); 
+insert(A) ::= insert_stmt(X) VALUES expr_list_par_many(L) on_dup(DU).   {
+    A = X; X->values(L);
     if (DU) A->onDuplicate(DU);
 }
-insert(A) ::= insert_stmt(X) set_expr(S) on_dup(DU). { 
-    A = X; 
-    $keys   = [];
+insert(A) ::= insert_stmt(X) set_expr(S) on_dup(DU). {
+    A = X;
+    $keys   = new Stmt\ExprList;
     $values = [];
     foreach (S->getExprs() as $field) {
         $member = $field->getMembers();
-        $keys[]   = $member[0];
+        $keys->addTerm($member[0]);
         $values[] = $member[1];
     }
     X->values([$values])->fields($keys);
@@ -216,16 +221,18 @@ update(A) ::= UPDATE table_list(B) joins(JJ) set_expr(S) where(W) order_by(O) li
     if (LL) A->limit(LL[0], LL[1]);
 }
 
-insert_stmt(A) ::= INSERT|REPLACE(X) INTO insert_table(T). { 
-    A = new SQL\Insert(@X);
-    A->into(T[0])->fields(T[1]);
+insert_stmt(A) ::= INSERT|REPLACE(X) INTO insert_table(T). {
+    A = new SQL\Insert(X);
+    A->into(T[0]);
+    if (T[1]) A->fields(T[1]);
 }
-insert_stmt(A) ::= INSERT|REPLACE(X) insert_table(T). { 
-    A = new SQL\Insert(@X);
-    A->into(T[0]); 
+insert_stmt(A) ::= INSERT|REPLACE(X) insert_table(T). {
+    A = new SQL\Insert(X);
+    A->into(T[0]);
+    if (T[1]) A->fields(T[1]);
 }
 
-insert_table(A) ::= table_name(B) . { A = [B, []];}
+insert_table(A) ::= table_name(B) . { A = [B, null];}
 insert_table(A) ::= table_name(B) PAR_OPEN columns(L) PAR_CLOSE.  { A = [B, L]; }
 
 on_dup(A) ::= ON DUPLICATE KEY UPDATE set_expr_values(X) . { A = X; }
@@ -235,8 +242,8 @@ on_dup(A) ::= . { A = NULL; }
 set_expr(A) ::= SET set_expr_values(X). { A = X; }
 set_expr_values(A) ::= set_expr_values(B) COMMA assign(C) . { A = B->addTerm(C); }
 set_expr_values(A) ::= assign(C) .      { A = new Stmt\ExprList(C); }
-assign(A) ::= term_colname(B) T_EQ expr(X) . { 
-    A = new Stmt\Expr("=", B, X); 
+assign(A) ::= term_colname(B) T_EQ expr(X) . {
+    A = new Stmt\Expr("=", B, X);
 }
 
 create_view(A) ::= CREATE VIEW colname(N) T_AS select(S). {
@@ -250,8 +257,8 @@ create_table(A) ::= CREATE TABLE colname(N) PAR_OPEN create_fields(X) PAR_CLOSE 
 table_opts(A) ::= table_opts(B) table_opt(C). { A = array_merge(B, C); }
 table_opts(A) ::= . { A = array(); }
 
-table_opt(A) ::= table_key(B) T_EQ term(C) . {  
-    A[implode(" ", B)] = C->getMember(0); 
+table_opt(A) ::= table_key(B) T_EQ term(C) . {
+    A[implode(" ", B)] = C->getMember(0);
 }
 
 table_key(A) ::= table_key(B) alpha(C). { A = B; A[] = C; }
@@ -278,12 +285,12 @@ index_col_name(A) ::= term_colname(B) length(C) order(D) . {
     A = new Stmt\Expr('INDEX', B, C, D);
 }
 
-order(Y)  ::= DESC|ASC(X) . { Y = strtoupper(@X); }
+order(Y)  ::= DESC|ASC(X) . { Y = strtoupper(X); }
 order(Y)  ::= . { Y = NULL; }
 length(A) ::= PAR_OPEN NUMBER(B) PAR_CLOSE . { A = B; }
 length(A) ::= . { A = NULL; }
 
-create_column(A) ::= colname(B) data_type(C) column_mods(X) . { 
+create_column(A) ::= colname(B) data_type(C) column_mods(X) . {
     A = new Stmt\Column(B, C[0], C[1], C[2]);
     foreach (X as $setting) {
         if (is_array($setting)) {
@@ -307,7 +314,7 @@ data_type(A) ::= alpha(B) PAR_OPEN NUMBER(X) PAR_CLOSE unsigned(Y) .{
 }
 
 unsigned(A) ::= . { A = ''; }
-unsigned(A) ::= T_UNSIGNED(B) . { A = @B; }
+unsigned(A) ::= T_UNSIGNED(B) . { A = B; }
 
 column_mods(A) ::= column_mods(B) column_mod(C). { A = B; A[] = C; }
 column_mods(A) ::= . { A = []; }
@@ -331,29 +338,45 @@ expr(A) ::= T_NOT expr(C). {
 }
 expr(A) ::= PAR_OPEN expr(B) PAR_CLOSE.    { A = new Stmt\Expr('expr', B); }
 expr(A) ::= term_select(B) . { A = B; }
-expr(A) ::= expr(B) T_EQ|T_LIKE|T_NE|T_GT|T_GE|T_LT|T_LE(X) expr(C). { 
+expr(A) ::= expr(B) T_EQ|T_NE|T_GT|T_GE|T_LT|T_LE(X) expr(C). {
     $members = B->getMembers();
     if  (B->getType() === 'VALUE' && count($members) === 2&& $members[1] == 2) {
         B = new Stmt\Expr('COLUMN', $members[0]);
     }
-    A = new Stmt\Expr(@X, B, C); 
+    A = new Stmt\Expr(X, B, C);
 }
 expr(A) ::= expr(B) T_IS T_NOT null(C). { A = new Stmt\Expr("IS NOT NULL", B); }
 expr(A) ::= expr(B) T_IS null(C). { A = new Stmt\Expr("IS NULL", B); }
-expr(A) ::= expr(B) T_PLUS|T_MINUS|T_TIMES|T_DIV|T_MOD(X) expr(C). { A = new Stmt\Expr(@X, B, C); }
+expr(A) ::= expr(B) T_PLUS|T_MINUS|T_TIMES|T_DIV|T_MOD(X) expr(C). { A = new Stmt\Expr(X, B, C); }
+expr(A) ::= expr(B) negable(X) expr(C). {
+    $members = B->getMembers();
+    if  (B->getType() === 'VALUE' && count($members) === 2&& $members[1] == 2) {
+        B = new Stmt\Expr('COLUMN', $members[0]);
+    }
+    A = new Stmt\Expr(X, B, C);
+}
 expr(A) ::= expr(B) in(Y) term_select(X).       { A = new Stmt\Expr(Y, B, X); }
 expr(A) ::= expr(B) in(Y) expr_list_par(X).     { A = new Stmt\Expr(Y, B, new Stmt\Expr('expr', X)); }
 expr(A) ::= case(B) . { A = B; }
 expr(A) ::= term(B) . { A = B; }
 
-in(A) ::= T_NOT T_IN. { A = 'nin'; }
-in(A) ::= T_IN. { A = 'in'; }
+in(A) ::= T_IN . { A = 'IN'; }
+in(A) ::= T_NOT T_IN. { A = 'NOT IN'; }
 
-case(A) ::= T_CASE case_options(X) T_END . { 
+negable(A) ::= T_NOT negable_expr(B) . { A = 'NOT ' . B; }
+negable(A) ::= negable_expr(B) . { A = B; }
+
+negable_expr(A) ::= T_IS   . { A = 'IS'; }
+negable_expr(A) ::= T_LIKE . { A = 'LIKE'; }
+negable_expr(A) ::= T_LIKE T_BINARY . { A = 'GLOB'; }
+negable_expr(A) ::= T_GLOB. { A = 'GLOB'; }
+
+
+case(A) ::= T_CASE case_options(X) T_END . {
     X = array_merge(['CASE'], X);
     A = new Stmt\Expr(X);
 }
-case(A) ::= T_CASE case_options(X) T_ELSE expr(Y) T_END. { 
+case(A) ::= T_CASE case_options(X) T_ELSE expr(Y) T_END. {
     X = array_merge(['CASE'], X, [Y]);
     A = new Stmt\Expr(X);
 }
@@ -372,11 +395,11 @@ term(A) ::= T_STRING2(B).                { A = new Stmt\Expr('value', trim(B, "'
 term(A) ::= alpha(B).                   { A = new Stmt\Expr('column', B); }
 term(A) ::= term_colname(B).            { A = B; }
 term_select(A)  ::= inner_select(B).    { A = new Stmt\Expr('expr', B); }
-term_colname(A) ::= colname(B) .                { 
+term_colname(A) ::= colname(B) .                {
     if (B instanceof Stmt\VariablePlaceholder) {
         A = B;
     } else if (is_array(B)) {
-        A = new Stmt\Expr('column', B[0], B[1]); 
+        A = new Stmt\Expr('column', B[0], B[1]);
     } else {
         A = new Stmt\Expr('column', B);
     }
@@ -430,10 +453,10 @@ colname(A) ::= T_STRING1(B).                     { A = B; }
 colname(A) ::= T_STRING2(B).                     { A = B; }
 colname(A) ::= variable(B).                     { A = B; }
 
-alpha(A) ::= T_DEFAULT(X) .     { A = @X; }
-alpha(A) ::= COLLATE(X) .       { A = @X; }
-alpha(A) ::= INTERVAL(X) .      { A = @X; }
-alpha(A) ::= AUTO_INCREMENT(X). { A = @X; }
+alpha(A) ::= T_DEFAULT(X) .     { A = X; }
+alpha(A) ::= COLLATE(X) .       { A = X; }
+alpha(A) ::= INTERVAL(X) .      { A = X; }
+alpha(A) ::= AUTO_INCREMENT(X). { A = X; }
 alpha(A) ::= ALPHA(B).          { A = B; }
 alpha(A) ::= COLUMN(B).         { A = trim(B, "` \r\n\t"); }
 
@@ -444,4 +467,4 @@ variable(A) ::= QUESTION. { A = new Stmt\VariablePlaceholder; }
 variable(A) ::= T_DOLLAR|T_COLON variable_name(X). { A = new Stmt\VariablePlaceholder(X); }
 
 variable_name(A) ::= ALPHA(X) . { A = X; }
-variable_name(A) ::= LIMIT|INSERT|UPDATE|FROM|SELECT|COLLATE|AUTO_INCREMENT|T_DEFAULT|PRIMARY|OFFSET|KEY(X) . { A = @X; }
+variable_name(A) ::= LIMIT|INSERT|UPDATE|FROM|SELECT|COLLATE|AUTO_INCREMENT|T_DEFAULT|PRIMARY|OFFSET|KEY(X) . { A = X; }

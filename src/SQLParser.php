@@ -27,7 +27,7 @@ class SQLParser
     public function parse($text)
     {
         $lexer  = new SQLParser\Lexer($text);
-        $parser = new SQLParser_Parser; 
+        $parser = new SQLParser_Parser;
         $comments = [];
         $stmt     = 0;
         while ($lexer->yylex()) {
@@ -42,9 +42,9 @@ class SQLParser
             $parser->doParse($lexer->token, $lexer->value);
         }
         $parser->doParse(0, 0);
-        
+
         foreach ($parser->body as $id => $stmt) {
-            if (!empty($comments[$id])) {
+            if (!empty($comments[$id]) && $stmt) {
                 $stmt->setComments($comments[$id]);
             }
         }

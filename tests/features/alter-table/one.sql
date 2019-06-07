@@ -15,12 +15,16 @@ create table foobarx(
     x int not null,
     y int not null default 99,
     xx int,
-    key foo(y desc, x asc)
+    key foo(y desc, x asc),
+    key bar(x asc)
 );
+
+-- EXPECTED
 
 ALTER TABLE `foobar` RENAME TO `foobarx`;
 ALTER TABLE `foobarx` ADD COLUMN `x` int NOT NULL AFTER `id`;
 ALTER TABLE `foobarx` CHANGE COLUMN `y` `y` int NOT NULL DEFAULT 99 AFTER `x`;
 ALTER TABLE `foobarx` DROP  COLUMN`foobar`;
 ALTER TABLE `foobarx` DROP INDEX `foo`;
-CREATE  INDEX `foo` ON `foobarx` ( `y` DESC, `x` ASC);
+CREATE INDEX `foo` ON `foobarx` ( `y` DESC, `x` ASC);
+CREATE INDEX `bar` ON `foobarx` ( `x` ASC);

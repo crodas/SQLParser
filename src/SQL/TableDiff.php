@@ -27,25 +27,47 @@ namespace SQL;
 use SQLParser;
 use SQLParser\Stmt\ExprList;
 use SQLParser\Stmt\Column;
-use RuntimeException;
+use InvalidArgumentException;
 
+/**
+ * Class TableDiff
+ *
+ * This class allows to do a "table diff" between two CREATE TABLE statements, returning an
+ * array of changes for table A to become table B.
+ *
+ * @package SQL
+ */
 class TableDiff
 {
+    /**
+     * @var SQLParser
+     */
     protected $parser;
 
+    /**
+     * TableDiff constructor.
+     */
     public function __construct()
     {
         $this->parser = new SQLParser;
     }
 
+    /**
+     * Returns an array with DROP INDEX and CREATE INDEX statements,
+     * the list of statements are the differences between two tables.
+     *
+     * @param Table $old
+     * @param Table $current
+     * @return array
+     */
     public function getIndexChanges(Table $old, Table $current)
     {
-        $changes = array();
+        $changes = [];
         $old = $old->getIndexes();
         $new = $current->getIndexes();
 
         foreach ($old as $name => $index) {
-            if (empty($new[$name]) || $new[$name]['cols'] != $index['cols']) {
+            if (empty($new[$name]) || $new[$name]['cols'] !== $index['cols']) {
                 $changes[] = new AlterTable\DropIndex($name);
                 unset($old[$name]);
             }
@@ -53,53 +75,76 @@ class TableDiff
 
         foreach($new as $name => $index) {
             if (empty($old[$name])) {
-                $changes[] = new AlterTable\AddIndex($index['unique'] ? 'UNIQUE' : '', $name, ExprList::fromArray($index['cols']));
+                $changes[] = new AlterTable\AddIndex(
+                    $index['unique'] ? 'UNIQUE' : '',
+                    $name,
+                    ExprList::fromArray($index['cols'])
+                );
             }
         }
 
         return $changes;
     }
 
-    protected function compareTypes(Column $a, Column $b)
+    /**
+     * Compares two columns objects and return TRUE if they are the same.
+     *
+     * @param Column $a
+     * @param Column $b
+     * @return bool
+     */
+    protected function compareColumns(Column $a, Column $b)
     {
-        $checks = array('getType', 'getTypeSize', 'defaultValue', 'collate');
+        $checks = ['getType', 'getTypeSize', 'defaultValue', 'collate'];
         foreach ($checks as $check) {
-            if ($a->$check() != $b->$check()) {
-                return true;
+            if ($a->$check() !== $b->$check()) {
+                return false;
             }
         }
-        return false;
+
+        return true;
     }
 
+    /**
+     * Returns a list of columns
+     *
+     * @param Table $table
+     * @return array
+     */
     protected function getColumns(Table $table)
     {
-        $columns = $table->getColumns();
-        $names   = array();
+        $columns = [];
 
-        foreach ($columns as $id => $column) {
-            $column->position = $id;
-            $names[$column->getName()] = $column;
+        foreach ($table->getColumns() as $id => $column) {
+            $columns[$column->getName()] = $column;
         }
 
-        return array($columns, $names);
+        return $columns;
     }
 
+    /**
+     * Returns an arrays with ADD COLUMN and CHANGE COLUMN that are needed
+     * for table $old to become table $new
+     *
+     * @param Table $old
+     * @param Table $current
+     * @return array
+     */
     public function getColumnChanges(Table $old, Table $current)
     {
-        $changes = array();
-        list($oldColumns, $oldNames) = $this->getColumns($old);
-        list($newColumns, $newNames) = $this->getColumns($current);
+        $changes  = [];
+        $oldNames = $this->getColumns($old);
+        $newNames = $this->getColumns($current);
 
         foreach ($newNames as $name => $column) {
-            $after = $column->position === 0 ? TRUE : $newColumns[$column->position-1]->getName();
-            unset($column->position);
+            $after = empty($after) ? null : $after;
             if (empty($oldNames[$name])) {
                 $changes[] = new AlterTable\AddColumn($column, $after);
-                continue;
-            }
-            if ($this->compareTypes($column, $oldNames[$name])) {
+            } else if (!$this->compareColumns($column, $oldNames[$name])) {
                 $changes[] = new AlterTable\ChangeColumn($name, $column, $after);
             }
+
+            $after = $column->getName();
         }
 
         foreach ($oldNames as $name => $column) {
@@ -107,21 +152,28 @@ class TableDiff
                 $changes[] = new AlterTable\DropColumn($name);
             }
         }
-        
+
 
         return $changes;
     }
 
+    /**
+     * Returns a table object from a given $sql statement. Any aditional
+     * CREATE INDEX that may exists will be added to the current $table
+     *
+     * @param string $sql
+     * @return Table
+     */
     public function getTable($sql)
     {
         $stmts = $this->parser->parse($sql);
         if (!($stmts[0] instanceof Table)) {
-            throw new RuntimeException("Expecting a CREATE TABLE Statement, got " . get_class($stmts[0]) . ' class');
+            throw new InvalidArgumentException("Expecting a CREATE TABLE Statement, got " . get_class($stmts[0]) . ' class');
         }
 
         $table = array_shift($stmts);
-        foreach ($stmts as $stmt) {
-            if ($stmt instanceof AlterTable\AddIndex) {
+        foreach (array_filter($stmts) as $stmt) {
+            if ($stmt instanceof AlterTable\AddIndex && $stmt->getTableName() === $table->getName()) {
                 $table->addIndex($stmt);
             }
         }
@@ -129,18 +181,26 @@ class TableDiff
         return $table;
     }
 
+    /**
+     * Returns an array of SQL statements needed for table defined in $oldSQL to look
+     * like table defined in $newSQL
+     *
+     * @param string $oldSQL
+     * @param string $newSQL
+     * @return array
+     */
     public function diff($oldSQL, $newSQL)
     {
         $old     = $this->getTable($oldSQL);
         $current = $this->getTable($newSQL);
-        $changes = array();
+        $changes = [];
 
         if ($old->getName() !== $current->getName()) {
-            $rename = new AlterTable\RenameTable($current->getName()); 
+            $rename = new AlterTable\RenameTable($current->getName());
             $rename->setTableName($old->getName());
             $changes[] = $rename;
         }
-        
+
         $changes = array_merge(
             $changes,
             $this->getColumnChanges($old, $current),

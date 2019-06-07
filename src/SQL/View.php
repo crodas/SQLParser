@@ -24,22 +24,44 @@
 */
 namespace SQL;
 
+/**
+ * Class View
+ * @package SQL
+ */
 class View extends Statement
 {
+    /**
+     * @var string
+     */
     protected $name;
     protected $select;
 
+    /**
+     * View constructor.
+     * @param string $name
+     * @param Select $select
+     */
     public function __construct($name, Select $select)
     {
         $this->name   = $name;
         $this->select = $select;
     }
 
-    public function getView()
+    /**
+     * Returns the view name
+     *
+     * @return string
+     */
+    public function getName()
     {
         return $this->name;
     }
 
+    /**
+     * Returns the SELECT statement
+     *
+     * @return Select
+     */
     public function getSelect()
     {
         return $this->select;

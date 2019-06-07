@@ -28,13 +28,10 @@ class ExprList
 {
     protected $expr = array();
 
-    public function __construct($expr = null, $expr2 = null)
+    public function __construct($expr = null)
     {
         if ($expr) {
             $this->expr[] = $expr;
-        }
-        if ($expr2) {
-            $this->expr[] = $expr2;
         }
     }
 
@@ -48,7 +45,7 @@ class ExprList
         $self = new self;
         $self->expr = $exprs;
         return $self;
-    } 
+    }
 
     public function setExprs(Array $expr)
     {

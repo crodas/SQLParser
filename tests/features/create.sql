@@ -90,7 +90,7 @@ CREATE TABLE `wp_commentmeta` (
                 `meta_value` longtext COLLATE utf8mb4_unicode_ci,
                   PRIMARY KEY (`meta_id`),
                     KEY `comment_id` (`comment_id`),
-                      KEY `meta_key` (`meta_key`(191))
+                      KEY `meta_key` (`meta_key`(191) ASC)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE foobar (

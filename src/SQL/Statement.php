@@ -27,54 +27,133 @@ namespace SQL;
 use SQLParser\Stmt\VariablePlaceholder;
 use SQLParser\Stmt\ExprList;
 use SQLParser\Stmt\Expr;
+use RuntimeException;
 
-class Statement
+/**
+ * Class Statement
+ *
+ * Base statement class with all the things that INSERT, UPDATE,
+ * SELECT, DELETE, DROP and any other similar statement may have in
+ * common.
+ *
+ * @package SQL
+ */
+abstract class Statement
 {
     protected $varValues = array();
 
+    /**
+     * @var array
+     */
     protected $comments = array();
+
+    /**
+     * @var Expr
+     */
     protected $where;
+
+    /**
+     * @var ExprList
+     */
     protected $orderBy;
-    protected $limit;
-    protected $offset;
-    protected $joins;
-    protected $mods = array();
+
+    /**
+     * @var ExprList
+     */
     protected $group;
 
+    /**
+     * @var Expr
+     */
+    protected $having;
+
+    /**
+     * @var Expr|VariablePlaceholder
+     */
+    protected $limit;
+
+    /**
+     * @var Expr|VariablePlaceholder
+     */
+    protected $offset;
+
+    /**
+     * @var array
+     */
+    protected $joins = [];
+
+    protected $mods = array();
+
+    /**
+     * Returns whether the current expression has any GROUP BY object.
+     *
+     * @return bool
+     */
     public function hasGroupBy()
     {
         return !empty($this->group);
     }
 
+    /**
+     * Returns the GROUP BY object
+     *
+     * @return ExprList|null
+     */
     public function getGroupBy()
     {
         return $this->group;
     }
 
-    public function groupBy(ExprList $group, $having)
+    /**
+     * Returns whether the current expression has any HAVING
+     *
+     * @return bool
+     */
+    public function hasHaving()
+    {
+        return !empty($this->having);
+    }
+
+    /**
+     * Returns the current HAVING expression object.
+     *
+     * @return Expr|null
+     */
+    public function getHaving()
+    {
+        return $this->having;
+    }
+
+    /**
+     * Adds GROUP BY to the current object.
+     *
+     * @param ExprList $group
+     * @param Expr|null $having
+     * @return $this
+     */
+    public function groupBy(ExprList $group, Expr $having = null)
     {
         $this->group  = $group;
         $this->having = $having;
         return $this;
     }
 
-    public function getHaving()
-    {
-        return $this->having;
-    }
-
-    public function hasHaving()
-    {
-        return !empty($this->having);
-    }
-
-
+    /**
+     * Returns all the available options for the current
+     * @return array
+     */
     public function getOptions()
     {
         return $this->mods;
     }
 
-    public function setOptions(Array $mods)
+    /**
+     * Adds options for the current statement.
+     *
+     * @param array $mods
+     * @return $this
+     */
+    public function setOptions(array $mods)
     {
         $rules = [
             ['SQL_CACHE', 'SQL_NO_CACHE'],
@@ -90,7 +169,7 @@ class Statement
             }
 
             if (count($walk) > 1) {
-                throw new \RuntimeException("Invalid usage of " . implode(", ", $walk));
+                throw new RuntimeException("Invalid usage of " . implode(", ", $walk));
             }
         }
 
@@ -99,112 +178,187 @@ class Statement
         return $this;
     }
 
-
-    public function hasWhere()
-    {
-        return !empty($this->where);
-    }
-
-    public function joins(Array $joins)
+    /**
+     * Adds JOINs to the current statements.
+     *
+     * @param array $joins
+     * @return $this
+     */
+    public function joins(array $joins)
     {
         $this->joins = $joins;
         return $this;
     }
 
+    /**
+     * Returns whether the current statement has any JOIN.
+     *
+     * @return bool
+     */
     public function hasJoins()
     {
         return !empty($this->joins);
     }
 
+    /**
+     * Returns all the JOINs in the current statement.
+     *
+     * @return array
+     */
     public function getJoins()
     {
         return $this->joins;
     }
 
+    /**
+     * Returns whether the current statement has a WHERE
+     *
+     * @return bool
+     */
+    public function hasWhere()
+    {
+        return !empty($this->where);
+    }
+
+    /**
+     * Returns the WHERE expression for this statement
+     *
+     * @return Expr|null
+     */
     public function getWhere()
     {
         return $this->where;
     }
 
+    /**
+     * Adds a WHERE expression to the current statement
+     *
+     * @param Expr $expr
+     * @return $this
+     */
+    public function where(Expr $expr)
+    {
+        $this->where = $expr;
+        return $this;
+    }
+
+    /**
+     * Returns the OFFSET for the current statement
+     *
+     * @return Expr|VariablePlaceholder
+     */
     public function getOffset()
     {
         return $this->offset;
     }
 
+    /**
+     * Returns whether the current statement has an OFFSET
+     *
+     * @return bool
+     */
     public function hasOffset()
     {
         return $this->offset !== NULL;
     }
 
+    /**
+     * Returns whether the current statement has any LIMIT
+     *
+     * @return bool
+     */
     public function hasLimit()
     {
         return $this->limit !== NULL;
     }
 
-    public function Offset()
-    {
-        return $this->offset;
-    }
-
+    /**
+     * Returns the LIMIT for the current statement
+     *
+     * @return Expr|VariablePlaceholder
+     */
     public function getLimit()
     {
         return $this->limit;
     }
 
+    /**
+     * @param Expr|VariablePlaceholder $limit
+     * @param Expr|VariablePlaceholder|null $offset
+     * @return $this
+     */
+    public function limit($limit, $offset = NULL)
+    {
+        $this->limit  = $limit;
+        $this->offset = $offset;
+
+        return $this;
+    }
+
+    /**
+     * Returns whether the current statement has ORDER BY
+     *
+     * @return bool
+     */
     public function hasOrderBy()
     {
         return !empty($this->orderBy);
     }
 
-    public function orderBy($orderBy)
-    {
-        if (is_string($orderBy)) {
-            die('here');
-        }
-        $this->orderBy = $orderBy;
-        return $this;
-    }
-
+    /**
+     * Returns the ORDER BY object from the current object.
+     *
+     * @return ExprList
+     */
     public function getOrderBy()
     {
         return $this->orderBy;
     }
 
-    public function limit($limit, $offset = NULL)
+    /**
+     * Adds ORDER BY to the current statement.
+     *
+     * @param ExprList $orderBy
+     * @return $this
+     */
+    public function orderBy(ExprList $orderBy)
     {
-        foreach (['limit', 'offset'] as $var) {
-            if ($$var instanceof Expr) {
-                $$var = $$var->getValue();
-            }
-            $this->$var = $$var;
-        }
-
+        $this->orderBy = $orderBy;
         return $this;
     }
 
-    public function where($expr)
-    {
-        if (is_string($expr)) {
-            die($expr);
-        }
-
-        $this->where = $expr;
-
-        return $this;
-    }
-
-
-    public function setComments(Array $comments)
+    /**
+     * Add a list of comments associated with this statement
+     *
+     * @param array $comments
+     * @return $this
+     */
+    public function setComments(array $comments)
     {
         $this->comments = $comments;
         return $this;
     }
 
+    /**
+     * Return a list of comments
+     *
+     * @return array
+     */
     public function getComments()
     {
         return $this->comments;
     }
 
+    /**
+     * Iterates recursively over a given $variable, calling a $callback
+     * for each value.
+     *
+     * This function is also useful to replace Statements or Expressions if the callback returns
+     * something other than NULL.
+     *
+     * @param $variable
+     * @param callable $callback
+     */
     protected function each(&$variable, Callable $callback)
     {
         if ($variable instanceof ExprList) {
@@ -234,6 +388,18 @@ class Statement
         }
     }
 
+    /**
+     * Iterates recursively over all parts of the current statement. The $callback is called
+     * for each value.
+     *
+     * This function is useful to get information (Expr, Functions, Sub queries) that may exists
+     * somewhere in this statement.
+     *
+     * This function is also useful to replace Statements or Expressions if the callback returns
+     * something other than NULL.
+     *
+     * @param callable $callback
+     */
     public function iterate(Callable $callback)
     {
         foreach ($this as &$value) {
@@ -241,6 +407,11 @@ class Statement
         }
     }
 
+    /**
+     * Returns all the sub queries (SELECT) that exists in the current statement.
+     *
+     * @return array
+     */
     public function getSubQueries()
     {
         $values = array();
@@ -252,12 +423,30 @@ class Statement
         return $values;
     }
 
-    public function setValues(Array $variables)
+    /**
+     * Assign values to any variables that may exists.
+     *
+     * This function do not check if a given variable exists.
+     *
+     * @param array $variables
+     * @return $this
+     */
+    public function setValues(array $variables)
     {
-        $this->varValues = array_merge($this->varValues, $variables);
+        $this->varValues = array_merge(
+            $this->varValues,
+            $variables
+        );
         return $this;
     }
 
+    /**
+     * Returns all the variables defined in the entire statement or in a given
+     * scope.
+     *
+     * @param null $scope
+     * @return array
+     */
     public function getVariables($scope = null)
     {
         $vars = [];
@@ -275,6 +464,11 @@ class Statement
         return $vars;
     }
 
+    /**
+     * Returns all the function calls that may exists in the statements
+     *
+     * @return array
+     */
     public function getFunctionCalls()
     {
         $vars = [];
@@ -286,9 +480,13 @@ class Statement
         return $vars;
     }
 
+    /**
+     * Converts the current statement into an string, using the default writer.
+     *
+     * @return string
+     */
     public function __toString()
     {
         return Writer::create($this, $this->varValues);
     }
-
 }

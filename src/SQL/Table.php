@@ -24,8 +24,10 @@
 */
 namespace SQL;
 
-use SQLParser\Stmt;
-
+/**
+ * Class Table
+ * @package SQL
+ */
 class Table extends Statement
 {
     protected $name;
@@ -33,9 +35,39 @@ class Table extends Statement
     protected $columns = array();
     protected $keys = array();
 
-    protected function listToArray(Stmt\ExprList $list)
+    public function __construct($alpha, array $columns, array $options = array())
     {
-        return $list->getExprs();
+        $this->name    = $alpha;
+        $this->options = $options;
+        $this->columns = array_filter($columns, 'is_object');
+
+        foreach (array_filter($columns, 'is_array') as $column) {
+            switch ($column[0]) {
+            case 'primary':
+                foreach ($column[1]->getExprs() as $field) {
+                    $field = $field->getMember(0)->getMember(0);
+                    foreach ($this->columns as $column) {
+                        if ($column->getName() == $field) {
+                            $column->primaryKey();
+                            break;
+                        }
+                    }
+                }
+                break;
+            case 'unique':
+                $this->keys[$column[1]] = array(
+                    'unique' => true,
+                    'cols' => $column[2]->getExprs()
+                );
+                break;
+            case 'key':
+                $this->keys[$column[1]] = array(
+                    'unique' => false,
+                    'cols' => $column[2]->getExprs()
+                );
+                break;
+            }
+        }
     }
 
     public function getIndexes()
@@ -50,48 +82,11 @@ class Table extends Statement
         });
     }
 
-    public function __construct($alpha, Array $columns, Array $options = array())
-    {
-        $this->name = $alpha;
-        $this->options = $options;
-        $this->columns = array_filter($columns, 'is_object');
-
-        $key = [];
-        foreach (array_filter($columns, 'is_array') as $column) {
-            switch ($column[0]) {
-            case 'primary':
-                $primary = $this->listToArray($column[1]);
-                foreach ($this->listToArray($column[1]) as $field) {
-                    $field = $field->getMember(0)->getMember(0);
-                    foreach ($this->columns as $column) {
-                        if ($column->getName() == $field) {
-                            $column->primaryKey();
-                            break;
-                        }
-                    }
-                }
-                break;
-            case 'unique':
-                $this->keys[$column[1]] = array(
-                    'unique' => true,
-                    'cols' => $this->listToArray($column[2])
-                );
-                break;
-            case 'key':
-                $this->keys[$column[1]] = array(
-                    'unique' => false,
-                    'cols' => $this->listToArray($column[2])
-                );
-                break;
-            }
-        }
-    }
-
     public function addIndex(AlterTable\AddIndex $index)
     {
         $this->keys[$index->getIndexName()] = array(
             'unique' => $index->getIndexType() === 'UNIQUE',
-            'cols' => $this->listToArray($index->getColumns()),
+            'cols' => $index->getColumns()->getExprs(),
         );
     }
 

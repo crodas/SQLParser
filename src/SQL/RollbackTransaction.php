@@ -24,6 +24,10 @@
 */
 namespace SQL;
 
+/**
+ * Class RollbackTransaction
+ * @package SQL
+ */
 class RollbackTransaction extends Transaction
 {
 }

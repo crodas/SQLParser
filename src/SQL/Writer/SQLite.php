@@ -27,11 +27,25 @@ namespace SQL\Writer;
 use SQL\Writer;
 use SQLParser\Stmt;
 
+/**
+ * Class SQLite
+ *
+ * SQLite flavoured SQL statements.
+ *
+ * @package SQL\Writer
+ */
 class SQLite extends Writer
 {
+    /**
+     * Overrides how columns are defined, adding SQLite flavour
+     * statements
+     *
+     * @param Stmt\Column $column
+     * @return string
+     */
     public function columnDefinition(Stmt\Column $column)
     {
-        $sql = $this->escape($column->GetName()) 
+        $sql = $this->escape($column->GetName())
             . " "
             . $this->dataType($column->getType(), $column->getTypeSize())
             . $column->getModifier();
@@ -52,7 +66,6 @@ class SQLite extends Writer
         if ($column->isAutoIncrement()) {
             $sql .= " AUTO_INCREMENT";
         }
-
 
         return $sql;
     }

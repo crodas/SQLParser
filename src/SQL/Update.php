@@ -26,22 +26,48 @@ namespace SQL;
 
 use SQLParser\Stmt\ExprList;
 
+/**
+ * Class Update
+ * @package SQL
+ */
 class Update extends Statement
 {
+    /**
+     * @var ExprList
+     */
     protected $set;
-    protected $table;
 
-    public function __construct(Array $table, ExprList $set)
+    /**
+     * @var array
+     */
+    protected $tables = [];
+
+    /**
+     * Update constructor.
+     * @param array $tables
+     * @param ExprList $set
+     */
+    public function __construct(array $tables, ExprList $set)
     {
-        $this->table = $table;
-        $this->set   = $set;
+        $this->tables = $tables;
+        $this->set    = $set;
     }
 
-    public function getTable()
+    /**
+     * Returns the list of tables
+     *
+     * @return array
+     */
+    public function getTables()
     {
-        return $this->table;
+        return $this->tables;
     }
 
+    /**
+     * Returns the SET expression list
+     *
+     * @return ExprList
+     */
     public function getSet()
     {
         return $this->set;

@@ -24,22 +24,50 @@
 */
 namespace SQL;
 
+/**
+ * DROP TABLE statement object representation
+ *
+ * Class Drop
+ * @package SQL
+ */
 class Drop extends Statement
 {
+    /**
+     * @var string
+     */
     protected $type;
-    protected $table;
 
-    public function getTable()
+    /**
+     * @var array
+     */
+    protected $tables;
+
+    /**
+     * Drop constructor.
+     * @param string $type
+     * @param array $tables
+     */
+    public function __construct($type, array $tables)
     {
-        return $this->table;
+        $this->type   = $type;
+        $this->tables = $tables;
     }
 
-    public function __construct($type, Array $table)
+    /**
+     * Returns all the tables from this statement.
+     *
+     * @return array
+     */
+    public function getTables()
     {
-        $this->type  = $type;
-        $this->table = $table;
+        return $this->tables;
     }
 
+    /**
+     * Returns DROP type
+     *
+     * @return mixed
+     */
     public function getType()
     {
         return $this->type;

@@ -44,15 +44,6 @@ class Expr
         }
     }
 
-    public function getValue()
-    {
-        if ($this->type === "VALUE") {
-            return $this->members[0];
-        }
-
-        return $this;
-    }
-
     public function is($type)
     {
         return strtoupper($type) === $this->type;

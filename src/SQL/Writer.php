@@ -28,19 +28,37 @@ use SQLParser\Stmt\ExprList;
 use SQLParser\Stmt\Expr;
 use SQL\AlterTable;
 use SQLParser\Stmt;
-use RuntimeException;
+use InvalidArgumentException;
 use PDO;
 
+/**
+ * Default SQL writer
+ *
+ * This class is responsible for generating SQL statements from
+ * objects representing statements.
+ *
+ * Class Writer
+ * @package SQL
+ */
 class Writer
 {
+    /**
+     * @var Writer
+     */
     protected static $instance;
-    protected $varValues = array();
 
     /**
-     *  Set Write instance
+     * @var array
+     */
+    protected $varValues = [];
+
+    /**
+     * Set Write instance
      *
-     *  Change the Writer instance to generate SQL-compatible
-     *  with another engine.
+     * Change the Writer instance to generate SQL-compatible
+     * with another engine.
+     *
+     * @param $instance
      */
     final public static function setInstance($instance)
     {
@@ -57,25 +75,33 @@ class Writer
         }
 
         if (!($instance instanceof self)) {
-            throw new RuntimeException('$instance must an instanceof SQL\Writer');
+            throw new InvalidArgumentException('$instance must an instanceof SQL\Writer');
         }
 
         self::$instance = $instance;
     }
 
+    /**
+     * Returns the current Writer instance.
+     *
+     * @return Writer
+     */
     final public static function getInstance()
     {
         self::$instance = self::$instance ? self::$instance : new self;
         return self::$instance;
     }
 
-    final public static function create($object, Array $values = array())
+    /**
+     * Returns SQL statements from objects
+     *
+     * @param $object
+     * @param array $values
+     * @return string
+     */
+    final public static function create($object, array $values = array())
     {
-        if (empty(self::$instance)) {
-            self::getInstance();
-        }
-
-        self::$instance->varValues = $values;
+        self::getInstance()->varValues = $values;
 
         if ($object instanceof Select) {
             return self::$instance->select($object);
@@ -117,9 +143,15 @@ class Writer
             return self::$instance->addIndex($object);
         }
 
-        throw new RuntimeException("Don't know how to create " . get_class($object));
+        throw new InvalidArgumentException("Don't know how to create " . get_class($object));
     }
 
+    /**
+     * Returns SQL statement for CREATE INDEX
+     *
+     * @param AlterTable\AddIndex $alterTable
+     * @return string
+     */
     public function addIndex(AlterTable\AddIndex $alterTable)
     {
         return 'CREATE ' . $alterTable->getIndexType() . ' INDEX '
@@ -128,6 +160,12 @@ class Writer
             . ' ( ' . $this->exprList($alterTable->getColumns()) . ')';
     }
 
+    /**
+     * Returns SQL statement for RENAME INDEX
+     *
+     * @param AlterTable\RenameIndex $alterTable
+     * @return string
+     */
     public function renameIndex(AlterTable\RenameIndex $alterTable)
     {
         return "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " RENAME INDEX "
@@ -136,32 +174,59 @@ class Writer
             . $this->escape($alterTable->getNewName());
     }
 
-
+    /**
+     * Returns SQL statement for RENAME TABLE
+     *
+     * @param AlterTable\RenameTable $alterTable
+     * @return string
+     */
     public function renameTable(AlterTable\RenameTable $alterTable)
     {
         return "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " RENAME TO "
             . $this->escape($alterTable->getNewName());
     }
 
-
+    /**
+     * Returns SQL statement for DROP COLUMN (with ALTER TABLE)
+     *
+     * @param AlterTable\DropColumn $alterTable
+     * @return string
+     */
     public function dropColumn(AlterTable\DropColumn $alterTable)
     {
         return "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " DROP  COLUMN"
             . $this->escape($alterTable->getColumnName());
     }
 
-
+    /**
+     * Returns SQL statement for DROP PRIMARY KEY (with ALTER TABLE)
+     *
+     * @param AlterTable\DropPrimaryKey $alterTable
+     * @return string
+     */
     public function dropPrimaryKey(AlterTable\DropPrimaryKey $alterTable)
     {
         return "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " DROP PRIMARY KEY";
     }
 
+    /**
+     * Returns SQL statement for DROP INDEX (with ALTER TABLE)
+     *
+     * @param AlterTable\DropIndex $alterTable
+     * @return string
+     */
     public function dropIndex(AlterTable\DropIndex $alterTable)
     {
         return "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " DROP INDEX "
             . $this->escape($alterTable->getIndexName());
     }
 
+    /**
+     * Returns SQL statement for changing default value of a column
+     *
+     * @param AlterTable\SetDefault $alterTable
+     * @return string
+     */
     public function setDefault(AlterTable\SetDefault $alterTable)
     {
         $sql = "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " CHANGE COLUMN "
@@ -175,6 +240,12 @@ class Writer
         return $sql;
     }
 
+    /**
+     * Returns SQL statement for changing a column
+     *
+     * @param AlterTable\ChangeColumn $alterTable
+     * @return string
+     */
     public function changeColumn(AlterTable\ChangeColumn $alterTable)
     {
         $sql = "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " CHANGE COLUMN "
@@ -190,6 +261,12 @@ class Writer
         return $sql;
     }
 
+    /**
+     * Returns SQL statement for adding a column
+     *
+     * @param AlterTable\AddColumn $alterTable
+     * @return string
+     */
     public function addColumn(AlterTable\AddColumn $alterTable)
     {
         $sql =  "ALTER TABLE " . $this->escape($alterTable->getTableName()) . " ADD COLUMN "
@@ -203,6 +280,12 @@ class Writer
         return $sql;
     }
 
+    /**
+     * Returns SQL statement for a variable/placeholder
+     *
+     * @param Stmt\VariablePlaceholder $stmt
+     * @return string|null
+     */
     public function variable(Stmt\VariablePlaceholder $stmt)
     {
         $name = $stmt->getName();
@@ -218,6 +301,15 @@ class Writer
         return ":{$name}";
     }
 
+    /**
+     * Returns SQL statement from a given value.
+     *
+     * The statements can be sub-queries, variables, another expression,
+     * expression lists, and values.
+     *
+     * @param $value
+     * @return string
+     */
     protected function value($value)
     {
         $map = [
@@ -239,16 +331,26 @@ class Writer
         }
 
         if (!is_scalar($value)) {
-            throw new \InvalidArgumentException;
+            throw new InvalidArgumentException;
         }
 
         if (is_int($value) || is_float($value)) {
             return $value;
         }
 
-        return '"' . str_replace('"', '\\"', substr(var_export($value, true), 1, -1)) . '"';
+        $text = substr(var_export($value, true), 1, -1);
+
+        return '"' . str_replace('"', '\\"', $text) . '"';
     }
 
+    /**
+     * Returns SQL statement from an expression.
+     *
+     * This function has the logic for rendering expressions
+     *
+     * @param Expr $expr
+     * @return mixed|Expr|string
+     */
     public function expr(Stmt\Expr $expr)
     {
         $method = 'expr' . preg_replace("/[^a-z0-9_]+/i", "", $expr->getType());
@@ -256,9 +358,9 @@ class Writer
             return $this->$method($expr);
         }
 
-        $member = array();
-        foreach ($expr->GetMembers() as $part) {
-            $member[] = $this->value($part);
+        $members = [];
+        foreach ($expr->getMembers() as $part) {
+            $members[] = $this->value($part);
         }
 
         $type = $expr->getType();
@@ -266,44 +368,41 @@ class Writer
         case 'COLUMN':
             return implode(".", array_map([$this, 'escape'], $expr->getMembers()));
 
-        case 'ALPHA':
-            return $member[0];
-
         case 'IS NULL':
         case 'IS NOT NULL':
-            return $member[0] . ' ' . $type;
+            return $members[0] . ' ' . $type;
 
         case 'CASE':
             $else = NULL;
             if ($expr->getMember(-1) instanceof Stmt\Expr) {
-                $else = array_pop($member);
+                $else = array_pop($members);
             }
-            $stmt = "CASE " . implode(" ", $member);
+            $stmt = "CASE " . implode(" ", $members);
             if ($else !== NULL) {
                 $stmt .= " ELSE " . $else;
             }
             $stmt .= " END";
             return $stmt;
-        case 'IN':
-            return $this->escape($expr->getMember(0)) . " IN {$member[1]}";
-        case 'NIN':
-            return $this->escape($expr->getMember(0)) . " NOT IN {$member[1]}";
+
         case 'WHEN':
-            return "WHEN {$member[0]} THEN {$member[1]}";
-        case 'ALIAS':
-            return "{$member[0]} AS {$member[1]}";
+            return "WHEN {$members[0]} THEN {$members[1]}";
+
         case 'ALL':
             return "*";
+
         case 'CALL':
-            return $expr->getMember(0) . "({$member[1]})";
+            return $expr->getMember(0) . "({$members[1]})";
+
         case 'ASC':
         case 'DESC':
-            return "{$member[0]} {$type}";
+            return "{$members[0]} {$type}";
+
         case 'EXPR':
-            return "({$member[0]})";
+            return "({$members[0]})";
+
         case 'INDEX':
             $rawMember = $expr->getMembers();
-            $expr = $member[0];
+            $expr = $members[0];
             if (!empty($rawMember[1])) {
                 $expr .= "(" . $rawMember[1] . ")";
             }
@@ -311,23 +410,32 @@ class Writer
                 $expr .= " " . $rawMember[2];
             }
             return $expr;
+
         case 'VALUE':
-            return $member[0];
+            return $members[0];
+
         case 'NOT':
-            return "NOT {$member[0]}";
+            return "NOT {$members[0]}";
+
         case 'TIMEINTERVAL':
-            return "INTERVAL {$member[0]} " . $expr->getMember(1);
+            return "INTERVAL {$members[0]} " . $expr->getMember(1);
         }
 
-        return "{$member[0]} {$type} {$member[1]}";
+        return "{$members[0]} {$type} {$members[1]}";
     }
 
+    /**
+     * Returns an statement, which is a comma separated list of expressions
+     *
+     * @param $list
+     * @return string
+     */
     protected function exprList($list)
     {
         if ($list instanceof ExprList) {
             $list = $list->getExprs();
         }
-        $columns = array();
+        $columns = [];
         foreach ($list as $column) {
             if ($column instanceof Expr || $column instanceof Stmt\VariablePlaceholder) {
                 $columns[] = $this->value($column);
@@ -346,9 +454,15 @@ class Writer
         return implode(", ", $columns);
     }
 
-    protected function tableList(Array $tables)
+    /**
+     * Returns an statement a list of tables (with their aliases)
+     *
+     * @param array $tables
+     * @return string
+     */
+    protected function tableList(array $tables)
     {
-        $list = array();
+        $list = [];
         foreach ($tables as $key => $table) {
             if (is_array($table) && $table[1]) {
                 $table = $this->escape($table[0]) . '.' . $this->escape($table[1]);
@@ -369,9 +483,15 @@ class Writer
         return implode(", ", $list);
     }
 
+    /**
+     * Returns a SQL statement for UPDATE
+     *
+     * @param Update $update
+     * @return string
+     */
     public function update(Update $update)
     {
-        $stmt  = 'UPDATE ' . $this->tableList($update->getTable());
+        $stmt  = 'UPDATE ' . $this->tableList($update->getTables());
         $stmt .= $this->doJoins($update);
         $stmt .= " SET " . $this->exprList($update->getSet());
         $stmt .= $this->doWhere($update);
@@ -380,6 +500,12 @@ class Writer
         return $stmt;
     }
 
+    /**
+     * Returns the SQL statement for a commit or a save point (for nested transactions).
+     *
+     * @param CommitTransaction $transaction
+     * @return string
+     */
     public function commit(CommitTransaction $transaction)
     {
         if ($transaction->getName()) {
@@ -389,6 +515,12 @@ class Writer
         return "COMMIT TRANSACTION";
     }
 
+    /**
+     * Returns the SQL statement for rollback a transaction or a save point (for nested transactions).
+     *
+     * @param RollbackTransaction $transaction
+     * @return string
+     */
     public function rollback(RollbackTransaction $transaction)
     {
         if ($transaction->getName()) {
@@ -398,6 +530,12 @@ class Writer
         return "ROLLBACK TRANSACTION";
     }
 
+    /**
+     * Returns the SQL statement for start a transaction or any save point (for nested transactions).
+     *
+     * @param BeginTransaction $transaction
+     * @return string
+     */
     public function begin(BeginTransaction $transaction)
     {
         if ($transaction->getName()) {
@@ -407,10 +545,16 @@ class Writer
         return "BEGIN TRANSACTION";
     }
 
+    /**
+     * Returns any special "option" defined in the query.
+     *
+     * @param Select $select
+     * @return string
+     */
     public function selectOptions(Select $select)
     {
         $options = array_intersect(
-            array("ALL", "DISTINCT", "DISTINCTROW"),
+            ["ALL", "DISTINCT", "DISTINCTROW"],
             $select->getOptions()
         );
 
@@ -419,12 +563,24 @@ class Writer
         }
     }
 
+    /**
+     * Returns the statement for a data type.
+     *
+     * @param $type
+     * @param $size
+     * @return string
+     */
     public function dataType($type, $size)
     {
         return $size ? "$type($size)" : $type;
     }
 
-
+    /**
+     * Returns the statement for a column definition
+     *
+     * @param Stmt\Column $column
+     * @return string
+     */
     public function columnDefinition(Stmt\Column $column)
     {
         $sql = $this->escape($column->GetName())
@@ -447,6 +603,15 @@ class Writer
         return $sql;
     }
 
+    /**
+     * Returns the SQL statement for creating a table.
+     *
+     * Create statements in MySQL are special because they may include indexes
+     * definitions within the same CREATE TABLE statement.
+     *
+     * @param Table $table
+     * @return string
+     */
     public function createTable(Table $table)
     {
         $columns = [];
@@ -461,15 +626,26 @@ class Writer
 
     public function view(View $view)
     {
-        return "CREATE VIEW " . $this->escape($view->getView()) . " AS " . $this->select($view->getSelect());
+        return "CREATE VIEW " . $this->escape($view->getName()) . " AS " . $this->select($view->getSelect());
     }
 
+    /**
+     * Returns the SQL for a DROP
+     *
+     * @param Drop $drop
+     * @return string
+     */
     public function drop(Drop $drop)
     {
-        return "DROP " . $drop->getType() . " " . $this->tableList($drop->getTable());
+        return "DROP " . $drop->getType() . " " . $this->tableList($drop->getTables());
     }
 
-
+    /**
+     * Returns the SQL statement for DELETE
+     *
+     * @param Delete $delete
+     * @return string
+     */
     public function delete(Delete $delete)
     {
         $stmt  = "DELETE FROM " . $this->escape($delete->getTable());
@@ -480,9 +656,15 @@ class Writer
         return $stmt;
     }
 
+    /**
+     * Returns sthe SQL statement for an INSERT
+     *
+     * @param Insert $insert
+     * @return string
+     */
     public function insert(Insert $insert)
     {
-        $sql = $insert->getOperation() . " INTO " . $this->escape($insert->getTable());
+        $sql = $insert->getType() . " INTO " . $this->escape($insert->getTable());
         if ($insert->hasFields()) {
             $sql .= "(" . $this->exprList($insert->getFields()) . ")";
         }
@@ -498,6 +680,12 @@ class Writer
         return $sql;
     }
 
+    /**
+     * Returns the WHERE statement, if any.
+     *
+     * @param Statement $stmt
+     * @return string
+     */
     protected function doWhere(Statement $stmt)
     {
         if ($stmt->hasWhere()) {
@@ -505,6 +693,12 @@ class Writer
         }
     }
 
+    /**
+     * Returns ORDER BY statement, if any.
+     *
+     * @param Statement $stmt
+     * @return string
+     */
     protected function doOrderBy(Statement $stmt)
     {
         if ($stmt->hasOrderBy()) {
@@ -512,6 +706,12 @@ class Writer
         }
     }
 
+    /**
+     * Returns LIMIT statments (and their variations) if available.
+     *
+     * @param Statement $stmt
+     * @return string
+     */
     protected function doLimit(Statement $stmt)
     {
         if ($stmt->hasLimit() || $stmt->hasOffset()) {
@@ -523,9 +723,15 @@ class Writer
         }
     }
 
+    /**
+     * Returns a JOIN statement.
+     *
+     * @param Stmt\Join $join
+     * @return string
+     */
     public function join(Stmt\Join $join)
     {
-        $str = $join->getType() . " " . $this->tableList(array($join->getTable()));
+        $str = $join->getType() . " " . $this->tableList([$join->getTable()]);
         if ($join->hasAlias()) {
             $str .= " AS " . $this->escape($join->getAlias());
         }
@@ -537,13 +743,19 @@ class Writer
         return $str;
     }
 
+    /**
+     * Returns all JOIN statements if any.
+     *
+     * @param Statement $stmt
+     * @return string
+     */
     protected function doJoins(Statement $stmt)
     {
         if (!$stmt->hasJoins()) {
             return '';
         }
 
-        $joins = array();
+        $joins = [];
         foreach ($stmt->getJoins() as $join) {
             $joins[] = $this->join($join);
         }
@@ -551,6 +763,12 @@ class Writer
         return " " . implode(" ", $joins);
     }
 
+    /**
+     * Returns GROUP BY and all variations
+     *
+     * @param Statement $stmt
+     * @return string
+     */
     protected function doGroupBy(Statement $stmt)
     {
         if ($stmt->hasGroupBy()) {
@@ -563,6 +781,12 @@ class Writer
         }
     }
 
+    /**
+     * Returns SQL statement for SELECT.
+     *
+     * @param Select $select
+     * @return string
+     */
     public function select(Select $select)
     {
         $stmt  = 'SELECT ';
@@ -580,6 +804,14 @@ class Writer
         return $stmt;
     }
 
+    /**
+     * Returns a escaped value
+     *
+     * By default only non-alphanumeric values and reserved words are escaped.
+     *
+     * @param $value
+     * @return mixed|string
+     */
     public function escape($value)
     {
         if (!is_string($value)) {

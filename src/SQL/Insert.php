@@ -24,12 +24,37 @@
 */
 namespace SQL;
 
+use SQLParser\Stmt\ExprList;
+
+/**
+ * Class Insert
+ * @package SQL
+ */
 class Insert extends Statement
 {
+    /**
+     * @var string
+     */
     protected $type;
+
+    /**
+     * @var string
+     */
     protected $table;
+
+    /**
+     * @var ExprList
+     */
     protected $duplicate;
-    protected $values;
+
+    /**
+     * @var array|Select
+     */
+    protected $values = array();
+
+    /**
+     * @var ExprList
+     */
     protected $fields;
 
     public function __construct($type = 'INSERT')
@@ -37,61 +62,112 @@ class Insert extends Statement
         $this->type = strtoupper($type);
     }
 
+    /**
+     * Sets the Table name
+     *
+     * @param $table
+     * @return $this
+     */
     public function into($table)
     {
         $this->table = $table;
         return $this;
     }
 
+    /**
+     * Returns the table name
+     *
+     * @return string
+     */
     public function getTable()
     {
         return $this->table;
     }
 
+    /**
+     * Sets the VALUE for this insert|replace statement.
+     *
+     * Values may be an array of values or a SELECT statement.
+     *
+     * @param array|Select $values
+     * @return $this
+     */
     public function values($values)
     {
         $this->values = $values;
         return $this;
     }
 
-    public function fields($fields)
+    /**
+     * Adds a list of fields to update (related to the values)
+     *
+     * @param ExprList $fields
+     * @return $this
+     */
+    public function fields(ExprList $fields)
     {
         $this->fields = $fields;
         return $this;
     }
 
+    /**
+     * Returns the ExprList that the database should perform if a duplicate
+     * entry is attempted to be inserted.
+     *
+     * @return ExprList
+     */
     public function getOnDuplicate()
     {
         return $this->duplicate;
-    } 
+    }
 
-    public function onDuplicate($expr)
+    /**
+     * @param ExprList $expr
+     * @return $this
+     */
+    public function onDuplicate(ExprList $expr)
     {
-        if (is_string($expr)) {
-            throw new \RuntimeException("Cannot parse string yet");
-        }
-
         $this->duplicate = $expr;
 
         return $this;
     }
 
+    /**
+     * Returns the list of fields
+     *
+     * @return ExprList
+     */
     public function getFields()
     {
         return $this->fields;
     }
 
+    /**
+     * Returns whether the current insert has fields defined.
+     *
+     * @return bool
+     */
     public function hasFields()
     {
         return !empty($this->fields);
     }
 
+    /**
+     * Returns the current values for this insert|replace statement
+     *
+     * @return array|Select
+     */
     public function getValues()
     {
         return $this->values;
     }
 
-    public function getOperation()
+    /**
+     * Returns the type of this statement
+     *
+     * @return string
+     */
+    public function getType()
     {
         return $this->type;
     }
