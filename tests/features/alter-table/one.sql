@@ -19,6 +19,8 @@ create table foobarx(
     key bar(x asc)
 );
 
+-- EXPECTED
+
 ALTER TABLE `foobar` RENAME TO `foobarx`;
 ALTER TABLE `foobarx` ADD COLUMN `x` int NOT NULL AFTER `id`;
 ALTER TABLE `foobarx` CHANGE COLUMN `y` `y` int NOT NULL DEFAULT 99 AFTER `x`;

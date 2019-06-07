@@ -76,8 +76,13 @@ class AllTest extends TestCase
         $parser = new SQLParser;
         Writer::setInstance('mysql');
         foreach (glob(__DIR__ . '/features/alter-table/*.sql') as $file) {
-            $sqls = $parser->parse(file_get_contents($file));
-            $args[] = [$diff, array_shift($sqls), array_shift($sqls), array_filter($sqls)];
+            $content = file_get_contents($file);
+            if ($parts = preg_split("/--\s*(END|NEW|EXPECTED)/", $content)) {
+                $old  = $parts[0];
+                $new  = $parts[1];
+                $sqls = $parser->parse($parts[2]);
+                $args[] = [$diff, $old, $new, array_filter($sqls)];
+            }
         }
 
         return $args;
@@ -93,6 +98,15 @@ class AllTest extends TestCase
         foreach ($changes as $id => $change) {
             $this->assertEquals($change, $expected[$id]);
         }
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testTableDiffException()
+    {
+        $diff = new SQL\TableDiff;
+        $diff->diff("SELECT 1", "SELECT 2");
     }
 
     /**
