@@ -491,6 +491,10 @@ ORDER BY
     WHEN City IS NULL THEN Country
     ELSE City
 END);
+SELECT orderNumber,
+       requiredDate
+FROM orders
+WHERE requiredDate BETWEEN "2003-01-01" AND "2003-01-31";
 --SELECT CAST('12.5' AS REAL) ToReal, CAST(12.5 AS INTEGER) AS ToInteger
 SELECT 'jack' NOT LIKE "%j";
 SELECT 'Jack' LIKE "j%";

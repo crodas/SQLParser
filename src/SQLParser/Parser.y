@@ -348,6 +348,12 @@ expr(A) ::= expr(B) T_EQ|T_NE|T_GT|T_GE|T_LT|T_LE(X) expr(C). {
 expr(A) ::= expr(B) T_IS T_NOT null(C). { A = new Stmt\Expr("IS NOT NULL", B); }
 expr(A) ::= expr(B) T_IS null(C). { A = new Stmt\Expr("IS NULL", B); }
 expr(A) ::= expr(B) T_PLUS|T_MINUS|T_TIMES|T_DIV|T_MOD(X) expr(C). { A = new Stmt\Expr(X, B, C); }
+expr(A) ::= expr(B) T_NOT T_BETWEEN expr(C) T_AND expr(D) . {
+    A = new Stmt\Expr('not between', B, C, D);
+}
+expr(A) ::= expr(B) T_BETWEEN expr(C) T_AND expr(D) . {
+    A = new Stmt\Expr('between', B, C, D);
+}
 expr(A) ::= expr(B) negable(X) expr(C). {
     $members = B->getMembers();
     if  (B->getType() === 'VALUE' && count($members) === 2&& $members[1] == 2) {
