@@ -384,6 +384,10 @@ class Writer
             $stmt .= " END";
             return $stmt;
 
+        case 'BETWEEN':
+        case 'NOT BETWEEN':
+            return "{$members[0]} {$type} {$members[1]} AND {$members[2]}";
+
         case 'WHEN':
             return "WHEN {$members[0]} THEN {$members[1]}";
 

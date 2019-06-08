@@ -98,6 +98,7 @@ ANYTHINGELSE = /./
   comment   { $this->token = "comment"; }
   "when"    { $this->token = P::WHEN; }
   "unsigned" { $this->token = P::T_UNSIGNED; }
+  "between"  { $this->token = P::T_BETWEEN; }
   "case"    { $this->token = P::T_CASE; }
   "create"  { $this->token = P::CREATE; }
   "then"    { $this->token = P::THEN; }

@@ -7,6 +7,7 @@ class ReservedWords
     public static $words = array(
   "when" => 1,
   "unsigned" => 1,
+  "between" => 1,
   "case" => 1,
   "create" => 1,
   "then" => 1,
