@@ -30,7 +30,6 @@ class ReservedWords
   "join" => 1,
   "from" => 1,
   "limit" => 1,
-  "delete" => 1,
   "offset" => 1,
   "values" => 1,
   "set" => 1,
