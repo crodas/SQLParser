@@ -35,7 +35,7 @@ class SQLParser
                 case "comment";
                     $comments[$stmt][] = trim(trim($lexer->value, "-/*"));
                     continue 2;
-                case SQLParser_Parser::SEMICOLON:
+                case SQLParser_Parser::T_SEMICOLON:
                     ++$stmt;
                     break;
             }
