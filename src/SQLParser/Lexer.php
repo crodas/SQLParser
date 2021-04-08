@@ -75,7 +75,7 @@ class Lexer
         }
         do {
             $rules = array(
-                '/\G[ \t\n]+/i ',
+                '/\G[ \t\r\n]+/i ',
                 '/\G\"/i ',
                 '/\G\'/i ',
                 '/\G`/i ',
