@@ -14,9 +14,9 @@
         "files": ["src/autoload.php"]
     },
     "minimum-stability": "stable",
-    "require": {},
     "require-dev": {
         "crodas/autoloader": "^0.1.16",
-        "crodas/phpunit-compat": "^1.7"
+        "crodas/phpunit-compat": "^1.7",
+        "fpoirotte/php_parsergenerator": "^0.2.4"
     }
 }

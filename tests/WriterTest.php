@@ -77,35 +77,30 @@ class WriterTest extends TestCase
         $x = new SQLParser\Stmt\Expr('xxx');
         $this->assertNull($x->getMember(10));
     }
-    /**
-     * @expectedException InvalidArgumentException
-     */
+
     public function testInvalidWriterObject()
     {
+        $this->expectException(InvalidArgumentException::class);
         Writer::create($this);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testInvalidWriterInstance()
     {
+        $this->expectException(InvalidArgumentException::class);
         Writer::setInstance($this);
     }
 
     public function testWriterFromPDO()
     {
-        $driver = new PDO("sqlite:memory");
+        $driver = new PDO("sqlite::memory:");
         Writer::setInstance($driver);
 
         $this->assertTrue(Writer::getInstance() instanceof SQL\Writer\SQLite);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testInvalidVariableValue()
     {
+        $this->expectException(InvalidArgumentException::class);
         $parser = new SQLParser();
         $queries = $parser->parse("SELECT * FROM t WHERE y = :name");
         Writer::create($queries[0], ['name' => ['invalid value']]);

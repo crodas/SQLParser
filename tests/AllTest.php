@@ -178,10 +178,11 @@ class AllTest extends TestCase
 
     /**
      *  @dataProvider featuresException
-     *  @expectedException RuntimeException
      */
     public function testFeaturesParsingErrors($sql, $parser)
     {
+        $this->expectException(RuntimeException::class);
+
         $parser->parse($sql);
     }
 

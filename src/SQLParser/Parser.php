@@ -2,13 +2,19 @@
 /* Driver template for the PHP_SQLParser_rGenerator parser generator. (PHP port of LEMON)
 */
 
+// code external to the class is included here
+#line 2 "src/SQLParser/Parser.y"
+
+use SQLParser\Stmt;
+#line 11 "src/SQLParser/Parser.php"
+
 /**
  * This can be used to store both the string representation of
  * a token, and any useful meta-data associated with the token.
  *
  * meta-data should be stored as an array
  */
-class SQLParser_yyToken implements ArrayAccess
+class SQLParser_yyToken implements \ArrayAccess
 {
     public $string = '';
     public $metadata = array();
@@ -92,12 +98,6 @@ class SQLParser_yyStackEntry
     public $minor; /* The user-supplied minor token value.  This
                      ** is the value of the token  */
 };
-
-// code external to the class is included here
-#line 2 "src/SQLParser/Parser.y"
-
-use SQLParser\Stmt;
-#line 102 "src/SQLParser/Parser.php"
 
 // declare_class is output here
 #line 6 "src/SQLParser/Parser.y"
@@ -2519,7 +2519,7 @@ static public $yy_action = array(
 #line 138 "src/SQLParser/Parser.y"
     function yy_r67(){
     $this->_retvalue = $this->yystack[$this->yyidx + -3]->minor->setTable($this->yystack[$this->yyidx + -1]->minor[0], $this->yystack[$this->yyidx + -1]->minor[1]);
-    if ($this->yystack[$this->yyidx + 0]->minor[0]) {
+    if (is_array($this->yystack[$this->yyidx + 0]->minor) && $this->yystack[$this->yyidx + 0]->minor[0]) {
         $this->_retvalue->{$this->yystack[$this->yyidx + 0]->minor[0]}($this->yystack[$this->yyidx + 0]->minor[1]);
     }
     }
