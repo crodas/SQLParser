@@ -23,7 +23,7 @@ use SQLParser\Stmt;
 %nonassoc T_EQ T_LIKE T_GLOB T_NE.
 %nonassoc T_GT T_GE T_LT T_LE .
 %nonassoc T_IN.
-%left T_PLUS T_MINUS T_CONCAT.
+%left T_PLUS T_MINUS .
 %left T_TIMES T_DIV T_MOD.
 %left T_PIPE T_BITWISE T_FILTER_PIPE.
 
@@ -118,7 +118,7 @@ select(A) ::= T_SELECT select_opts(MM) expr_list_as(L) from(X) joins(J) where(W)
 
 select_opts(A) ::= select_opts(B) select_mod(C) . { A = B; A[] = C; }
 select_opts(A) ::= . { A = array(); }
-select_mod(A) ::= T_ALL|T_DISTINCT|DISTINCTROW|HIGH_PRIORITY|STRAIGHT_JOIN|SQL_SMALL_RESULT|SQL_BIG_RESULT|SQL_CACHE|SQL_CALC_FOUND_ROWS|SQL_BUFFER_RESULT|SQL_NO_CACHE(X). { A = strtoupper(X); }
+select_mod(A) ::= T_ALL|T_DISTINCT|T_DISTINCTROW|T_HIGH_PRIORITY|T_STRAIGHT_JOIN|T_SQL_SMALL_RESULT|T_SQL_BIG_RESULT|T_SQL_CACHE|T_SQL_CALC_FOUND_ROWS|T_SQL_BUFFER_RESULT|T_SQL_NO_CACHE(X). { A = strtoupper(X); }
 
 from(A) ::= T_FROM table_list(X). { A = X; }
 from(A) ::= .
@@ -287,7 +287,7 @@ index_col_name(A) ::= term_colname(B) length(C) order(D) . {
 
 order(Y)  ::= T_DESC|T_ASC(X) . { Y = strtoupper(X); }
 order(Y)  ::= . { Y = NULL; }
-length(A) ::= T_PAR_OPEN T_NUMBER(B) T_PAR_CLOSE . { A = B; }
+length(A) ::= T_PAR_OPEN NUMBER(B) T_PAR_CLOSE . { A = B; }
 length(A) ::= . { A = NULL; }
 
 create_column(A) ::= colname(B) data_type(C) column_mods(X) . {
@@ -305,11 +305,11 @@ data_type(A) ::= alpha(B) unsigned(Y) . {
     A = [B, NULL, Y];
 }
 
-data_type(A) ::= alpha(B) T_PAR_OPEN T_NUMBER(X) T_PAR_CLOSE unsigned(Y) .{
+data_type(A) ::= alpha(B) T_PAR_OPEN NUMBER(X) T_PAR_CLOSE unsigned(Y) .{
     A = [B, X, Y];
 }
 
-data_type(A) ::= alpha(B) T_PAR_OPEN T_NUMBER(X) T_PAR_CLOSE unsigned(Y) .{
+data_type(A) ::= alpha(B) T_PAR_OPEN NUMBER(X) T_PAR_CLOSE unsigned(Y) .{
     A = [B, X, Y];
 }
 
@@ -392,8 +392,8 @@ case_options(A) ::= T_WHEN expr(B) T_THEN expr(C) . { A = array(new Stmt\Expr("W
 
 term(A) ::= T_INTERVAL expr(C) ALPHA(X).  { A = new Stmt\Expr('timeinterval', C, X); }
 term(A) ::= T_PLUS term(B).             { A = new Stmt\Expr('value', B); }
-term(A) ::= T_MINUS T_NUMBER(B).          { A = new Stmt\Expr('value', -1 * B); }
-term(A) ::= T_NUMBER(B).                  { A = new Stmt\Expr('value', 0+B); }
+term(A) ::= T_MINUS NUMBER(B).          { A = new Stmt\Expr('value', -1 * B); }
+term(A) ::= NUMBER(B).                  { A = new Stmt\Expr('value', 0+B); }
 term(A) ::= null(B).                    { A = B; }
 term(A) ::= function_call(B) .          { A = B; }
 term(A) ::= T_STRING1(B).                { A = new Stmt\Expr('value', trim(B, "'\""), 1); }
@@ -464,7 +464,7 @@ alpha(A) ::= T_COLLATE(X) .       { A = X; }
 alpha(A) ::= INTERVAL(X) .      { A = X; }
 alpha(A) ::= T_AUTO_INCREMENT(X). { A = X; }
 alpha(A) ::= ALPHA(B).          { A = B; }
-alpha(A) ::= COLUMN(B).         { A = trim(B, "` \r\n\t"); }
+alpha(A) ::= T_COLUMN(B).         { A = trim(B, "` \r\n\t"); }
 
 alpha_or_all(A) ::= alpha(X).     { A = X; }
 alpha_or_all(A) ::= T_TIMES.      { A = new Stmt\Expr("ALL"); }

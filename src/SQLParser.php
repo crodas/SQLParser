@@ -30,7 +30,7 @@ class SQLParser
         $parser = new SQLParser_Parser;
         $comments = [];
         $stmt     = 0;
-        while ($lexer->yylex()) {
+        while ($lexer->hasNextToken()) {
             switch ($lexer->token) {
                 case "comment";
                     $comments[$stmt][] = trim(trim($lexer->value, "-/*"));
