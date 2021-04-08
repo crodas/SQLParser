@@ -52,7 +52,7 @@ class Lexer
 %matchlongest 1
 
 
-whitespace = /[ \t\n]+/
+whitespace = /[ \t\r\n]+/
 
 comment = /\-\-[^\n]+/
 number  = /[0-9]+(\.[0-9]+)?|0x[0-9a-fA-F]+/

@@ -137,7 +137,7 @@ joins(A) ::= . { A = []; }
 
 join(A) ::= join_type(B) JOIN table_with_alias(C) join_condition(D). {
     A = B->setTable(C[0], C[1]);
-    if (D[0]) {
+    if (is_array(D) && D[0]) {
         A->{D[0]}(D[1]);
     }
 }

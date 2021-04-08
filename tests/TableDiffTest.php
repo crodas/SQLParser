@@ -36,11 +36,9 @@ class TableDiffTest extends TestCase
         }
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testTableDiffException()
     {
+        $this->expectException(InvalidArgumentException::class);
         $diff = new SQL\TableDiff;
         $diff->diff("SELECT 1", "SELECT 2");
     }
