@@ -1,41 +1,41 @@
 <?php
+
 /*
-   The MIT License (MIT)
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2015-2021 César Rodas
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * -
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * -
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 
-   Copyright (c) 2015 César Rodas
-
-   Permission is hereby granted, free of charge, to any person obtaining a copy
-   of this software and associated documentation files (the "Software"), to deal
-   in the Software without restriction, including without limitation the rights
-   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-   copies of the Software, and to permit persons to whom the Software is
-   furnished to do so, subject to the following conditions:
-
-   The above copyright notice and this permission notice shall be included in
-   all copies or substantial portions of the Software.
-
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-   AUTHORS OR COPYRIGHT HnewERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-   THE SOFTWARE.
-*/
 namespace SQL;
 
-use SQLParser;
-use SQLParser\Stmt\ExprList;
-use SQLParser\Stmt\Column;
 use InvalidArgumentException;
+use SQLParser;
+use SQLParser\Stmt\Column;
+use SQLParser\Stmt\ExprList;
 
 /**
- * Class TableDiff
+ * Class TableDiff.
  *
  * This class allows to do a "table diff" between two CREATE TABLE statements, returning an
  * array of changes for table A to become table B.
- *
- * @package SQL
  */
 class TableDiff
 {
@@ -49,15 +49,13 @@ class TableDiff
      */
     public function __construct()
     {
-        $this->parser = new SQLParser;
+        $this->parser = new SQLParser();
     }
 
     /**
      * Returns an array with DROP INDEX and CREATE INDEX statements,
      * the list of statements are the differences between two tables.
      *
-     * @param Table $old
-     * @param Table $current
      * @return array
      */
     public function getIndexChanges(Table $old, Table $current)
@@ -73,7 +71,7 @@ class TableDiff
             }
         }
 
-        foreach($new as $name => $index) {
+        foreach ($new as $name => $index) {
             if (empty($old[$name])) {
                 $changes[] = new AlterTable\AddIndex(
                     $index['unique'] ? 'UNIQUE' : '',
@@ -87,52 +85,14 @@ class TableDiff
     }
 
     /**
-     * Compares two columns objects and return TRUE if they are the same.
-     *
-     * @param Column $a
-     * @param Column $b
-     * @return bool
-     */
-    protected function compareColumns(Column $a, Column $b)
-    {
-        $checks = ['getType', 'getTypeSize', 'defaultValue', 'collate'];
-        foreach ($checks as $check) {
-            if ($a->$check() !== $b->$check()) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Returns a list of columns
-     *
-     * @param Table $table
-     * @return array
-     */
-    protected function getColumns(Table $table)
-    {
-        $columns = [];
-
-        foreach ($table->getColumns() as $id => $column) {
-            $columns[$column->getName()] = $column;
-        }
-
-        return $columns;
-    }
-
-    /**
      * Returns an arrays with ADD COLUMN and CHANGE COLUMN that are needed
-     * for table $old to become table $new
+     * for table $old to become table $new.
      *
-     * @param Table $old
-     * @param Table $current
      * @return array
      */
     public function getColumnChanges(Table $old, Table $current)
     {
-        $changes  = [];
+        $changes = [];
         $oldNames = $this->getColumns($old);
         $newNames = $this->getColumns($current);
 
@@ -140,7 +100,7 @@ class TableDiff
             $after = empty($after) ? null : $after;
             if (empty($oldNames[$name])) {
                 $changes[] = new AlterTable\AddColumn($column, $after);
-            } else if (!$this->compareColumns($column, $oldNames[$name])) {
+            } elseif (!$this->compareColumns($column, $oldNames[$name])) {
                 $changes[] = new AlterTable\ChangeColumn($name, $column, $after);
             }
 
@@ -153,22 +113,22 @@ class TableDiff
             }
         }
 
-
         return $changes;
     }
 
     /**
      * Returns a table object from a given $sql statement. Any aditional
-     * CREATE INDEX that may exists will be added to the current $table
+     * CREATE INDEX that may exists will be added to the current $table.
      *
      * @param string $sql
+     *
      * @return Table
      */
     public function getTable($sql)
     {
         $stmts = $this->parser->parse($sql);
         if (!($stmts[0] instanceof Table)) {
-            throw new InvalidArgumentException("Expecting a CREATE TABLE Statement, got " . get_class($stmts[0]) . ' class');
+            throw new InvalidArgumentException('Expecting a CREATE TABLE Statement, got '.\get_class($stmts[0]).' class');
         }
 
         $table = array_shift($stmts);
@@ -183,15 +143,16 @@ class TableDiff
 
     /**
      * Returns an array of SQL statements needed for table defined in $oldSQL to look
-     * like table defined in $newSQL
+     * like table defined in $newSQL.
      *
      * @param string $oldSQL
      * @param string $newSQL
+     *
      * @return array
      */
     public function diff($oldSQL, $newSQL)
     {
-        $old     = $this->getTable($oldSQL);
+        $old = $this->getTable($oldSQL);
         $current = $this->getTable($newSQL);
         $changes = [];
 
@@ -214,5 +175,38 @@ class TableDiff
         }
 
         return $changes;
+    }
+
+    /**
+     * Compares two columns objects and return TRUE if they are the same.
+     *
+     * @return bool
+     */
+    protected function compareColumns(Column $a, Column $b)
+    {
+        $checks = ['getType', 'getTypeSize', 'defaultValue', 'collate'];
+        foreach ($checks as $check) {
+            if ($a->{$check}() !== $b->{$check}()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Returns a list of columns.
+     *
+     * @return array
+     */
+    protected function getColumns(Table $table)
+    {
+        $columns = [];
+
+        foreach ($table->getColumns() as $id => $column) {
+            $columns[$column->getName()] = $column;
+        }
+
+        return $columns;
     }
 }

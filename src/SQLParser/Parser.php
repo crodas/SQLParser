@@ -1,12 +1,35 @@
 <?php
-/* Driver template for the PHP_SQLParser_rGenerator parser generator. (PHP port of LEMON)
-*/
+
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2015-2021 César Rodas
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * -
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * -
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 
 // code external to the class is included here
-#line 2 "src/SQLParser/Parser.y"
+//line 2 "src/SQLParser/Parser.y"
 
 use SQLParser\Stmt;
-#line 11 "src/SQLParser/Parser.php"
+
+//line 11 "src/SQLParser/Parser.php"
 
 /**
  * This can be used to store both the string representation of
@@ -17,16 +40,16 @@ use SQLParser\Stmt;
 class SQLParser_yyToken implements \ArrayAccess
 {
     public $string = '';
-    public $metadata = array();
+    public $metadata = [];
 
-    function __construct($s, $m = array())
+    public function __construct($s, $m = [])
     {
-        if ($s instanceof SQLParser_yyToken) {
+        if ($s instanceof self) {
             $this->string = $s->string;
             $this->metadata = $s->metadata;
         } else {
             $this->string = (string) $s;
-            if ($m instanceof SQLParser_yyToken) {
+            if ($m instanceof self) {
                 $this->metadata = $m->metadata;
             } elseif (is_array($m)) {
                 $this->metadata = $m;
@@ -34,36 +57,37 @@ class SQLParser_yyToken implements \ArrayAccess
         }
     }
 
-    function __toString()
+    public function __toString()
     {
         return $this->string;
     }
 
-    function offsetExists($offset)
+    public function offsetExists($offset)
     {
         return isset($this->metadata[$offset]);
     }
 
-    function offsetGet($offset)
+    public function offsetGet($offset)
     {
         return $this->metadata[$offset];
     }
 
-    function offsetSet($offset, $value)
+    public function offsetSet($offset, $value)
     {
-        if ($offset === null) {
+        if (null === $offset) {
             if (isset($value[0])) {
-                $x = ($value instanceof SQLParser_yyToken) ?
+                $x = ($value instanceof self) ?
                     $value->metadata : $value;
                 $this->metadata = array_merge($this->metadata, $x);
+
                 return;
             }
             $offset = count($this->metadata);
         }
-        if ($value === null) {
+        if (null === $value) {
             return;
         }
-        if ($value instanceof SQLParser_yyToken) {
+        if ($value instanceof self) {
             if ($value->metadata) {
                 $this->metadata[$offset] = $value->metadata;
             }
@@ -72,14 +96,14 @@ class SQLParser_yyToken implements \ArrayAccess
         }
     }
 
-    function offsetUnset($offset)
+    public function offsetUnset($offset)
     {
         unset($this->metadata[$offset]);
     }
 }
 
 /** The following structure represents a single element of the
- * parser's stack.  Information stored includes:
+ * parser's stack.  Information stored includes:.
  *
  *   +  The state number for the parser at this level of the stack.
  *
@@ -92,3078 +116,3610 @@ class SQLParser_yyToken implements \ArrayAccess
  */
 class SQLParser_yyStackEntry
 {
-    public $stateno;       /* The state-number */
+    public $stateno;       // The state-number
     public $major;         /* The major token value.  This is the code
                      ** number for the token at this stack level */
     public $minor; /* The user-supplied minor token value.  This
                      ** is the value of the token  */
-};
+}
 
 // declare_class is output here
-#line 6 "src/SQLParser/Parser.y"
- class SQLParser_Parser #line 107 "src/SQLParser/Parser.php"
-{
-/* First off, code is included which follows the "include_class" declaration
-** in the input file. */
-#line 7 "src/SQLParser/Parser.y"
+//line 6 "src/SQLParser/Parser.y"
+ class SQLParser_Parser //line 107 "src/SQLParser/Parser.php"
+ {
+     //line 115 "src/SQLParser/Parser.php"
 
-    public $body = array();
-#line 115 "src/SQLParser/Parser.php"
+     // Next is all token values, as class constants
+     /*
+     ** These constants (all generated automatically by the parser generator)
+     ** specify the various kinds of tokens (terminals) that the parser
+     ** understands.
+     **
+     ** Each symbol here is a terminal symbol in the grammar.
+     */
+     const T_OR = 1;
+     const T_AND = 2;
+     const T_NOT = 3;
+     const T_QUESTION = 4;
+     const T_COLON = 5;
+     const T_EQ = 6;
+     const T_LIKE = 7;
+     const T_GLOB = 8;
+     const T_NE = 9;
+     const T_GT = 10;
+     const T_GE = 11;
+     const T_LT = 12;
+     const T_LE = 13;
+     const T_IN = 14;
+     const T_PLUS = 15;
+     const T_MINUS = 16;
+     const T_TIMES = 17;
+     const T_DIV = 18;
+     const T_MOD = 19;
+     const T_PIPE = 20;
+     const T_BITWISE = 21;
+     const T_FILTER_PIPE = 22;
+     const T_SEMICOLON = 23;
+     const T_PAR_OPEN = 24;
+     const T_PAR_CLOSE = 25;
+     const T_BEGIN = 26;
+     const T_SAVEPOINT = 27;
+     const T_RELEASE = 28;
+     const T_ROLLBACK = 29;
+     const T_TO = 30;
+     const T_TRANSACTION = 31;
+     const T_WORK = 32;
+     const T_COMMIT = 33;
+     const T_END = 34;
+     const T_ALTER = 35;
+     const T_TABLE = 36;
+     const T_DROP = 37;
+     const T_PRIMARY = 38;
+     const T_KEY = 39;
+     const T_INDEX = 40;
+     const T_SET = 41;
+     const T_DEFAULT = 42;
+     const T_MODIFY = 43;
+     const T_ADD = 44;
+     const T_RENAME = 45;
+     const T_CREATE = 46;
+     const T_ON = 47;
+     const T_UNIQUE = 48;
+     const T_AS = 49;
+     const T_CHANGE = 50;
+     const T_COLUMN = 51;
+     const T_FIRST = 52;
+     const T_AFTER = 53;
+     const T_SELECT = 54;
+     const T_ALL = 55;
+     const T_DISTINCT = 56;
+     const T_DISTINCTROW = 57;
+     const T_HIGH_PRIORITY = 58;
+     const T_STRAIGHT_JOIN = 59;
+     const T_SQL_SMALL_RESULT = 60;
+     const T_SQL_BIG_RESULT = 61;
+     const T_SQL_CACHE = 62;
+     const T_SQL_CALC_FOUND_ROWS = 63;
+     const T_SQL_BUFFER_RESULT = 64;
+     const T_SQL_NO_CACHE = 65;
+     const T_FROM = 66;
+     const T_COMMA = 67;
+     const T_JOIN = 68;
+     const T_INNER = 69;
+     const T_LEFT = 70;
+     const T_RT_IGHT = 71;
+     const T_NATURAL = 72;
+     const T_OUTER = 73;
+     const T_USING = 74;
+     const T_WHERE = 75;
+     const T_ORDER = 76;
+     const T_BY = 77;
+     const T_DESC = 78;
+     const T_ASC = 79;
+     const T_LIMIT = 80;
+     const T_OFFSET = 81;
+     const T_GROUP = 82;
+     const T_HAVING = 83;
+     const T_VALUES = 84;
+     const T_DELETE = 85;
+     const T_UPDATE = 86;
+     const T_INSERT = 87;
+     const REPLACE = 88;
+     const T_INTO = 89;
+     const T_DUPLICATE = 90;
+     const T_VIEW = 91;
+     const NUMBER = 92;
+     const T_UNSIGNED = 93;
+     const T_COLLATE = 94;
+     const T_NULL = 95;
+     const T_AUTO_INCREMENT = 96;
+     const T_IS = 97;
+     const T_BETWEEN = 98;
+     const T_BINARY = 99;
+     const T_CASE = 100;
+     const T_ELSE = 101;
+     const T_WHEN = 102;
+     const T_THEN = 103;
+     const T_INTERVAL = 104;
+     const ALPHA = 105;
+     const T_STRING1 = 106;
+     const T_STRING2 = 107;
+     const T_DOT = 108;
+     const INTERVAL = 109;
+     const T_DOLLAR = 110;
+     const PRIMARY = 111;
+     const YY_NO_ACTION = 613;
+     const YY_ACCEPT_ACTION = 612;
+     const YY_ERROR_ACTION = 611;
 
-/* Next is all token values, as class constants
-*/
-/* 
-** These constants (all generated automatically by the parser generator)
-** specify the various kinds of tokens (terminals) that the parser
-** understands. 
-**
-** Each symbol here is a terminal symbol in the grammar.
-*/
-    const T_OR                           =  1;
-    const T_AND                          =  2;
-    const T_NOT                          =  3;
-    const T_QUESTION                     =  4;
-    const T_COLON                        =  5;
-    const T_EQ                           =  6;
-    const T_LIKE                         =  7;
-    const T_GLOB                         =  8;
-    const T_NE                           =  9;
-    const T_GT                           = 10;
-    const T_GE                           = 11;
-    const T_LT                           = 12;
-    const T_LE                           = 13;
-    const T_IN                           = 14;
-    const T_PLUS                         = 15;
-    const T_MINUS                        = 16;
-    const T_CONCAT                       = 17;
-    const T_TIMES                        = 18;
-    const T_DIV                          = 19;
-    const T_MOD                          = 20;
-    const T_PIPE                         = 21;
-    const T_BITWISE                      = 22;
-    const T_FILTER_PIPE                  = 23;
-    const SEMICOLON                      = 24;
-    const PAR_OPEN                       = 25;
-    const PAR_CLOSE                      = 26;
-    const BEGIN                          = 27;
-    const SAVEPOINT                      = 28;
-    const RELEASE                        = 29;
-    const ROLLBACK                       = 30;
-    const TO                             = 31;
-    const TRANSACTION                    = 32;
-    const WORK                           = 33;
-    const COMMIT                         = 34;
-    const T_END                          = 35;
-    const ALTER                          = 36;
-    const TABLE                          = 37;
-    const DROP                           = 38;
-    const PRIMARY                        = 39;
-    const KEY                            = 40;
-    const INDEX                          = 41;
-    const SET                            = 42;
-    const T_DEFAULT                      = 43;
-    const MODIFY                         = 44;
-    const ADD                            = 45;
-    const RENAME                         = 46;
-    const CREATE                         = 47;
-    const ON                             = 48;
-    const UNIQUE                         = 49;
-    const T_AS                           = 50;
-    const CHANGE                         = 51;
-    const T_COLUMN                       = 52;
-    const T_FIRST                        = 53;
-    const T_AFTER                        = 54;
-    const SELECT                         = 55;
-    const ALL                            = 56;
-    const DISTINCT                       = 57;
-    const DISTINCTROW                    = 58;
-    const HIGH_PRIORITY                  = 59;
-    const STRAIGHT_JOIN                  = 60;
-    const SQL_SMALL_RESULT               = 61;
-    const SQL_BIG_RESULT                 = 62;
-    const SQL_CACHE                      = 63;
-    const SQL_CALC_FOUND_ROWS            = 64;
-    const SQL_BUFFER_RESULT              = 65;
-    const SQL_NO_CACHE                   = 66;
-    const FROM                           = 67;
-    const COMMA                          = 68;
-    const JOIN                           = 69;
-    const INNER                          = 70;
-    const LEFT                           = 71;
-    const RIGHT                          = 72;
-    const NATURAL                        = 73;
-    const OUTER                          = 74;
-    const USING                          = 75;
-    const WHERE                          = 76;
-    const ORDER                          = 77;
-    const BY                             = 78;
-    const DESC                           = 79;
-    const ASC                            = 80;
-    const LIMIT                          = 81;
-    const OFFSET                         = 82;
-    const GROUP                          = 83;
-    const HAVING                         = 84;
-    const VALUES                         = 85;
-    const DELETE                         = 86;
-    const UPDATE                         = 87;
-    const INSERT                         = 88;
-    const REPLACE                        = 89;
-    const INTO                           = 90;
-    const DUPLICATE                      = 91;
-    const VIEW                           = 92;
-    const NUMBER                         = 93;
-    const T_UNSIGNED                     = 94;
-    const COLLATE                        = 95;
-    const T_NULL                         = 96;
-    const AUTO_INCREMENT                 = 97;
-    const T_IS                           = 98;
-    const T_BETWEEN                      = 99;
-    const T_BINARY                       = 100;
-    const T_CASE                         = 101;
-    const T_ELSE                         = 102;
-    const WHEN                           = 103;
-    const THEN                           = 104;
-    const INTERVAL                       = 105;
-    const ALPHA                          = 106;
-    const T_STRING1                      = 107;
-    const T_STRING2                      = 108;
-    const T_DOT                          = 109;
-    const COLUMN                         = 110;
-    const QUESTION                       = 111;
-    const T_DOLLAR                       = 112;
-    const YY_NO_ACTION = 613;
-    const YY_ACCEPT_ACTION = 612;
-    const YY_ERROR_ACTION = 611;
+     /* Next are that tables used to determine what action to take based on the
+     ** current state and lookahead token.  These tables are used to implement
+     ** functions that take a state number and lookahead value and return an
+     ** action integer.
+     **
+     ** Suppose the action integer is N.  Then the action is determined as
+     ** follows
+     **
+     **   0 <= N < self::YYNSTATE                              Shift N.  That is,
+     **                                                        push the lookahead
+     **                                                        token onto the stack
+     **                                                        and goto state N.
+     **
+     **   self::YYNSTATE <= N < self::YYNSTATE+self::YYNRULE   Reduce by rule N-YYNSTATE.
+     **
+     **   N == self::YYNSTATE+self::YYNRULE                    A syntax error has occurred.
+     **
+     **   N == self::YYNSTATE+self::YYNRULE+1                  The parser accepts its
+     **                                                        input. (and concludes parsing)
+     **
+     **   N == self::YYNSTATE+self::YYNRULE+2                  No such action.  Denotes unused
+     **                                                        slots in the yy_action[] table.
+     **
+     ** The action table is constructed as a single large static array $yy_action.
+     ** Given state S and lookahead X, the action is computed as
+     **
+     **      self::$yy_action[self::$yy_shift_ofst[S] + X ]
+     **
+     ** If the index value self::$yy_shift_ofst[S]+X is out of range or if the value
+     ** self::$yy_lookahead[self::$yy_shift_ofst[S]+X] is not equal to X or if
+     ** self::$yy_shift_ofst[S] is equal to self::YY_SHIFT_USE_DFLT, it means that
+     ** the action is not in the table and that self::$yy_default[S] should be used instead.
+     **
+     ** The formula above is for computing the action when the lookahead is
+     ** a terminal symbol.  If the lookahead is a non-terminal (as occurs after
+     ** a reduce action) then the static $yy_reduce_ofst array is used in place of
+     ** the static $yy_shift_ofst array and self::YY_REDUCE_USE_DFLT is used in place of
+     ** self::YY_SHIFT_USE_DFLT.
+     **
+     ** The following are the tables generated in this section:
+     **
+     **  self::$yy_action        A single table containing all actions.
+     **  self::$yy_lookahead     A table containing the lookahead for each entry in
+     **                          yy_action.  Used to detect hash collisions.
+     **  self::$yy_shift_ofst    For each state, the offset into self::$yy_action for
+     **                          shifting terminals.
+     **  self::$yy_reduce_ofst   For each state, the offset into self::$yy_action for
+     **                          shifting non-terminals after a reduce.
+     **  self::$yy_default       Default action for each state.
+     */
+     const YY_SZ_ACTTAB = 2141;
+     const YY_SHIFT_USE_DFLT = -93;
+     const YY_SHIFT_MAX = 229;
+     const YY_REDUCE_USE_DFLT = -149;
+     const YY_REDUCE_MAX = 176;
+     /* The next thing included is series of defines which control
+     ** various aspects of the generated parser.
+     **    self::YYNOCODE      is a number which corresponds
+     **                        to no legal terminal or nonterminal number.  This
+     **                        number is used to fill in empty slots of the hash
+     **                        table.
+     **    self::YYFALLBACK    If defined, this indicates that one or more tokens
+     **                        have fall-back values which should be used if the
+     **                        original value of the token will not parse.
+     **    self::YYSTACKDEPTH  is the maximum depth of the parser's stack.
+     **    self::YYNSTATE      the combined number of states.
+     **    self::YYNRULE       the number of rules in the grammar
+     **    self::YYERRORSYMBOL is the code number of the error symbol.  If not
+     **                        defined, then do no error processing.
+     */
+     const YYNOCODE = 200;
+     const YYSTACKDEPTH = 100;
+     const YYNSTATE = 390;
+     const YYNRULE = 221;
+     const YYERRORSYMBOL = 112;
+     const YYERRSYMDT = 'yy0';
+     const YYFALLBACK = 0;
+     /* First off, code is included which follows the "include_class" declaration
+     ** in the input file. */
+     //line 7 "src/SQLParser/Parser.y"
 
-/* Next are that tables used to determine what action to take based on the
-** current state and lookahead token.  These tables are used to implement
-** functions that take a state number and lookahead value and return an
-** action integer.  
-**
-** Suppose the action integer is N.  Then the action is determined as
-** follows
-**
-**   0 <= N < self::YYNSTATE                              Shift N.  That is,
-**                                                        push the lookahead
-**                                                        token onto the stack
-**                                                        and goto state N.
-**
-**   self::YYNSTATE <= N < self::YYNSTATE+self::YYNRULE   Reduce by rule N-YYNSTATE.
-**
-**   N == self::YYNSTATE+self::YYNRULE                    A syntax error has occurred.
-**
-**   N == self::YYNSTATE+self::YYNRULE+1                  The parser accepts its
-**                                                        input. (and concludes parsing)
-**
-**   N == self::YYNSTATE+self::YYNRULE+2                  No such action.  Denotes unused
-**                                                        slots in the yy_action[] table.
-**
-** The action table is constructed as a single large static array $yy_action.
-** Given state S and lookahead X, the action is computed as
-**
-**      self::$yy_action[self::$yy_shift_ofst[S] + X ]
-**
-** If the index value self::$yy_shift_ofst[S]+X is out of range or if the value
-** self::$yy_lookahead[self::$yy_shift_ofst[S]+X] is not equal to X or if
-** self::$yy_shift_ofst[S] is equal to self::YY_SHIFT_USE_DFLT, it means that
-** the action is not in the table and that self::$yy_default[S] should be used instead.  
-**
-** The formula above is for computing the action when the lookahead is
-** a terminal symbol.  If the lookahead is a non-terminal (as occurs after
-** a reduce action) then the static $yy_reduce_ofst array is used in place of
-** the static $yy_shift_ofst array and self::YY_REDUCE_USE_DFLT is used in place of
-** self::YY_SHIFT_USE_DFLT.
-**
-** The following are the tables generated in this section:
-**
-**  self::$yy_action        A single table containing all actions.
-**  self::$yy_lookahead     A table containing the lookahead for each entry in
-**                          yy_action.  Used to detect hash collisions.
-**  self::$yy_shift_ofst    For each state, the offset into self::$yy_action for
-**                          shifting terminals.
-**  self::$yy_reduce_ofst   For each state, the offset into self::$yy_action for
-**                          shifting non-terminals after a reduce.
-**  self::$yy_default       Default action for each state.
-*/
-    const YY_SZ_ACTTAB = 2114;
-static public $yy_action = array(
- /*     0 */    34,  110,  120,  347,  216,   55,  121,  123,  149,  330,
- /*    10 */    31,  109,   40,  221,  366,  255,  463,  463,  463,  463,
- /*    20 */   336,   35,    9,   36,   23,   21,  131,  200,  342,   28,
- /*    30 */   211,  361,   28,   28,   28,   28,   28,  348,   25,   25,
- /*    40 */   302,   25,   25,   25,  216,   20,  121,  123,  111,  330,
- /*    50 */   331,  171,  166,  325,  325,  325,  325,  325,  325,  325,
- /*    60 */   325,  325,  325,  325,   74,   74,  302,  168,  342,  240,
- /*    70 */   373,  261,  262,  125,  612,  210,  389,  277,  276,  273,
- /*    80 */   265,  272,  271,  270,  269,  267,  266,  283,  274,  170,
- /*    90 */   388,  139,  301,  304,  298,  374,  343,  223,  150,  178,
- /*   100 */   376,  304,   33,  118,  382,  379,  239,  286,  254,  120,
- /*   110 */   140,  261,  262,  245,  122,   71,   71,  264,  301,   56,
- /*   120 */   298,  137,   17,  327,  108,  239,  205,  323,  300,  296,
- /*   130 */    23,   21,  131,  286,  297,   28,  211,  361,   28,   28,
- /*   140 */    28,   28,   28,  348,   25,   25,  151,   25,   25,   25,
- /*   150 */   281,   23,   21,  131,  152,  302,   28,  211,  361,   28,
- /*   160 */    28,   28,   28,   28,  348,   25,   25,  189,   25,   25,
- /*   170 */    25,   23,   21,  131,  313,   65,   28,  211,  361,   28,
- /*   180 */    28,   28,   28,   28,  348,   25,   25,  113,   25,   25,
- /*   190 */    25,    4,  126,  142,  129,  214,  135,   13,  216,  337,
- /*   200 */   287,  285,  224,  377,  202,  232,  187,  301,  173,  298,
- /*   210 */    58,   14,  181,  136,  433,  433,  231,  300,  296,  295,
- /*   220 */   295,  175,  286,  365,  346,  346,  244,  137,   17,  314,
- /*   230 */   314,  213,   72,   72,  133,  147,  353,  185,  293,  207,
- /*   240 */    57,  116,  134,  380,  244,   42,   11,  164,  137,   17,
- /*   250 */    59,  155,  199,   43,   52,   52,   31,  109,  387,   66,
- /*   260 */   366,  343,  223,  355,  178,  261,  262,   70,  137,   17,
- /*   270 */    23,   21,  131,  167,   32,   28,  211,  361,   28,   28,
- /*   280 */    28,   28,   28,  348,   25,   25,  176,   25,   25,   25,
- /*   290 */   246,   23,   21,  131,  329,  309,   28,  211,  361,   28,
- /*   300 */    28,   28,   28,   28,  348,   25,   25,  363,   25,   25,
- /*   310 */    25,  280,  277,  276,  273,  265,  272,  271,  270,  269,
- /*   320 */   267,  266,  283,  274,  180,  354,  139,   23,   21,  131,
- /*   330 */    29,   37,   28,  211,  361,   28,   28,   28,   28,   28,
- /*   340 */   348,   25,   25,   68,   25,   25,   25,  302,  112,  126,
- /*   350 */    34,   48,  120,  319,  127,  365,  251,  236,   36,  108,
- /*   360 */     1,  117,   40,  221,  228,  255,  302,  137,   17,  216,
- /*   370 */   117,   34,    9,  120,  114,  212,  132,  237,   48,  130,
- /*   380 */   295,  295,  336,   40,  221,  329,  255,  329,  137,   17,
- /*   390 */   302,  175,   76,    9,  372,   54,  106,  158,   67,  301,
- /*   400 */   175,  298,  175,  216,  219,  121,  123,  333,  330,  300,
- /*   410 */   296,  302,   41,  169,  286,  179,  217,  226,  301,   46,
- /*   420 */   298,  119,  165,  334,  137,   17,  201,  342,  300,  296,
- /*   430 */    77,  255,  351,  286,   75,  156,  261,  262,  369,   60,
- /*   440 */   388,    7,  301,  304,  298,  128,   12,  230,  150,  302,
- /*   450 */     2,   30,   33,  118,  382,  379,  302,  286,  254,  120,
- /*   460 */   362,  388,  358,  301,  304,  298,    3,   20,   51,  150,
- /*   470 */   261,  262,   45,   33,  118,  382,  379,  310,  286,  254,
- /*   480 */   120,   23,   21,  131,   15,  194,   28,  211,  361,   28,
- /*   490 */    28,   28,   28,   28,  348,   25,   25,   22,   25,   25,
- /*   500 */    25,  301,   34,  298,  120,  198,  126,  206,  301,  153,
- /*   510 */   298,  300,  296,  302,   40,  221,  286,  255,  300,  296,
- /*   520 */   124,  279,   44,  286,    9,   47,   23,   21,  131,  260,
- /*   530 */   172,   28,  211,  361,   28,   28,   28,   28,   28,  348,
- /*   540 */    25,   25,  302,   25,   25,   25,   34,   50,  120,  216,
- /*   550 */    62,  121,  123,  190,  330,  328,  256,  360,   40,  221,
- /*   560 */   324,  255,   25,   25,   25,  301,  284,  298,    5,  174,
- /*   570 */   356,  332,  367,  341,  289,  300,  296,   49,  137,   17,
- /*   580 */   286,  238,  378,  304,   16,   27,  302,   10,  312,  191,
- /*   590 */   177,  345,  388,   39,  301,  304,  298,  294,  195,    6,
- /*   600 */   150,    8,  339,  352,   33,  118,  382,  379,  253,  286,
- /*   610 */   254,  120,  320,  242,  335,  263,  261,  262,  338,  305,
- /*   620 */   340,  291,  303,  137,   17,  381,  288,  353,  196,  161,
- /*   630 */   292,  141,  216,   64,   26,  115,  388,  330,  301,  304,
- /*   640 */   298,   73,  137,   17,  150,   38,  175,  368,   33,  118,
- /*   650 */   382,  379,   63,  286,  254,  120,   23,   18,  131,  249,
- /*   660 */   244,   28,  211,  361,   28,   28,   28,   28,   28,  348,
- /*   670 */    25,   25,  275,   25,   25,   25,   23,   24,  131,  241,
- /*   680 */   375,   28,  211,  361,   28,   28,   28,   28,   28,  348,
- /*   690 */    25,   25,  162,   25,   25,   25,  535,  535,  131,  261,
- /*   700 */   262,   28,  211,  361,   28,   28,   28,   28,   28,  348,
- /*   710 */    25,   25,  268,   25,   25,   25,   21,  131,  247,  423,
- /*   720 */    28,  211,  361,   28,   28,   28,   28,   28,  348,   25,
- /*   730 */    25,  120,   25,   25,   25,  299,  215,  205,  373,  364,
- /*   740 */   423,  377,  317,   61,  255,  423,  423,  216,  423,  423,
- /*   750 */   423,  143,  377,  137,   17,  423,  423,  423,  316,  423,
- /*   760 */   423,  423,  423,  423,  208,  204,   69,  423,  225,  302,
- /*   770 */   120,  423,  423,  137,   17,  193,  423,  370,  423,  423,
- /*   780 */    40,  221,  349,  255,  423,  423,  203,  293,  207,  423,
- /*   790 */   423,  359,  386,  137,   17,  423,  357,  423,  423,  384,
- /*   800 */   423,  216,  308,  261,  262,  423,  377,  423,  302,  423,
- /*   810 */   423,  423,  137,   17,  261,  262,  423,  423,  423,  423,
- /*   820 */   423,  301,  423,  298,  423,  423,  423,  423,  423,  423,
- /*   830 */   423,  300,  296,  259,  257,  423,  286,  254,  120,  423,
- /*   840 */   131,  290,  207,   28,  211,  361,   28,   28,   28,   28,
- /*   850 */    28,  348,   25,   25,  423,   25,   25,   25,  388,  423,
- /*   860 */   301,  304,  298,  423,  423,  423,  423,  423,  261,  262,
- /*   870 */    33,  118,  382,  379,  423,  286,  254,  120,   28,  211,
- /*   880 */   361,   28,   28,   28,   28,   28,  348,   25,   25,  120,
- /*   890 */    25,   25,   25,  423,  423,  423,  215,  423,  373,  423,
- /*   900 */   216,  377,  255,   89,  423,  377,  423,  423,  423,  423,
- /*   910 */   227,  277,  276,  273,  265,  272,  271,  270,  269,  267,
- /*   920 */   266,  283,  274,  204,   69,  139,  423,  302,  423,  220,
- /*   930 */   423,  423,  423,  193,  423,  137,   17,  370,  423,  423,
- /*   940 */   423,  157,  349,  423,  423,  423,  423,  183,  371,  423,
- /*   950 */   423,  359,  386,  423,  423,  344,  357,  423,  108,  384,
- /*   960 */   423,  222,  423,  261,  262,  423,  228,  261,  262,  216,
- /*   970 */   137,   17,  423,  423,  377,  215,  423,  229,  423,  301,
- /*   980 */   377,  298,   82,  216,  423,  121,  123,  423,  330,  300,
- /*   990 */   296,  259,  257,  423,  286,  254,  120,  228,  423,  423,
- /*  1000 */   423,  120,  423,  423,  423,  423,  215,  145,  229,  423,
- /*  1010 */   157,  377,  423,   89,  255,  423,  370,  321,  423,  120,
- /*  1020 */   216,  349,  215,  188,  373,  330,  423,  377,  423,   79,
- /*  1030 */   359,  386,  255,  423,  423,  357,  261,  262,  384,  302,
- /*  1040 */   184,  423,  261,  262,  423,  423,  423,  370,  423,  423,
- /*  1050 */   261,  262,  349,  218,  311,  423,  423,  302,  282,  423,
- /*  1060 */   216,  359,  386,  370,  423,  258,  357,  216,  349,  384,
- /*  1070 */   188,  184,  330,  261,  262,  423,  423,  359,  386,  423,
- /*  1080 */   423,  423,  357,  228,  423,  384,   53,  261,  262,  261,
- /*  1090 */   262,  301,  215,  298,  229,  423,  423,  377,  423,   84,
- /*  1100 */   423,  300,  296,  259,  257,  278,  286,  254,  120,  301,
- /*  1110 */   215,  298,  373,  423,  423,  377,  423,   79,  423,  300,
- /*  1120 */   296,  259,  257,  423,  286,  254,  120,  261,  262,  211,
- /*  1130 */   361,  423,  423,  370,  261,  262,  322,  423,  349,  215,
- /*  1140 */   423,  373,  315,  423,  377,  216,   61,  359,  386,  423,
- /*  1150 */   114,  370,  357,  234,  423,  384,  349,  423,  423,  261,
- /*  1160 */   262,  423,  215,  423,  373,  359,  386,  377,  423,   89,
- /*  1170 */   357,  120,  423,  384,  423,  423,  423,  261,  262,  423,
- /*  1180 */   370,  423,  423,  423,  255,  349,  423,  182,  423,  423,
- /*  1190 */   423,  117,  215,  423,  359,  386,  423,  377,  423,  357,
- /*  1200 */   423,  423,  384,  370,  423,  326,  261,  262,  349,  302,
- /*  1210 */   423,  423,  261,  262,  423,  423,  423,  359,  386,  423,
- /*  1220 */   318,   19,  357,  423,  423,  384,  423,  184,  423,  261,
- /*  1230 */   262,  423,  423,  370,  215,  423,  373,  423,  383,  377,
- /*  1240 */   215,  107,  373,  423,  423,  377,  216,   78,  386,  423,
- /*  1250 */   423,  114,  423,  423,  146,  384,  423,  423,  423,  261,
- /*  1260 */   262,  301,  423,  298,  216,  423,  121,  123,  423,  330,
- /*  1270 */   423,  300,  296,  259,  257,  370,  286,  254,  120,  215,
- /*  1280 */   349,  370,  423,  423,  377,  423,  349,  216,  159,  359,
- /*  1290 */   386,  423,  186,  423,  357,  359,  386,  384,  423,  423,
- /*  1300 */   357,  261,  262,  384,  215,  423,  373,  261,  262,  377,
- /*  1310 */   423,   93,  423,  261,  262,  423,  423,  423,  423,  423,
- /*  1320 */   370,  423,  215,  423,  373,  243,  423,  377,  215,   92,
- /*  1330 */   423,  261,  262,  377,  423,  386,  216,  423,  216,  423,
- /*  1340 */   423,  114,  384,  233,  144,  370,  261,  262,  423,  423,
- /*  1350 */   349,  216,  423,  216,  261,  262,  163,  423,  154,  359,
- /*  1360 */   386,  215,  423,  370,  357,  423,  377,  384,  349,  370,
- /*  1370 */   423,  261,  262,  423,  350,  423,  423,  359,  386,  423,
- /*  1380 */   423,  423,  357,  423,  386,  384,  423,  423,  423,  261,
- /*  1390 */   262,  384,  215,  423,  373,  261,  262,  377,  423,  101,
- /*  1400 */   423,  423,  370,  261,  262,  261,  262,  385,  215,  423,
- /*  1410 */   373,  423,  423,  377,  423,   96,  423,  386,  261,  262,
- /*  1420 */   261,  262,  423,  423,  384,  423,  423,  423,  261,  262,
- /*  1430 */   423,  423,  215,  370,  373,  216,  423,  377,  349,  104,
- /*  1440 */   114,  423,  423,  138,  423,  216,  423,  359,  386,  370,
- /*  1450 */   306,  216,  357,  216,  349,  384,  192,  423,  235,  261,
- /*  1460 */   262,  423,  216,  359,  386,  423,  423,  148,  357,  423,
- /*  1470 */   423,  384,  216,  370,  216,  261,  262,  209,  349,  197,
- /*  1480 */   423,  216,  423,  423,  423,  216,  160,  359,  386,  216,
- /*  1490 */   307,  215,  357,  373,  248,  384,  377,  423,   86,  261,
- /*  1500 */   262,  423,  261,  262,  423,  423,  423,  423,  423,  215,
- /*  1510 */   423,  373,  261,  262,  377,  423,   95,  423,  261,  262,
- /*  1520 */   261,  262,  423,  423,  423,  423,  423,  423,  423,  261,
- /*  1530 */   262,  423,  370,  423,  423,  423,  423,  349,  423,  261,
- /*  1540 */   262,  261,  262,  423,  423,  423,  359,  386,  261,  262,
- /*  1550 */   370,  357,  261,  262,  384,  349,  261,  262,  261,  262,
- /*  1560 */   423,  423,  423,  423,  359,  386,  423,  423,  215,  357,
- /*  1570 */   373,  423,  384,  377,  423,  102,  261,  262,  423,  423,
- /*  1580 */   423,  423,  423,  423,  423,  423,  215,  423,  373,  423,
- /*  1590 */   423,  377,  423,   94,  423,  423,  423,  423,  423,  423,
- /*  1600 */   423,  423,  423,  423,  423,  423,  215,  423,  373,  370,
- /*  1610 */   423,  377,  423,   99,  349,  423,  423,  423,  423,  423,
- /*  1620 */   423,  423,  423,  359,  386,  423,  423,  370,  357,  423,
- /*  1630 */   423,  384,  349,  423,  423,  261,  262,  423,  423,  423,
- /*  1640 */   423,  359,  386,  423,  423,  423,  357,  370,  423,  384,
- /*  1650 */   423,  423,  349,  261,  262,  423,  423,  423,  423,  423,
- /*  1660 */   423,  359,  386,  215,  423,  373,  357,  423,  377,  384,
- /*  1670 */   100,  423,  423,  261,  262,  423,  423,  423,  423,  423,
- /*  1680 */   423,  215,  423,  373,  423,  423,  377,  423,   97,  423,
- /*  1690 */   423,  423,  423,  423,  423,  423,  423,  423,  423,  423,
- /*  1700 */   423,  215,  423,  373,  370,  423,  377,  423,   88,  349,
- /*  1710 */   423,  423,  423,  423,  423,  423,  423,  423,  359,  386,
- /*  1720 */   423,  423,  370,  357,  423,  423,  384,  349,  423,  423,
- /*  1730 */   261,  262,  423,  423,  423,  423,  359,  386,  423,  423,
- /*  1740 */   423,  357,  370,  423,  384,  423,  423,  349,  261,  262,
- /*  1750 */   423,  423,  423,  423,  423,  423,  359,  386,  250,  250,
- /*  1760 */   423,  357,  250,  423,  384,  423,  423,  423,  261,  262,
- /*  1770 */   423,  423,  423,  423,  250,  423,  423,  215,  423,  373,
- /*  1780 */   423,  423,  377,  215,   85,  373,  250,  423,  377,  423,
- /*  1790 */    87,  423,  423,  423,  423,  423,  423,  423,  423,  423,
- /*  1800 */   250,  250,  423,  423,  423,  423,  250,  250,  423,  423,
- /*  1810 */   423,  423,  423,  423,  250,  423,  250,  423,  370,  423,
- /*  1820 */   423,  423,  423,  349,  370,  252,  423,  423,  423,  349,
- /*  1830 */   423,  423,  359,  386,  423,  423,  423,  357,  359,  386,
- /*  1840 */   384,  423,  423,  357,  261,  262,  384,  423,  423,  423,
- /*  1850 */   261,  262,  423,  215,  423,  373,  423,  423,  377,  423,
- /*  1860 */    81,  423,  423,  423,  423,  423,  423,  423,  423,  423,
- /*  1870 */   423,  423,  423,  215,  423,  373,  423,  423,  377,  423,
- /*  1880 */   105,  423,  423,  423,  423,  423,  423,  423,  423,  423,
- /*  1890 */   423,  423,  423,  215,  370,  373,  423,  423,  377,  349,
- /*  1900 */    98,  423,  423,  423,  423,  423,  423,  423,  359,  386,
- /*  1910 */   423,  423,  423,  357,  370,  423,  384,  423,  423,  349,
- /*  1920 */   261,  262,  423,  423,  423,  423,  423,  423,  359,  386,
- /*  1930 */   423,  423,  423,  357,  370,  423,  384,  423,  423,  349,
- /*  1940 */   261,  262,  423,  423,  423,  215,  423,  373,  359,  386,
- /*  1950 */   377,  423,   90,  357,  423,  423,  384,  423,  423,  423,
- /*  1960 */   261,  262,  423,  215,  423,  373,  423,  423,  377,  215,
- /*  1970 */   103,  373,  423,  423,  377,  423,   91,  423,  423,  423,
- /*  1980 */   423,  423,  423,  423,  423,  423,  370,  423,  423,  423,
- /*  1990 */   423,  349,  423,  423,  423,  423,  423,  423,  423,  423,
- /*  2000 */   359,  386,  423,  423,  370,  357,  423,  423,  384,  349,
- /*  2010 */   370,  423,  261,  262,  423,  349,  423,  423,  359,  386,
- /*  2020 */   423,  423,  423,  357,  359,  386,  384,  423,  423,  357,
- /*  2030 */   261,  262,  384,  423,  423,  423,  261,  262,  423,  215,
- /*  2040 */   423,  373,  423,  423,  377,  215,   83,  373,  423,  423,
- /*  2050 */   377,  423,   80,  423,  423,  423,  423,  423,  423,  423,
- /*  2060 */   423,  423,  423,  423,  423,  423,  423,  423,  423,  423,
- /*  2070 */   423,  423,  423,  423,  423,  423,  423,  423,  423,  423,
- /*  2080 */   370,  423,  423,  423,  423,  349,  370,  423,  423,  423,
- /*  2090 */   423,  349,  423,  423,  359,  386,  423,  423,  423,  357,
- /*  2100 */   359,  386,  384,  423,  423,  357,  261,  262,  384,  423,
- /*  2110 */   423,  423,  261,  262,
-    );
-    static public $yy_lookahead = array(
- /*     0 */     3,  109,    5,   26,  130,   68,  132,  133,    3,  135,
- /*    10 */   187,  188,   15,   16,  191,   18,   69,   70,   71,   72,
- /*    20 */    73,   48,   25,   76,    1,    2,    3,  153,  154,    6,
- /*    30 */     7,    8,    9,   10,   11,   12,   13,   14,   15,   16,
- /*    40 */    43,   18,   19,   20,  130,   68,  132,  133,   75,  135,
- /*    50 */    70,   71,   72,   56,   57,   58,   59,   60,   61,   62,
- /*    60 */    63,   64,   65,   66,   40,   41,   43,  153,  154,  130,
- /*    70 */   132,  197,  198,   50,  114,  115,  116,  117,  118,  119,
- /*    80 */   120,  121,  122,  123,  124,  125,  126,  127,  128,  148,
- /*    90 */    93,  131,   95,   96,   97,  189,  155,  156,  101,  158,
- /*   100 */   194,   96,  105,  106,  107,  108,   31,  110,  111,  112,
- /*   110 */   165,  197,  198,  174,  175,   40,   41,  134,   95,  136,
- /*   120 */    97,   98,   99,  185,  164,   50,   48,  189,  105,  106,
- /*   130 */     1,    2,    3,  110,  189,    6,    7,    8,    9,   10,
- /*   140 */    11,   12,   13,   14,   15,   16,   68,   18,   19,   20,
- /*   150 */    26,    1,    2,    3,   26,   43,    6,    7,    8,    9,
- /*   160 */    10,   11,   12,   13,   14,   15,   16,   25,   18,   19,
- /*   170 */    20,    1,    2,    3,   53,   54,    6,    7,    8,    9,
- /*   180 */    10,   11,   12,   13,   14,   15,   16,   25,   18,   19,
- /*   190 */    20,   25,   68,   27,   28,   29,   30,   68,  130,  130,
- /*   200 */    34,   35,   36,  135,   38,  121,   93,   95,   26,   97,
- /*   210 */   140,   82,  142,   47,   40,   41,  132,  105,  106,   32,
- /*   220 */    33,   55,  110,   49,   79,   80,   52,   98,   99,   79,
- /*   230 */    80,   39,   40,   41,   38,  130,   94,  169,  170,  171,
- /*   240 */    44,   45,   46,   96,   52,   67,   68,   51,   98,   99,
- /*   250 */    68,  167,   86,   87,   88,   89,  187,  188,   40,   48,
- /*   260 */   191,  155,  156,   35,  158,  197,  198,   31,   98,   99,
- /*   270 */     1,    2,    3,  167,  104,    6,    7,    8,    9,   10,
- /*   280 */    11,   12,   13,   14,   15,   16,  181,   18,   19,   20,
- /*   290 */   130,    1,    2,    3,  130,   26,    6,    7,    8,    9,
- /*   300 */    10,   11,   12,   13,   14,   15,   16,   26,   18,   19,
- /*   310 */    20,  116,  117,  118,  119,  120,  121,  122,  123,  124,
- /*   320 */   125,  126,  127,  128,  160,   35,  131,    1,    2,    3,
- /*   330 */   102,  103,    6,    7,    8,    9,   10,   11,   12,   13,
- /*   340 */    14,   15,   16,   37,   18,   19,   20,   43,   25,   68,
- /*   350 */     3,   42,    5,   26,   50,   49,   26,  197,   76,  164,
- /*   360 */   144,   25,   15,   16,  121,   18,   43,   98,   99,  130,
- /*   370 */    25,    3,   25,    5,  135,  132,  182,  138,   42,   31,
- /*   380 */    32,   33,   73,   15,   16,  130,   18,  130,   98,   99,
- /*   390 */    43,   55,  147,   25,   26,   68,  173,  150,   92,   95,
- /*   400 */    55,   97,   55,  130,   83,  132,  133,  159,  135,  105,
- /*   410 */   106,   43,    6,  149,  110,  160,   77,  160,   95,   68,
- /*   420 */    97,   85,  150,   74,   98,   99,  153,  154,  105,  106,
- /*   430 */   147,   18,  106,  110,   40,   50,  197,  198,   26,   37,
- /*   440 */    93,   78,   95,   96,   97,   28,   68,   40,  101,   43,
- /*   450 */    78,   84,  105,  106,  107,  108,   43,  110,  111,  112,
- /*   460 */   100,   93,   93,   95,   96,   97,   24,   68,   25,  101,
- /*   470 */   197,  198,   69,  105,  106,  107,  108,   43,  110,  111,
- /*   480 */   112,    1,    2,    3,    6,   93,    6,    7,    8,    9,
- /*   490 */    10,   11,   12,   13,   14,   15,   16,   43,   18,   19,
- /*   500 */    20,   95,    3,   97,    5,   40,   68,   91,   95,   40,
- /*   510 */    97,  105,  106,   43,   15,   16,  110,   18,  105,  106,
- /*   520 */    50,   26,   37,  110,   25,   67,    1,    2,    3,   26,
- /*   530 */   148,    6,    7,    8,    9,   10,   11,   12,   13,   14,
- /*   540 */    15,   16,   43,   18,   19,   20,    3,   87,    5,  130,
- /*   550 */    41,  132,  133,    3,  135,  159,  166,  139,   15,   16,
- /*   560 */   180,   18,   18,   19,   20,   95,  129,   97,   25,  146,
- /*   570 */   139,  157,  183,  154,  186,  105,  106,   25,   98,   99,
- /*   580 */   110,  186,  143,   96,  104,  103,   43,   25,  139,   39,
- /*   590 */   192,  130,   93,   43,   95,   96,   97,  189,  142,   25,
- /*   600 */   101,   25,  130,  183,  105,  106,  107,  108,  199,  110,
- /*   610 */   111,  112,  191,  130,  130,  129,  197,  198,  130,  130,
- /*   620 */   130,  130,  130,   98,   99,  184,  130,   94,   25,  148,
- /*   630 */   129,  179,  130,  140,   81,  133,   93,  135,   95,   96,
- /*   640 */    97,  141,   98,   99,  101,   95,   55,   97,  105,  106,
- /*   650 */   107,  108,  140,  110,  111,  112,    1,    2,    3,  143,
- /*   660 */    52,    6,    7,    8,    9,   10,   11,   12,   13,   14,
- /*   670 */    15,   16,  151,   18,   19,   20,    1,    2,    3,  151,
- /*   680 */   143,    6,    7,    8,    9,   10,   11,   12,   13,   14,
- /*   690 */    15,   16,  150,   18,   19,   20,    1,    2,    3,  197,
- /*   700 */   198,    6,    7,    8,    9,   10,   11,   12,   13,   14,
- /*   710 */    15,   16,  151,   18,   19,   20,    2,    3,  121,  200,
- /*   720 */     6,    7,    8,    9,   10,   11,   12,   13,   14,   15,
- /*   730 */    16,    5,   18,   19,   20,  166,  130,   48,  132,  143,
- /*   740 */   200,  135,  143,  137,   18,  200,  200,  130,  200,  200,
- /*   750 */   200,  145,  135,   98,   99,  200,  200,  200,  152,  200,
- /*   760 */   200,  200,  200,  200,   38,   39,   40,  200,   42,   43,
- /*   770 */     5,  200,  200,   98,   99,   49,  200,  171,  200,  200,
- /*   780 */    15,   16,  176,   18,  200,  200,  169,  170,  171,  200,
- /*   790 */   200,  185,  186,   98,   99,  200,  190,  200,  200,  193,
- /*   800 */   200,  130,  196,  197,  198,  200,  135,  200,   43,  200,
- /*   810 */   200,  200,   98,   99,  197,  198,  200,  200,  200,  200,
- /*   820 */   200,   95,  200,   97,  200,  200,  200,  200,  200,  200,
- /*   830 */   200,  105,  106,  107,  108,  200,  110,  111,  112,  200,
- /*   840 */     3,  170,  171,    6,    7,    8,    9,   10,   11,   12,
- /*   850 */    13,   14,   15,   16,  200,   18,   19,   20,   93,  200,
- /*   860 */    95,   96,   97,  200,  200,  200,  200,  200,  197,  198,
- /*   870 */   105,  106,  107,  108,  200,  110,  111,  112,    6,    7,
- /*   880 */     8,    9,   10,   11,   12,   13,   14,   15,   16,    5,
- /*   890 */    18,   19,   20,  200,  200,  200,  130,  200,  132,  200,
- /*   900 */   130,  135,   18,  137,  200,  135,  200,  200,  200,  200,
- /*   910 */   116,  117,  118,  119,  120,  121,  122,  123,  124,  125,
- /*   920 */   126,  127,  128,   39,   40,  131,  200,   43,  200,  163,
- /*   930 */   200,  200,  200,   49,  200,   98,   99,  171,  200,  200,
- /*   940 */   200,  171,  176,  200,  200,  200,  200,  177,  178,  200,
- /*   950 */   200,  185,  186,  200,  200,  189,  190,  200,  164,  193,
- /*   960 */   200,  195,  200,  197,  198,  200,  121,  197,  198,  130,
- /*   970 */    98,   99,  200,  200,  135,  130,  200,  132,  200,   95,
- /*   980 */   135,   97,  137,  130,  200,  132,  133,  200,  135,  105,
- /*   990 */   106,  107,  108,  200,  110,  111,  112,  121,  200,  200,
- /*  1000 */   200,    5,  200,  200,  200,  200,  130,  154,  132,  200,
- /*  1010 */   171,  135,  200,  137,   18,  200,  171,  178,  200,    5,
- /*  1020 */   130,  176,  130,  133,  132,  135,  200,  135,  200,  137,
- /*  1030 */   185,  186,   18,  200,  200,  190,  197,  198,  193,   43,
- /*  1040 */   195,  200,  197,  198,  200,  200,  200,  171,  200,  200,
- /*  1050 */   197,  198,  176,  161,  162,  200,  200,   43,  168,  200,
- /*  1060 */   130,  185,  186,  171,  200,  135,  190,  130,  176,  193,
- /*  1070 */   133,  195,  135,  197,  198,  200,  200,  185,  186,  200,
- /*  1080 */   200,  200,  190,  121,  200,  193,   90,  197,  198,  197,
- /*  1090 */   198,   95,  130,   97,  132,  200,  200,  135,  200,  137,
- /*  1100 */   200,  105,  106,  107,  108,  168,  110,  111,  112,   95,
- /*  1110 */   130,   97,  132,  200,  200,  135,  200,  137,  200,  105,
- /*  1120 */   106,  107,  108,  200,  110,  111,  112,  197,  198,    7,
- /*  1130 */     8,  200,  200,  171,  197,  198,   14,  200,  176,  130,
- /*  1140 */   200,  132,  162,  200,  135,  130,  137,  185,  186,  200,
- /*  1150 */   135,  171,  190,  138,  200,  193,  176,  200,  200,  197,
- /*  1160 */   198,  200,  130,  200,  132,  185,  186,  135,  200,  137,
- /*  1170 */   190,    5,  200,  193,  200,  200,  200,  197,  198,  200,
- /*  1180 */   171,  200,  200,  200,   18,  176,  200,  172,  200,  200,
- /*  1190 */   200,   25,  130,  200,  185,  186,  200,  135,  200,  190,
- /*  1200 */   200,  200,  193,  171,  200,  196,  197,  198,  176,   43,
- /*  1210 */   200,  200,  197,  198,  200,  200,  200,  185,  186,  200,
- /*  1220 */    98,   99,  190,  200,  200,  193,  200,  195,  200,  197,
- /*  1230 */   198,  200,  200,  171,  130,  200,  132,  200,  176,  135,
- /*  1240 */   130,  137,  132,  200,  200,  135,  130,  137,  186,  200,
- /*  1250 */   200,  135,  200,  200,  138,  193,  200,  200,  200,  197,
- /*  1260 */   198,   95,  200,   97,  130,  200,  132,  133,  200,  135,
- /*  1270 */   200,  105,  106,  107,  108,  171,  110,  111,  112,  130,
- /*  1280 */   176,  171,  200,  200,  135,  200,  176,  130,  154,  185,
- /*  1290 */   186,  200,  135,  200,  190,  185,  186,  193,  200,  200,
- /*  1300 */   190,  197,  198,  193,  130,  200,  132,  197,  198,  135,
- /*  1310 */   200,  137,  200,  197,  198,  200,  200,  200,  200,  200,
- /*  1320 */   171,  200,  130,  200,  132,  176,  200,  135,  130,  137,
- /*  1330 */   200,  197,  198,  135,  200,  186,  130,  200,  130,  200,
- /*  1340 */   200,  135,  193,  135,  138,  171,  197,  198,  200,  200,
- /*  1350 */   176,  130,  200,  130,  197,  198,  135,  200,  135,  185,
- /*  1360 */   186,  130,  200,  171,  190,  200,  135,  193,  176,  171,
- /*  1370 */   200,  197,  198,  200,  176,  200,  200,  185,  186,  200,
- /*  1380 */   200,  200,  190,  200,  186,  193,  200,  200,  200,  197,
- /*  1390 */   198,  193,  130,  200,  132,  197,  198,  135,  200,  137,
- /*  1400 */   200,  200,  171,  197,  198,  197,  198,  176,  130,  200,
- /*  1410 */   132,  200,  200,  135,  200,  137,  200,  186,  197,  198,
- /*  1420 */   197,  198,  200,  200,  193,  200,  200,  200,  197,  198,
- /*  1430 */   200,  200,  130,  171,  132,  130,  200,  135,  176,  137,
- /*  1440 */   135,  200,  200,  138,  200,  130,  200,  185,  186,  171,
- /*  1450 */   135,  130,  190,  130,  176,  193,  135,  200,  135,  197,
- /*  1460 */   198,  200,  130,  185,  186,  200,  200,  135,  190,  200,
- /*  1470 */   200,  193,  130,  171,  130,  197,  198,  135,  176,  135,
- /*  1480 */   200,  130,  200,  200,  200,  130,  135,  185,  186,  130,
- /*  1490 */   135,  130,  190,  132,  135,  193,  135,  200,  137,  197,
- /*  1500 */   198,  200,  197,  198,  200,  200,  200,  200,  200,  130,
- /*  1510 */   200,  132,  197,  198,  135,  200,  137,  200,  197,  198,
- /*  1520 */   197,  198,  200,  200,  200,  200,  200,  200,  200,  197,
- /*  1530 */   198,  200,  171,  200,  200,  200,  200,  176,  200,  197,
- /*  1540 */   198,  197,  198,  200,  200,  200,  185,  186,  197,  198,
- /*  1550 */   171,  190,  197,  198,  193,  176,  197,  198,  197,  198,
- /*  1560 */   200,  200,  200,  200,  185,  186,  200,  200,  130,  190,
- /*  1570 */   132,  200,  193,  135,  200,  137,  197,  198,  200,  200,
- /*  1580 */   200,  200,  200,  200,  200,  200,  130,  200,  132,  200,
- /*  1590 */   200,  135,  200,  137,  200,  200,  200,  200,  200,  200,
- /*  1600 */   200,  200,  200,  200,  200,  200,  130,  200,  132,  171,
- /*  1610 */   200,  135,  200,  137,  176,  200,  200,  200,  200,  200,
- /*  1620 */   200,  200,  200,  185,  186,  200,  200,  171,  190,  200,
- /*  1630 */   200,  193,  176,  200,  200,  197,  198,  200,  200,  200,
- /*  1640 */   200,  185,  186,  200,  200,  200,  190,  171,  200,  193,
- /*  1650 */   200,  200,  176,  197,  198,  200,  200,  200,  200,  200,
- /*  1660 */   200,  185,  186,  130,  200,  132,  190,  200,  135,  193,
- /*  1670 */   137,  200,  200,  197,  198,  200,  200,  200,  200,  200,
- /*  1680 */   200,  130,  200,  132,  200,  200,  135,  200,  137,  200,
- /*  1690 */   200,  200,  200,  200,  200,  200,  200,  200,  200,  200,
- /*  1700 */   200,  130,  200,  132,  171,  200,  135,  200,  137,  176,
- /*  1710 */   200,  200,  200,  200,  200,  200,  200,  200,  185,  186,
- /*  1720 */   200,  200,  171,  190,  200,  200,  193,  176,  200,  200,
- /*  1730 */   197,  198,  200,  200,  200,  200,  185,  186,  200,  200,
- /*  1740 */   200,  190,  171,  200,  193,  200,  200,  176,  197,  198,
- /*  1750 */   200,  200,  200,  200,  200,  200,  185,  186,   39,   40,
- /*  1760 */   200,  190,   43,  200,  193,  200,  200,  200,  197,  198,
- /*  1770 */   200,  200,  200,  200,   55,  200,  200,  130,  200,  132,
- /*  1780 */   200,  200,  135,  130,  137,  132,   67,  200,  135,  200,
- /*  1790 */   137,  200,  200,  200,  200,  200,  200,  200,  200,  200,
- /*  1800 */    81,   82,  200,  200,  200,  200,   87,   88,  200,  200,
- /*  1810 */   200,  200,  200,  200,   95,  200,   97,  200,  171,  200,
- /*  1820 */   200,  200,  200,  176,  171,  106,  200,  200,  200,  176,
- /*  1830 */   200,  200,  185,  186,  200,  200,  200,  190,  185,  186,
- /*  1840 */   193,  200,  200,  190,  197,  198,  193,  200,  200,  200,
- /*  1850 */   197,  198,  200,  130,  200,  132,  200,  200,  135,  200,
- /*  1860 */   137,  200,  200,  200,  200,  200,  200,  200,  200,  200,
- /*  1870 */   200,  200,  200,  130,  200,  132,  200,  200,  135,  200,
- /*  1880 */   137,  200,  200,  200,  200,  200,  200,  200,  200,  200,
- /*  1890 */   200,  200,  200,  130,  171,  132,  200,  200,  135,  176,
- /*  1900 */   137,  200,  200,  200,  200,  200,  200,  200,  185,  186,
- /*  1910 */   200,  200,  200,  190,  171,  200,  193,  200,  200,  176,
- /*  1920 */   197,  198,  200,  200,  200,  200,  200,  200,  185,  186,
- /*  1930 */   200,  200,  200,  190,  171,  200,  193,  200,  200,  176,
- /*  1940 */   197,  198,  200,  200,  200,  130,  200,  132,  185,  186,
- /*  1950 */   135,  200,  137,  190,  200,  200,  193,  200,  200,  200,
- /*  1960 */   197,  198,  200,  130,  200,  132,  200,  200,  135,  130,
- /*  1970 */   137,  132,  200,  200,  135,  200,  137,  200,  200,  200,
- /*  1980 */   200,  200,  200,  200,  200,  200,  171,  200,  200,  200,
- /*  1990 */   200,  176,  200,  200,  200,  200,  200,  200,  200,  200,
- /*  2000 */   185,  186,  200,  200,  171,  190,  200,  200,  193,  176,
- /*  2010 */   171,  200,  197,  198,  200,  176,  200,  200,  185,  186,
- /*  2020 */   200,  200,  200,  190,  185,  186,  193,  200,  200,  190,
- /*  2030 */   197,  198,  193,  200,  200,  200,  197,  198,  200,  130,
- /*  2040 */   200,  132,  200,  200,  135,  130,  137,  132,  200,  200,
- /*  2050 */   135,  200,  137,  200,  200,  200,  200,  200,  200,  200,
- /*  2060 */   200,  200,  200,  200,  200,  200,  200,  200,  200,  200,
- /*  2070 */   200,  200,  200,  200,  200,  200,  200,  200,  200,  200,
- /*  2080 */   171,  200,  200,  200,  200,  176,  171,  200,  200,  200,
- /*  2090 */   200,  176,  200,  200,  185,  186,  200,  200,  200,  190,
- /*  2100 */   185,  186,  193,  200,  200,  190,  197,  198,  193,  200,
- /*  2110 */   200,  200,  197,  198,
-);
-    const YY_SHIFT_USE_DFLT = -109;
-    const YY_SHIFT_MAX = 229;
-    static public $yy_shift_ofst = array(
- /*     0 */   166,   -3,  543,  166,  166,  347,  347,  499,  368,  347,
- /*    10 */   499,  499,  499,  499,  499,  499,  499,  499,  499,  499,
- /*    20 */   499,  499,  499,  499,  499,  499,  499,  499,  499,  499,
- /*    30 */   499,  499,  499,  499,  499,  499,  499,  499,  765,  765,
- /*    40 */   765,  765, 1166, 1166, 1166, 1166, 1166, 1166, 1014, 1014,
- /*    50 */  1014,  884,  996, 1014, 1014, 1014,  726,  884,  884,  884,
- /*    60 */  1014,   23, 1014, 1014, 1014, 1014, 1014, 1014, 1014, 1014,
- /*    70 */  1014, 1014, 1014, 1014, 1014, 1014,  -53,  309,  129,  150,
- /*    80 */   326,  290,  269,  480,  269,  170,  525,  525,  525,  525,
- /*    90 */   525,  525,  695,  525,  675,  655,  525,  525,  525,  525,
- /*   100 */   525,  714,  837,  837,  837,  872,  112,  544,  336,  574,
- /*   110 */   413,  323,  112,  112,  112,  196,  174,  345,  576,  562,
- /*   120 */  1719,  304,  406,  470,  112,  112,  112,  112,  112,  112,
- /*   130 */   112, 1122,  550,  192,   75,  348,  306,    5,  121,  187,
- /*   140 */    78,  145,  187,  178,  121,  -27,  121,  142,  552,  487,
- /*   150 */   482,  562,  533,  552,  552,  689,  591,  603,  553,  282,
- /*   160 */   552,  339,  553,  552,  608,  553,  349,  282,  351,  339,
- /*   170 */   321,  349,  339, -109, -109, -109, -109,  228,  -20,  124,
- /*   180 */   281,   24,  182,  327,  -23,  -63,  211,  128,  162,  113,
- /*   190 */   147,  218,  236,  394,  412,  509,  392,  385,  460,  458,
- /*   200 */   351,  351,  485,  -63,  469,  416,  465,  478,  434,  443,
- /*   210 */   442,  360,  330,  407,  417, -108, -108,  363,  378,  372,
- /*   220 */   367,  369,  399,  403,  402,  454,  438,  495,  503,  330,
-);
-    const YY_REDUCE_USE_DFLT = -178;
-    const YY_REDUCE_MAX = 176;
-    static public $yy_reduce_ofst = array(
- /*     0 */   -40,  606,  766,  195,  794,  845,  876,  892, 1032,  962,
- /*    10 */  1032, 1009,  980, 1551, 1533, 1174, 1476, 1456, 1438, 1379,
- /*    20 */  1361, 1302, 1278, 1262, 1192, 1104, 1110, 1909, 1743, 1723,
- /*    30 */  1839, 1815, 1763, 1915, 1833, 1653, 1571, 1647, 1231, 1062,
- /*    40 */  1198, 1149, -126,  -86,  273,  853,  419, 1134,  617,  770,
- /*    50 */    68, 1015,  890,  937,  839,  671, 1305, 1206, 1116,  239,
- /*    60 */   502,   69, 1157,  930, 1359, 1355, 1351, 1344, 1342, 1332,
- /*    70 */  1323, 1321, 1208, 1315, 1223, 1221,  -59,  106, -177, -177,
- /*    80 */  -177, -177, -177, -177, -177, -177, -177, -177, -177, -177,
- /*    90 */  -177, -177, -177, -177, -177, -177, -177, -177, -177, -177,
- /*   100 */  -177, -177, -177, -177, -177, -177,  -61, -177,   84,  -62,
- /*   110 */   160,  257,  164,  255,  105,  -17,   70,  243,  -94,  -55,
- /*   120 */   409,  472,  483,  484,  488,  461,  489,  490,  491,  492,
- /*   130 */   496,  421,  441,  493,  500,  486,  456,  388,  449,  501,
- /*   140 */   390,  380,  437,  423,  431,  414,  418,  389,  439,  395,
- /*   150 */   398,  408,  420,  599,  596,  569,  597,  452,  521,  481,
- /*   160 */   516,  542,  561,  537,  512,  528,  396,  382,  283,  272,
- /*   170 */   264,  248,  247,  223,  245,  216,  194,
-);
-    static public $yyExpectedTokens = array(
-        /* 0 */ array(25, 27, 28, 29, 30, 34, 35, 36, 38, 47, 55, 86, 87, 88, 89, ),
-        /* 1 */ array(3, 5, 15, 16, 18, 25, 43, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 93, 95, 96, 97, 101, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 2 */ array(3, 5, 15, 16, 18, 25, 43, 93, 95, 96, 97, 101, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 3 */ array(25, 27, 28, 29, 30, 34, 35, 36, 38, 47, 55, 86, 87, 88, 89, ),
-        /* 4 */ array(25, 27, 28, 29, 30, 34, 35, 36, 38, 47, 55, 86, 87, 88, 89, ),
-        /* 5 */ array(3, 5, 15, 16, 18, 25, 43, 55, 93, 95, 96, 97, 101, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 6 */ array(3, 5, 15, 16, 18, 25, 43, 55, 93, 95, 96, 97, 101, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 7 */ array(3, 5, 15, 16, 18, 25, 43, 93, 95, 96, 97, 101, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 8 */ array(3, 5, 15, 16, 18, 25, 26, 43, 93, 95, 96, 97, 101, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 9 */ array(3, 5, 15, 16, 18, 25, 43, 55, 93, 95, 96, 97, 101, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 10 */ array(3, 5, 15, 16, 18, 25, 43, 93, 95, 96, 97, 101, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 11 */ array(3, 5, 15, 16, 18, 25, 43, 93, 95, 96, 97, 101, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 12 */ array(3, 5, 15, 16, 18, 25, 43, 93, 95, 96, 97, 101, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 13 */ array(3, 5, 15, 16, 18, 25, 43, 93, 95, 96, 97, 101, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 14 */ array(3, 5, 15, 16, 18, 25, 43, 93, 95, 96, 97, 101, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 15 */ array(3, 5, 15, 16, 18, 25, 43, 93, 95, 96, 97, 101, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 16 */ array(3, 5, 15, 16, 18, 25, 43, 93, 95, 96, 97, 101, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 17 */ array(3, 5, 15, 16, 18, 25, 43, 93, 95, 96, 97, 101, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 18 */ array(3, 5, 15, 16, 18, 25, 43, 93, 95, 96, 97, 101, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 19 */ array(3, 5, 15, 16, 18, 25, 43, 93, 95, 96, 97, 101, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 20 */ array(3, 5, 15, 16, 18, 25, 43, 93, 95, 96, 97, 101, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 21 */ array(3, 5, 15, 16, 18, 25, 43, 93, 95, 96, 97, 101, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 22 */ array(3, 5, 15, 16, 18, 25, 43, 93, 95, 96, 97, 101, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 23 */ array(3, 5, 15, 16, 18, 25, 43, 93, 95, 96, 97, 101, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 24 */ array(3, 5, 15, 16, 18, 25, 43, 93, 95, 96, 97, 101, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 25 */ array(3, 5, 15, 16, 18, 25, 43, 93, 95, 96, 97, 101, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 26 */ array(3, 5, 15, 16, 18, 25, 43, 93, 95, 96, 97, 101, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 27 */ array(3, 5, 15, 16, 18, 25, 43, 93, 95, 96, 97, 101, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 28 */ array(3, 5, 15, 16, 18, 25, 43, 93, 95, 96, 97, 101, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 29 */ array(3, 5, 15, 16, 18, 25, 43, 93, 95, 96, 97, 101, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 30 */ array(3, 5, 15, 16, 18, 25, 43, 93, 95, 96, 97, 101, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 31 */ array(3, 5, 15, 16, 18, 25, 43, 93, 95, 96, 97, 101, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 32 */ array(3, 5, 15, 16, 18, 25, 43, 93, 95, 96, 97, 101, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 33 */ array(3, 5, 15, 16, 18, 25, 43, 93, 95, 96, 97, 101, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 34 */ array(3, 5, 15, 16, 18, 25, 43, 93, 95, 96, 97, 101, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 35 */ array(3, 5, 15, 16, 18, 25, 43, 93, 95, 96, 97, 101, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 36 */ array(3, 5, 15, 16, 18, 25, 43, 93, 95, 96, 97, 101, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 37 */ array(3, 5, 15, 16, 18, 25, 43, 93, 95, 96, 97, 101, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 38 */ array(5, 15, 16, 18, 43, 93, 95, 96, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 39 */ array(5, 15, 16, 18, 43, 93, 95, 96, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 40 */ array(5, 15, 16, 18, 43, 93, 95, 96, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 41 */ array(5, 15, 16, 18, 43, 93, 95, 96, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 42 */ array(5, 18, 25, 43, 95, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 43 */ array(5, 18, 25, 43, 95, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 44 */ array(5, 18, 25, 43, 95, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 45 */ array(5, 18, 25, 43, 95, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 46 */ array(5, 18, 25, 43, 95, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 47 */ array(5, 18, 25, 43, 95, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 48 */ array(5, 18, 43, 95, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 49 */ array(5, 18, 43, 95, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 50 */ array(5, 18, 43, 95, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 51 */ array(5, 18, 39, 40, 43, 49, 95, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 52 */ array(5, 18, 43, 90, 95, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 53 */ array(5, 18, 43, 95, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 54 */ array(5, 18, 43, 95, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 55 */ array(5, 18, 43, 95, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 56 */ array(5, 18, 38, 39, 40, 42, 43, 49, 95, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 57 */ array(5, 18, 39, 40, 43, 49, 95, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 58 */ array(5, 18, 39, 40, 43, 49, 95, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 59 */ array(5, 18, 39, 40, 43, 49, 95, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 60 */ array(5, 18, 43, 95, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 61 */ array(1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 43, 50, 95, 97, 98, 99, 105, 106, 110, ),
-        /* 62 */ array(5, 18, 43, 95, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 63 */ array(5, 18, 43, 95, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 64 */ array(5, 18, 43, 95, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 65 */ array(5, 18, 43, 95, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 66 */ array(5, 18, 43, 95, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 67 */ array(5, 18, 43, 95, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 68 */ array(5, 18, 43, 95, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 69 */ array(5, 18, 43, 95, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 70 */ array(5, 18, 43, 95, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 71 */ array(5, 18, 43, 95, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 72 */ array(5, 18, 43, 95, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 73 */ array(5, 18, 43, 95, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 74 */ array(5, 18, 43, 95, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 75 */ array(5, 18, 43, 95, 97, 105, 106, 107, 108, 110, 111, 112, ),
-        /* 76 */ array(69, 70, 71, 72, 73, 76, ),
-        /* 77 */ array(42, 73, ),
-        /* 78 */ array(1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 68, 82, 98, 99, ),
-        /* 79 */ array(1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 79, 80, 98, 99, ),
-        /* 80 */ array(1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 98, 99, 106, ),
-        /* 81 */ array(1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 35, 98, 99, ),
-        /* 82 */ array(1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 26, 98, 99, ),
-        /* 83 */ array(1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 98, 99, 104, ),
-        /* 84 */ array(1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 26, 98, 99, ),
-        /* 85 */ array(1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 98, 99, 104, ),
-        /* 86 */ array(1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 98, 99, ),
-        /* 87 */ array(1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 98, 99, ),
-        /* 88 */ array(1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 98, 99, ),
-        /* 89 */ array(1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 98, 99, ),
-        /* 90 */ array(1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 98, 99, ),
-        /* 91 */ array(1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 98, 99, ),
-        /* 92 */ array(1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 98, 99, ),
-        /* 93 */ array(1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 98, 99, ),
-        /* 94 */ array(1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 98, 99, ),
-        /* 95 */ array(1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 98, 99, ),
-        /* 96 */ array(1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 98, 99, ),
-        /* 97 */ array(1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 98, 99, ),
-        /* 98 */ array(1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 98, 99, ),
-        /* 99 */ array(1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 98, 99, ),
-        /* 100 */ array(1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 98, 99, ),
-        /* 101 */ array(2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 98, 99, ),
-        /* 102 */ array(3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 98, 99, ),
-        /* 103 */ array(3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 98, 99, ),
-        /* 104 */ array(3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 98, 99, ),
-        /* 105 */ array(6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 98, 99, ),
-        /* 106 */ array(43, 95, 97, 105, 106, 110, ),
-        /* 107 */ array(18, 19, 20, 98, 99, ),
-        /* 108 */ array(25, 42, 55, 85, ),
-        /* 109 */ array(25, ),
-        /* 110 */ array(18, 43, 95, 97, 105, 106, 110, ),
-        /* 111 */ array(25, 43, 95, 97, 105, 106, 110, ),
-        /* 112 */ array(43, 95, 97, 105, 106, 110, ),
-        /* 113 */ array(43, 95, 97, 105, 106, 110, ),
-        /* 114 */ array(43, 95, 97, 105, 106, 110, ),
-        /* 115 */ array(38, 44, 45, 46, 51, ),
-        /* 116 */ array(40, 41, 49, 52, ),
-        /* 117 */ array(25, 55, ),
-        /* 118 */ array(25, ),
-        /* 119 */ array(25, ),
-        /* 120 */ array(39, 40, 43, 55, 67, 81, 82, 87, 88, 95, 97, 106, ),
-        /* 121 */ array(43, 50, 95, 97, 105, 106, 110, ),
-        /* 122 */ array(6, 43, 95, 97, 105, 106, 110, ),
-        /* 123 */ array(43, 50, 95, 97, 105, 106, 110, ),
-        /* 124 */ array(43, 95, 97, 105, 106, 110, ),
-        /* 125 */ array(43, 95, 97, 105, 106, 110, ),
-        /* 126 */ array(43, 95, 97, 105, 106, 110, ),
-        /* 127 */ array(43, 95, 97, 105, 106, 110, ),
-        /* 128 */ array(43, 95, 97, 105, 106, 110, ),
-        /* 129 */ array(43, 95, 97, 105, 106, 110, ),
-        /* 130 */ array(43, 95, 97, 105, 106, 110, ),
-        /* 131 */ array(7, 8, 14, 98, 99, ),
-        /* 132 */ array(3, 39, 43, 95, 97, ),
-        /* 133 */ array(39, 40, 41, 52, ),
-        /* 134 */ array(31, 40, 41, 50, ),
-        /* 135 */ array(31, 32, 33, ),
-        /* 136 */ array(37, 49, 92, ),
-        /* 137 */ array(3, 96, ),
-        /* 138 */ array(53, 54, ),
-        /* 139 */ array(32, 33, ),
-        /* 140 */ array(48, 68, ),
-        /* 141 */ array(79, 80, ),
-        /* 142 */ array(32, 33, ),
-        /* 143 */ array(67, 68, ),
-        /* 144 */ array(53, 54, ),
-        /* 145 */ array(48, 75, ),
-        /* 146 */ array(53, 54, ),
-        /* 147 */ array(25, 94, ),
-        /* 148 */ array(25, ),
-        /* 149 */ array(96, ),
-        /* 150 */ array(103, ),
-        /* 151 */ array(25, ),
-        /* 152 */ array(94, ),
-        /* 153 */ array(25, ),
-        /* 154 */ array(25, ),
-        /* 155 */ array(48, ),
-        /* 156 */ array(55, ),
-        /* 157 */ array(25, ),
-        /* 158 */ array(81, ),
-        /* 159 */ array(76, ),
-        /* 160 */ array(25, ),
-        /* 161 */ array(77, ),
-        /* 162 */ array(81, ),
-        /* 163 */ array(25, ),
-        /* 164 */ array(52, ),
-        /* 165 */ array(81, ),
-        /* 166 */ array(74, ),
-        /* 167 */ array(76, ),
-        /* 168 */ array(68, ),
-        /* 169 */ array(77, ),
-        /* 170 */ array(83, ),
-        /* 171 */ array(74, ),
-        /* 172 */ array(77, ),
-        /* 173 */ array(),
-        /* 174 */ array(),
-        /* 175 */ array(),
-        /* 176 */ array(),
-        /* 177 */ array(35, 102, 103, ),
-        /* 178 */ array(70, 71, 72, ),
-        /* 179 */ array(26, 68, ),
-        /* 180 */ array(26, 68, ),
-        /* 181 */ array(40, 41, ),
-        /* 182 */ array(26, 68, ),
-        /* 183 */ array(26, 68, ),
-        /* 184 */ array(26, 68, ),
-        /* 185 */ array(68, ),
-        /* 186 */ array(48, ),
-        /* 187 */ array(26, ),
-        /* 188 */ array(25, ),
-        /* 189 */ array(93, ),
-        /* 190 */ array(96, ),
-        /* 191 */ array(40, ),
-        /* 192 */ array(31, ),
-        /* 193 */ array(40, ),
-        /* 194 */ array(26, ),
-        /* 195 */ array(41, ),
-        /* 196 */ array(93, ),
-        /* 197 */ array(50, ),
-        /* 198 */ array(87, ),
-        /* 199 */ array(67, ),
-        /* 200 */ array(68, ),
-        /* 201 */ array(68, ),
-        /* 202 */ array(37, ),
-        /* 203 */ array(68, ),
-        /* 204 */ array(40, ),
-        /* 205 */ array(91, ),
-        /* 206 */ array(40, ),
-        /* 207 */ array(6, ),
-        /* 208 */ array(43, ),
-        /* 209 */ array(25, ),
-        /* 210 */ array(24, ),
-        /* 211 */ array(100, ),
-        /* 212 */ array(26, ),
-        /* 213 */ array(40, ),
-        /* 214 */ array(28, ),
-        /* 215 */ array(109, ),
-        /* 216 */ array(109, ),
-        /* 217 */ array(78, ),
-        /* 218 */ array(68, ),
-        /* 219 */ array(78, ),
-        /* 220 */ array(84, ),
-        /* 221 */ array(93, ),
-        /* 222 */ array(68, ),
-        /* 223 */ array(69, ),
-        /* 224 */ array(37, ),
-        /* 225 */ array(43, ),
-        /* 226 */ array(68, ),
-        /* 227 */ array(26, ),
-        /* 228 */ array(26, ),
-        /* 229 */ array(26, ),
-        /* 230 */ array(),
-        /* 231 */ array(),
-        /* 232 */ array(),
-        /* 233 */ array(),
-        /* 234 */ array(),
-        /* 235 */ array(),
-        /* 236 */ array(),
-        /* 237 */ array(),
-        /* 238 */ array(),
-        /* 239 */ array(),
-        /* 240 */ array(),
-        /* 241 */ array(),
-        /* 242 */ array(),
-        /* 243 */ array(),
-        /* 244 */ array(),
-        /* 245 */ array(),
-        /* 246 */ array(),
-        /* 247 */ array(),
-        /* 248 */ array(),
-        /* 249 */ array(),
-        /* 250 */ array(),
-        /* 251 */ array(),
-        /* 252 */ array(),
-        /* 253 */ array(),
-        /* 254 */ array(),
-        /* 255 */ array(),
-        /* 256 */ array(),
-        /* 257 */ array(),
-        /* 258 */ array(),
-        /* 259 */ array(),
-        /* 260 */ array(),
-        /* 261 */ array(),
-        /* 262 */ array(),
-        /* 263 */ array(),
-        /* 264 */ array(),
-        /* 265 */ array(),
-        /* 266 */ array(),
-        /* 267 */ array(),
-        /* 268 */ array(),
-        /* 269 */ array(),
-        /* 270 */ array(),
-        /* 271 */ array(),
-        /* 272 */ array(),
-        /* 273 */ array(),
-        /* 274 */ array(),
-        /* 275 */ array(),
-        /* 276 */ array(),
-        /* 277 */ array(),
-        /* 278 */ array(),
-        /* 279 */ array(),
-        /* 280 */ array(),
-        /* 281 */ array(),
-        /* 282 */ array(),
-        /* 283 */ array(),
-        /* 284 */ array(),
-        /* 285 */ array(),
-        /* 286 */ array(),
-        /* 287 */ array(),
-        /* 288 */ array(),
-        /* 289 */ array(),
-        /* 290 */ array(),
-        /* 291 */ array(),
-        /* 292 */ array(),
-        /* 293 */ array(),
-        /* 294 */ array(),
-        /* 295 */ array(),
-        /* 296 */ array(),
-        /* 297 */ array(),
-        /* 298 */ array(),
-        /* 299 */ array(),
-        /* 300 */ array(),
-        /* 301 */ array(),
-        /* 302 */ array(),
-        /* 303 */ array(),
-        /* 304 */ array(),
-        /* 305 */ array(),
-        /* 306 */ array(),
-        /* 307 */ array(),
-        /* 308 */ array(),
-        /* 309 */ array(),
-        /* 310 */ array(),
-        /* 311 */ array(),
-        /* 312 */ array(),
-        /* 313 */ array(),
-        /* 314 */ array(),
-        /* 315 */ array(),
-        /* 316 */ array(),
-        /* 317 */ array(),
-        /* 318 */ array(),
-        /* 319 */ array(),
-        /* 320 */ array(),
-        /* 321 */ array(),
-        /* 322 */ array(),
-        /* 323 */ array(),
-        /* 324 */ array(),
-        /* 325 */ array(),
-        /* 326 */ array(),
-        /* 327 */ array(),
-        /* 328 */ array(),
-        /* 329 */ array(),
-        /* 330 */ array(),
-        /* 331 */ array(),
-        /* 332 */ array(),
-        /* 333 */ array(),
-        /* 334 */ array(),
-        /* 335 */ array(),
-        /* 336 */ array(),
-        /* 337 */ array(),
-        /* 338 */ array(),
-        /* 339 */ array(),
-        /* 340 */ array(),
-        /* 341 */ array(),
-        /* 342 */ array(),
-        /* 343 */ array(),
-        /* 344 */ array(),
-        /* 345 */ array(),
-        /* 346 */ array(),
-        /* 347 */ array(),
-        /* 348 */ array(),
-        /* 349 */ array(),
-        /* 350 */ array(),
-        /* 351 */ array(),
-        /* 352 */ array(),
-        /* 353 */ array(),
-        /* 354 */ array(),
-        /* 355 */ array(),
-        /* 356 */ array(),
-        /* 357 */ array(),
-        /* 358 */ array(),
-        /* 359 */ array(),
-        /* 360 */ array(),
-        /* 361 */ array(),
-        /* 362 */ array(),
-        /* 363 */ array(),
-        /* 364 */ array(),
-        /* 365 */ array(),
-        /* 366 */ array(),
-        /* 367 */ array(),
-        /* 368 */ array(),
-        /* 369 */ array(),
-        /* 370 */ array(),
-        /* 371 */ array(),
-        /* 372 */ array(),
-        /* 373 */ array(),
-        /* 374 */ array(),
-        /* 375 */ array(),
-        /* 376 */ array(),
-        /* 377 */ array(),
-        /* 378 */ array(),
-        /* 379 */ array(),
-        /* 380 */ array(),
-        /* 381 */ array(),
-        /* 382 */ array(),
-        /* 383 */ array(),
-        /* 384 */ array(),
-        /* 385 */ array(),
-        /* 386 */ array(),
-        /* 387 */ array(),
-        /* 388 */ array(),
-        /* 389 */ array(),
-);
-    static public $yy_default = array(
- /*     0 */   406,  611,  611,  406,  406,  611,  611,  611,  611,  611,
- /*    10 */   611,  611,  611,  611,  611,  611,  611,  611,  611,  611,
- /*    20 */   611,  611,  611,  611,  611,  611,  611,  611,  611,  611,
- /*    30 */   611,  611,  611,  601,  611,  611,  611,  611,  611,  611,
- /*    40 */   611,  611,  611,  611,  611,  611,  611,  611,  611,  611,
- /*    50 */   611,  611,  611,  611,  611,  611,  611,  611,  611,  611,
- /*    60 */   611,  590,  611,  611,  611,  611,  611,  611,  611,  611,
- /*    70 */   611,  611,  611,  611,  611,  611,  471,  463,  480,  477,
- /*    80 */   611,  611,  587,  611,  611,  611,  586,  466,  470,  587,
- /*    90 */   546,  483,  545,  501,  611,  611,  422,  479,  561,  562,
- /*   100 */   478,  536,  544,  537,  535,  540,  503,  543,  611,  611,
- /*   110 */   611,  611,  611,  611,  611,  611,  438,  611,  603,  611,
- /*   120 */   611,  611,  611,  454,  611,  611,  611,  611,  611,  611,
- /*   130 */   611,  611,  522,  438,  435,  414,  433,  555,  441,  414,
- /*   140 */   497,  519,  414,  447,  441,  469,  441,  526,  611,  611,
- /*   150 */   611,  611,  526,  611,  611,  497,  611,  521,  481,  471,
- /*   160 */   611,  473,  481,  611,  438,  481,  465,  471,  456,  473,
- /*   170 */   484,  465,  473,  505,  456,  444,  529,  611,  461,  611,
- /*   180 */   611,  611,  611,  611,  611,  496,  611,  611,  494,  611,
- /*   190 */   611,  611,  611,  611,  611,  611,  611,  611,  611,  611,
- /*   200 */   446,  489,  611,  498,  611,  611,  611,  611,  611,  611,
- /*   210 */   390,  556,  611,  611,  611,  571,  605,  611,  472,  611,
- /*   220 */   482,  611,  582,  611,  611,  611,  467,  611,  611,  573,
- /*   230 */   420,  486,  485,  421,  510,  429,  594,  509,  541,  434,
- /*   240 */   508,  442,  507,  506,  437,  504,  605,  502,  427,  431,
- /*   250 */   610,  417,  609,  608,  607,  606,  487,  597,  436,  596,
- /*   260 */   418,  595,  598,  411,  419,  397,  403,  402,  490,  401,
- /*   270 */   400,  399,  398,  396,  405,  491,  395,  394,  492,  393,
- /*   280 */   391,  495,  493,  404,  407,  416,  604,  415,  412,  542,
- /*   290 */   499,  410,  409,  500,  583,  413,  603,  584,  602,  488,
- /*   300 */   601,  600,  599,  408,  575,  577,  428,  440,  589,  538,
- /*   310 */   423,  475,  424,  439,  476,  474,  443,  511,  555,  514,
- /*   320 */   553,  515,  552,  548,  517,  445,  588,  547,  460,  578,
- /*   330 */   593,  458,  457,  459,  464,  453,  462,  592,  452,  451,
- /*   340 */   450,  448,  449,  455,  581,  591,  518,  585,  551,  550,
- /*   350 */   564,  563,  524,  527,  560,  559,  425,  549,  565,  539,
- /*   360 */   426,  558,  557,  468,  430,  432,  554,  523,  534,  520,
- /*   370 */   572,  516,  580,  573,  579,  512,  576,  574,  513,  570,
- /*   380 */   533,  528,  569,  530,  568,  531,  567,  532,  566,  392,
-);
-/* The next thing included is series of defines which control
-** various aspects of the generated parser.
-**    self::YYNOCODE      is a number which corresponds
-**                        to no legal terminal or nonterminal number.  This
-**                        number is used to fill in empty slots of the hash 
-**                        table.
-**    self::YYFALLBACK    If defined, this indicates that one or more tokens
-**                        have fall-back values which should be used if the
-**                        original value of the token will not parse.
-**    self::YYSTACKDEPTH  is the maximum depth of the parser's stack.
-**    self::YYNSTATE      the combined number of states.
-**    self::YYNRULE       the number of rules in the grammar
-**    self::YYERRORSYMBOL is the code number of the error symbol.  If not
-**                        defined, then do no error processing.
-*/
-    const YYNOCODE = 201;
-    const YYSTACKDEPTH = 100;
-    const YYNSTATE = 390;
-    const YYNRULE = 221;
-    const YYERRORSYMBOL = 113;
-    const YYERRSYMDT = 'yy0';
-    const YYFALLBACK = 0;
-    /** The next table maps tokens into fallback tokens.  If a construct
-     * like the following:
-     * 
-     *      %fallback ID X Y Z.
-     *
-     * appears in the grammer, then ID becomes a fallback token for X, Y,
-     * and Z.  Whenever one of the tokens X, Y, or Z is input to the parser
-     * but it does not parse, the type of the token is changed to ID and
-     * the parse is retried before an error is thrown.
-     */
-    static public $yyFallback = array(
-    );
-    /**
-     * Turn parser tracing on by giving a stream to which to write the trace
-     * and a prompt to preface each trace message.  Tracing is turned off
-     * by making either argument NULL 
-     *
-     * Inputs:
-     * 
-     * - A stream resource to which trace output should be written.
-     *   If NULL, then tracing is turned off.
-     * - A prefix string written at the beginning of every
-     *   line of trace output.  If NULL, then tracing is
-     *   turned off.
-     *
-     * Outputs:
-     * 
-     * - None.
-     * @param resource
-     * @param string
-     */
-    static function Trace($TraceFILE, $zTracePrompt)
-    {
-        if (!$TraceFILE) {
-            $zTracePrompt = 0;
-        } elseif (!$zTracePrompt) {
-            $TraceFILE = 0;
-        }
-        self::$yyTraceFILE = $TraceFILE;
-        self::$yyTracePrompt = $zTracePrompt;
-    }
+     public $body = [];
+     public static $yy_action = [
+         /*     0 */ 34,  254,  120,  463,  463,  463,  463,  336,   74,   74,
+         /*    10 */ 36,  133,   40,  221,  255,   35,  110,   57,  116,  134,
+         /*    20 */ 216,    9,  121,  123,  164,  330,  347,  216,   55,  121,
+         /*    30 */ 123,  216,  330,  149,  115,  147,  330,  313,   65,  302,
+         /*    40 */ 374,  216,  111,  200,  342,  376,  114,  205,  286,  234,
+         /*    50 */ 168,  342,  325,  325,  325,  325,  325,  325,  325,  325,
+         /*    60 */ 325,  325,  325,  152,   23,   21,  131,  151,   20,   28,
+         /*    70 */ 211,  361,   28,   28,   28,   28,   28,  348,   25,   25,
+         /*    80 */ 25,   25,   25,  182,   48,  215,  176,  261,  262,  388,
+         /*    90 */ 377,  301,  304,  298,  261,  262,  189,  150,  261,  262,
+         /*   100 */ 281,   33,  118,  382,  379,  302,  300,  120,  261,  262,
+         /*   110 */ 433,  433,  125,  170,  286,  336,   34,  254,  120,  365,
+         /*   120 */ 343,  223,  244,  178,  187,  304,  370,  216,   40,  221,
+         /*   130 */ 255,  383,  114,  343,  223,  237,  178,    9,  213,   72,
+         /*   140 */ 72,  386,  126,  211,  361,  167,  295,  295,  384,  380,
+         /*   150 */ 322,  244,  261,  262,  240,  302,  264,  301,   56,  298,
+         /*   160 */ 137,   17,   31,  109,  286,  353,  366,  175,  296,   23,
+         /*   170 */ 21,  131,  300,  113,   28,  211,  361,   28,   28,   28,
+         /*   180 */ 28,   28,  348,   25,   25,   25,   25,   25,  216,   34,
+         /*   190 */ 254,  120,  190,  377,  261,  262,  387,  250,  245,  122,
+         /*   200 */ 250,   40,  221,  255,   70,  388,  239,  301,  304,  298,
+         /*   210 */ 9,  372,  250,  150,   66,   71,   71,   33,  118,  382,
+         /*   220 */ 379,  215,  300,  120,  250,  239,  377,  191,  302,  157,
+         /*   230 */ 58,   39,  181,  318,   19,   13,  321,  286,  250,  250,
+         /*   240 */ 25,   25,   25,  329,  250,  250,  331,  171,  166,   14,
+         /*   250 */ 346,  346,  250,  228,  250,  261,  262,  130,  295,  295,
+         /*   260 */ 42,   11,  370,  252,  212,  137,   17,  243,  251,  250,
+         /*   270 */ 117,  216,   36,  180,  355,  132,  114,  386,  388,  146,
+         /*   280 */ 301,  304,  298,   38,  384,  368,  150,    1,  261,  262,
+         /*   290 */ 33,  118,  382,  379,   76,  300,  120,   23,   21,  131,
+         /*   300 */ 175,  106,   28,  211,  361,   28,   28,   28,   28,   28,
+         /*   310 */ 348,   25,   25,   25,   25,   25,   34,  254,  120,  337,
+         /*   320 */ 137,   17,    4,  217,  142,  129,  214,  135,   40,  221,
+         /*   330 */ 255,  287,  285,  224,  373,  202,  158,    9,  261,  262,
+         /*   340 */ 117,   29,   37,  216,  136,  121,  123,   68,  330,  302,
+         /*   350 */ 232,  329,  175,  173,  246,  302,  127,   48,  286,  365,
+         /*   360 */ 329,  231,  333,  334,  286,  140,  201,  342,  169,  219,
+         /*   370 */ 175,   46,  363,  319,  314,  314,   31,  109,  165,   77,
+         /*   380 */ 366,  179,   75,  199,   43,   52,   52,  327,  156,  297,
+         /*   390 */ 226,  323,  369,  137,   17,   59,  155,   60,    7,  128,
+         /*   400 */ 119,  301,   67,  298,   12,  388,    2,  301,  304,  298,
+         /*   410 */ 261,  262,  296,  150,  126,   54,  300,   33,  118,  382,
+         /*   420 */ 379,  236,  300,  120,   23,   21,  131,  230,   30,   28,
+         /*   430 */ 211,  361,   28,   28,   28,   28,   28,  348,   25,   25,
+         /*   440 */ 25,   25,   25,   23,   21,  131,  358,    3,   28,  211,
+         /*   450 */ 361,   28,   28,   28,   28,   28,  348,   25,   25,   25,
+         /*   460 */ 25,   25,   23,   21,  131,  112,   20,   28,  211,  361,
+         /*   470 */ 28,   28,   28,   28,   28,  348,   25,   25,   25,   25,
+         /*   480 */ 25,  362,   51,  302,   45,  215,  310,   15,  216,  194,
+         /*   490 */ 377,   22,  286,  114,  198,  354,  144,   23,   21,  131,
+         /*   500 */ 126,  206,   28,  211,  361,   28,   28,   28,   28,   28,
+         /*   510 */ 348,   25,   25,   25,   25,   25,  153,  279,   44,  260,
+         /*   520 */ 137,   17,   47,   50,  216,  172,  370,   62,  351,  114,
+         /*   530 */ 360,  350,  138,  328,  256,  301,  324,  298,  216,  137,
+         /*   540 */ 17,  386,  284,  258,  356,   16,  296,  174,  384,  332,
+         /*   550 */ 300,  289,  261,  262,   49,  261,  262,  378,  137,   17,
+         /*   560 */ 23,   21,  131,  367,  304,   28,  211,  361,   28,   28,
+         /*   570 */ 28,   28,   28,  348,   25,   25,   25,   25,   25,  238,
+         /*   580 */ 216,   27,  121,  123,  309,  330,   10,  177,   34,  254,
+         /*   590 */ 120,  261,  262,  137,   17,  294,  345,  312,  195,   32,
+         /*   600 */ 40,  221,  255,  352,  341,  261,  262,    6,    8,    5,
+         /*   610 */ 253,  612,  210,  389,  277,  276,  273,  265,  272,  271,
+         /*   620 */ 270,  269,  267,  266,  283,  274,  339,  302,  139,  242,
+         /*   630 */ 335,  338,  216,  305,  263,  320,  286,  186,  340,  291,
+         /*   640 */ 303,  288,  353,  381,   64,  292,  161,  261,  262,  249,
+         /*   650 */ 196,   26,  141,   73,  175,   63,  137,   17,   23,   21,
+         /*   660 */ 131,  108,  244,   28,  211,  361,   28,   28,   28,   28,
+         /*   670 */ 28,  348,   25,   25,   25,   25,   25,  388,  275,  301,
+         /*   680 */ 304,  298,  241,  375,  162,  150,  247,  268,  299,   33,
+         /*   690 */ 118,  382,  379,  205,  300,  120,   23,   18,  131,  261,
+         /*   700 */ 262,   28,  211,  361,   28,   28,   28,   28,   28,  348,
+         /*   710 */ 25,   25,   25,   25,   25,   23,   24,  131,  364,  317,
+         /*   720 */ 28,  211,  361,   28,   28,   28,   28,   28,  348,   25,
+         /*   730 */ 25,   25,   25,   25,  535,  535,  131,  422,  422,   28,
+         /*   740 */ 211,  361,   28,   28,   28,   28,   28,  348,   25,   25,
+         /*   750 */ 25,   25,   25,  422,  137,   17,  422,   21,  131,  422,
+         /*   760 */ 422,   28,  211,  361,   28,   28,   28,   28,   28,  348,
+         /*   770 */ 25,   25,   25,   25,   25,  254,  120,  216,  422,  422,
+         /*   780 */ 422,  422,  377,  422,  422,  422,   40,  221,  255,  422,
+         /*   790 */ 422,  131,  137,   17,   28,  211,  361,   28,   28,   28,
+         /*   800 */ 28,   28,  348,   25,   25,   25,   25,   25,  422,  422,
+         /*   810 */ 422,  137,   17,  302,  422,  422,  185,  293,  207,  422,
+         /*   820 */ 422,  422,  286,  422,  422,  422,  422,  422,  422,  422,
+         /*   830 */ 137,   17,  422,  422,  422,  254,  120,  422,  422,  422,
+         /*   840 */ 422,  422,  422,  422,  261,  262,  422,  422,  255,  422,
+         /*   850 */ 422,  216,  137,   17,  216,  422,  233,  422,  422,  163,
+         /*   860 */ 422,  422,  422,  388,  422,  301,  304,  298,  208,  204,
+         /*   870 */ 69,  422,  225,  302,  422,   33,  118,  382,  379,  193,
+         /*   880 */ 300,  120,  286,  422,  422,  137,   17,   28,  211,  361,
+         /*   890 */ 28,   28,   28,   28,   28,  348,   25,   25,   25,   25,
+         /*   900 */ 25,  422,  280,  277,  276,  273,  265,  272,  271,  270,
+         /*   910 */ 269,  267,  266,  283,  274,  422,  422,  139,  261,  262,
+         /*   920 */ 422,  261,  262,  422,  216,  301,  422,  298,  216,  154,
+         /*   930 */ 254,  120,  422,  377,  216,  422,  296,  259,  257,  306,
+         /*   940 */ 300,  120,  215,  255,  422,  422,  422,  377,  422,  422,
+         /*   950 */ 108,  227,  277,  276,  273,  265,  272,  271,  270,  269,
+         /*   960 */ 267,  266,  283,  274,  204,   69,  139,  422,  302,  157,
+         /*   970 */ 422,  422,  422,  422,  193,  183,  371,  286,  137,   17,
+         /*   980 */ 422,  422,  215,  370,  373,  422,  422,  377,  385,   61,
+         /*   990 */ 422,  261,  262,  422,  422,  261,  262,  143,  386,  108,
+         /*  1000 */ 422,  261,  262,  228,  316,  384,  215,  422,  373,  261,
+         /*  1010 */ 262,  377,  215,   89,  229,  422,  216,  377,  422,   82,
+         /*  1020 */ 301,  377,  298,  370,  422,  422,  422,  422,  349,  422,
+         /*  1030 */ 422,  296,  259,  257,  422,  300,  120,  359,  386,  220,
+         /*  1040 */ 422,  216,  357,  422,  422,  384,  377,  370,  308,  261,
+         /*  1050 */ 262,  422,  349,  370,  422,  203,  293,  207,  349,  422,
+         /*  1060 */ 422,  359,  386,  422,  422,  344,  357,  359,  386,  384,
+         /*  1070 */ 422,  222,  357,  261,  262,  384,  228,  184,  422,  261,
+         /*  1080 */ 262,  290,  207,  261,  262,  215,  422,  229,  422,  216,
+         /*  1090 */ 377,  215,   89,  373,  192,  422,  377,   41,   79,  422,
+         /*  1100 */ 422,  422,  422,  422,  422,  228,  422,  422,  261,  262,
+         /*  1110 */ 422,  422,  216,  422,  215,  422,  229,  235,  422,  377,
+         /*  1120 */ 422,   84,  218,  311,  422,  422,  370,  422,  422,  422,
+         /*  1130 */ 422,  349,  370,  302,  422,  422,  422,  349,  422,  422,
+         /*  1140 */ 359,  386,  286,  422,  422,  357,  359,  386,  384,  422,
+         /*  1150 */ 184,  357,  261,  262,  384,  370,  261,  262,  261,  262,
+         /*  1160 */ 349,  422,  422,  254,  120,  422,  215,  422,  373,  359,
+         /*  1170 */ 386,  377,  422,   79,  357,  422,  255,  384,  216,  261,
+         /*  1180 */ 262,  261,  262,  148,  302,  301,  422,  298,  422,  422,
+         /*  1190 */ 422,  124,  422,  286,  422,  422,  296,  422,  315,  422,
+         /*  1200 */ 300,  302,  422,  422,  422,  255,  216,  370,  422,  188,
+         /*  1210 */ 286,  330,  349,  422,  422,  422,  422,  422,  422,  216,
+         /*  1220 */ 422,  359,  386,  422,  209,  422,  357,  422,  422,  384,
+         /*  1230 */ 302,  422,  422,  261,  262,  215,  301,  373,  298,  286,
+         /*  1240 */ 377,  422,   61,  422,  282,  261,  262,  296,   53,  422,
+         /*  1250 */ 422,  300,  422,  301,  422,  298,  216,  422,  254,  120,
+         /*  1260 */ 422,  197,  422,  422,  296,  259,  257,  422,  300,  120,
+         /*  1270 */ 215,  255,  373,  261,  262,  377,  370,   89,  117,  422,
+         /*  1280 */ 302,  349,  301,  422,  298,  422,  261,  262,  422,  286,
+         /*  1290 */ 359,  386,  422,  296,  422,  357,  302,  300,  384,  216,
+         /*  1300 */ 422,  326,  261,  262,  160,  286,  254,  120,  216,  422,
+         /*  1310 */ 422,  370,  422,  307,  422,  422,  349,  422,  422,  255,
+         /*  1320 */ 422,  422,  422,  261,  262,  359,  386,  422,  422,  422,
+         /*  1330 */ 357,  422,  301,  384,  298,  184,  422,  261,  262,  422,
+         /*  1340 */ 422,  422,  422,  296,  302,  422,  422,  300,  301,  216,
+         /*  1350 */ 298,  422,  422,  286,  248,  422,  422,  422,  422,  296,
+         /*  1360 */ 259,  257,  422,  300,  120,  422,  261,  262,  422,  422,
+         /*  1370 */ 422,  422,  215,  422,  373,  261,  262,  377,  215,  107,
+         /*  1380 */ 373,  422,  422,  377,  422,   78,  422,  422,  422,  422,
+         /*  1390 */ 422,  422,  422,  422,  422,  422,  301,  422,  298,  216,
+         /*  1400 */ 422,  121,  123,  422,  330,  422,  422,  296,  259,  257,
+         /*  1410 */ 422,  300,  120,  370,  422,  422,  261,  262,  349,  370,
+         /*  1420 */ 422,  422,  422,  145,  349,  422,  216,  359,  386,  188,
+         /*  1430 */ 422,  330,  357,  359,  386,  384,  422,  422,  357,  261,
+         /*  1440 */ 262,  384,  422,  422,  422,  261,  262,  422,  422,  215,
+         /*  1450 */ 422,  373,  422,  422,  377,  215,   93,  373,  422,  422,
+         /*  1460 */ 377,  422,   92,  422,  278,  422,  261,  262,  216,  422,
+         /*  1470 */ 121,  123,  422,  330,  422,  422,  422,  422,  215,  422,
+         /*  1480 */ 373,  422,  422,  377,  422,  101,  422,  422,  422,  422,
+         /*  1490 */ 370,  422,  159,  261,  262,  349,  370,  422,  422,  422,
+         /*  1500 */ 422,  349,  422,  422,  359,  386,  422,  422,  422,  357,
+         /*  1510 */ 359,  386,  384,  422,  422,  357,  261,  262,  384,  370,
+         /*  1520 */ 422,  422,  261,  262,  349,  422,  422,  422,  422,  422,
+         /*  1530 */ 422,  422,  422,  359,  386,  261,  262,  215,  357,  373,
+         /*  1540 */ 422,  384,  377,  422,   96,  261,  262,  422,  422,  422,
+         /*  1550 */ 422,  422,  422,  422,  422,  422,  422,  215,  422,  373,
+         /*  1560 */ 422,  422,  377,  422,  104,  422,  422,  422,  422,  422,
+         /*  1570 */ 422,  422,  422,  422,  422,  215,  422,  373,  370,  422,
+         /*  1580 */ 377,  422,   86,  349,  422,  422,  422,  422,  422,  422,
+         /*  1590 */ 422,  422,  359,  386,  422,  422,  422,  357,  370,  422,
+         /*  1600 */ 384,  422,  422,  349,  261,  262,  422,  422,  422,  422,
+         /*  1610 */ 422,  422,  359,  386,  422,  422,  370,  357,  422,  422,
+         /*  1620 */ 384,  349,  422,  422,  261,  262,  422,  422,  422,  422,
+         /*  1630 */ 359,  386,  422,  422,  215,  357,  373,  422,  384,  377,
+         /*  1640 */ 422,   95,  261,  262,  422,  422,  422,  422,  422,  422,
+         /*  1650 */ 422,  422,  215,  422,  373,  422,  422,  377,  422,  102,
+         /*  1660 */ 422,  422,  422,  422,  422,  422,  422,  422,  422,  422,
+         /*  1670 */ 422,  422,  215,  422,  373,  370,  422,  377,  422,   94,
+         /*  1680 */ 349,  422,  422,  422,  422,  422,  422,  422,  422,  359,
+         /*  1690 */ 386,  422,  422,  370,  357,  422,  422,  384,  349,  422,
+         /*  1700 */ 422,  261,  262,  422,  422,  422,  422,  359,  386,  422,
+         /*  1710 */ 422,  422,  357,  370,  422,  384,  422,  422,  349,  261,
+         /*  1720 */ 262,  422,  422,  422,  422,  422,  422,  359,  386,  422,
+         /*  1730 */ 422,  422,  357,  422,  422,  384,  422,  422,  422,  261,
+         /*  1740 */ 262,  422,  215,  422,  373,  422,  422,  377,  422,   99,
+         /*  1750 */ 422,  422,  422,  422,  422,  422,  422,  422,  422,  422,
+         /*  1760 */ 215,  422,  373,  422,  422,  377,  215,  100,  373,  422,
+         /*  1770 */ 422,  377,  422,   97,  422,  422,  422,  422,  422,  422,
+         /*  1780 */ 422,  422,  422,  370,  215,  422,  373,  422,  349,  377,
+         /*  1790 */ 422,   88,  422,  422,  422,  422,  422,  359,  386,  422,
+         /*  1800 */ 422,  370,  357,  422,  422,  384,  349,  370,  422,  261,
+         /*  1810 */ 262,  422,  349,  422,  422,  359,  386,  422,  422,  422,
+         /*  1820 */ 357,  359,  386,  384,  422,  370,  357,  261,  262,  384,
+         /*  1830 */ 349,  422,  422,  261,  262,  422,  422,  422,  422,  359,
+         /*  1840 */ 386,  422,  422,  215,  357,  373,  422,  384,  377,  422,
+         /*  1850 */ 85,  261,  262,  422,  422,  422,  422,  422,  422,  422,
+         /*  1860 */ 422,  422,  422,  422,  422,  422,  422,  422,  422,  422,
+         /*  1870 */ 422,  422,  215,  422,  373,  422,  422,  377,  422,   87,
+         /*  1880 */ 422,  422,  422,  422,  370,  422,  422,  422,  422,  349,
+         /*  1890 */ 215,  422,  373,  422,  422,  377,  422,   81,  359,  386,
+         /*  1900 */ 422,  422,  422,  357,  422,  422,  384,  422,  422,  422,
+         /*  1910 */ 261,  262,  422,  370,  215,  422,  373,  422,  349,  377,
+         /*  1920 */ 422,  105,  422,  422,  422,  422,  422,  359,  386,  422,
+         /*  1930 */ 422,  370,  357,  422,  422,  384,  349,  422,  422,  261,
+         /*  1940 */ 262,  422,  215,  422,  373,  359,  386,  377,  422,   98,
+         /*  1950 */ 357,  422,  422,  384,  422,  370,  422,  261,  262,  422,
+         /*  1960 */ 349,  422,  422,  422,  422,  422,  422,  422,  422,  359,
+         /*  1970 */ 386,  422,  422,  215,  357,  373,  422,  384,  377,  422,
+         /*  1980 */ 90,  261,  262,  370,  422,  422,  422,  422,  349,  422,
+         /*  1990 */ 422,  422,  422,  422,  422,  422,  422,  359,  386,  422,
+         /*  2000 */ 422,  422,  357,  422,  422,  384,  422,  422,  422,  261,
+         /*  2010 */ 262,  422,  422,  422,  370,  422,  422,  422,  422,  349,
+         /*  2020 */ 215,  422,  373,  422,  422,  377,  422,  103,  359,  386,
+         /*  2030 */ 422,  422,  422,  357,  422,  422,  384,  422,  422,  422,
+         /*  2040 */ 261,  262,  422,  215,  422,  373,  422,  422,  377,  215,
+         /*  2050 */ 91,  373,  422,  422,  377,  422,   83,  422,  422,  422,
+         /*  2060 */ 422,  370,  422,  422,  422,  422,  349,  422,  422,  422,
+         /*  2070 */ 422,  422,  215,  422,  373,  359,  386,  377,  422,   80,
+         /*  2080 */ 357,  422,  422,  384,  370,  422,  422,  261,  262,  349,
+         /*  2090 */ 370,  422,  422,  422,  422,  349,  422,  422,  359,  386,
+         /*  2100 */ 422,  422,  422,  357,  359,  386,  384,  422,  422,  357,
+         /*  2110 */ 261,  262,  384,  370,  422,  422,  261,  262,  349,  422,
+         /*  2120 */ 422,  422,  422,  422,  422,  422,  422,  359,  386,  422,
+         /*  2130 */ 422,  422,  357,  422,  422,  384,  422,  422,  422,  261,
+         /*  2140 */ 262,
+     ];
+     public static $yy_lookahead = [
+         /*     0 */ 3,    4,    5,   68,   69,   70,   71,   72,   39,   40,
+         /*    10 */ 75,   37,   15,   16,   17,   47,  108,   43,   44,   45,
+         /*    20 */ 129,   24,  131,  132,   50,  134,   25,  129,   67,  131,
+         /*    30 */ 132,  129,  134,    3,  132,  129,  134,   52,   53,   42,
+         /*    40 */ 188,  129,   74,  152,  153,  193,  134,   47,   51,  137,
+         /*    50 */ 152,  153,   55,   56,   57,   58,   59,   60,   61,   62,
+         /*    60 */ 63,   64,   65,   25,    1,    2,    3,   67,   67,    6,
+         /*    70 */ 7,    8,    9,   10,   11,   12,   13,   14,   15,   16,
+         /*    80 */ 17,   18,   19,  171,   41,  129,  180,  196,  197,   92,
+         /*    90 */ 134,   94,   95,   96,  196,  197,   24,  100,  196,  197,
+         /*   100 */ 25,  104,  105,  106,  107,   42,  109,  110,  196,  197,
+         /*   110 */ 39,   40,   49,  147,   51,   72,    3,    4,    5,   48,
+         /*   120 */ 154,  155,   51,  157,   92,   95,  170,  129,   15,   16,
+         /*   130 */ 17,  175,  134,  154,  155,  137,  157,   24,   38,   39,
+         /*   140 */ 40,  185,   67,    7,    8,  166,   31,   32,  192,   95,
+         /*   150 */ 14,   51,  196,  197,  129,   42,  133,   94,  135,   96,
+         /*   160 */ 97,   98,  186,  187,   51,   93,  190,   54,  105,    1,
+         /*   170 */ 2,    3,  109,   24,    6,    7,    8,    9,   10,   11,
+         /*   180 */ 12,   13,   14,   15,   16,   17,   18,   19,  129,    3,
+         /*   190 */ 4,    5,    3,  134,  196,  197,   39,   39,  173,  174,
+         /*   200 */ 42,   15,   16,   17,   30,   92,   30,   94,   95,   96,
+         /*   210 */ 24,   25,   54,  100,   47,   39,   40,  104,  105,  106,
+         /*   220 */ 107,  129,  109,  110,   66,   49,  134,   38,   42,  170,
+         /*   230 */ 139,   42,  141,   97,   98,   67,  177,   51,   80,   81,
+         /*   240 */ 17,   18,   19,  129,   86,   87,   69,   70,   71,   81,
+         /*   250 */ 78,   79,   94,  120,   96,  196,  197,   30,   31,   32,
+         /*   260 */ 66,   67,  170,  105,  131,   97,   98,  175,   25,  111,
+         /*   270 */ 24,  129,   75,  159,   34,  181,  134,  185,   92,  137,
+         /*   280 */ 94,   95,   96,   94,  192,   96,  100,  143,  196,  197,
+         /*   290 */ 104,  105,  106,  107,  146,  109,  110,    1,    2,    3,
+         /*   300 */ 54,  172,    6,    7,    8,    9,   10,   11,   12,   13,
+         /*   310 */ 14,   15,   16,   17,   18,   19,    3,    4,    5,  129,
+         /*   320 */ 97,   98,   24,   76,   26,   27,   28,   29,   15,   16,
+         /*   330 */ 17,   33,   34,   35,  131,   37,  149,   24,  196,  197,
+         /*   340 */ 24,  101,  102,  129,   46,  131,  132,   36,  134,   42,
+         /*   350 */ 120,  129,   54,   25,  129,   42,   49,   41,   51,   48,
+         /*   360 */ 129,  131,  158,   73,   51,  164,  152,  153,  148,   82,
+         /*   370 */ 54,   67,   25,   25,   78,   79,  186,  187,  149,  146,
+         /*   380 */ 190,  159,   39,   85,   86,   87,   88,  184,   49,  188,
+         /*   390 */ 159,  188,   25,   97,   98,   67,  166,   36,   77,   27,
+         /*   400 */ 84,   94,   91,   96,   67,   92,   77,   94,   95,   96,
+         /*   410 */ 196,  197,  105,  100,   67,   67,  109,  104,  105,  106,
+         /*   420 */ 107,  196,  109,  110,    1,    2,    3,   39,   83,    6,
+         /*   430 */ 7,    8,    9,   10,   11,   12,   13,   14,   15,   16,
+         /*   440 */ 17,   18,   19,    1,    2,    3,   92,   23,    6,    7,
+         /*   450 */ 8,    9,   10,   11,   12,   13,   14,   15,   16,   17,
+         /*   460 */ 18,   19,    1,    2,    3,   24,   67,    6,    7,    8,
+         /*   470 */ 9,   10,   11,   12,   13,   14,   15,   16,   17,   18,
+         /*   480 */ 19,   99,   24,   42,   68,  129,   42,    6,  129,   92,
+         /*   490 */ 134,   42,   51,  134,   39,   34,  137,    1,    2,    3,
+         /*   500 */ 67,   90,    6,    7,    8,    9,   10,   11,   12,   13,
+         /*   510 */ 14,   15,   16,   17,   18,   19,   39,   25,   36,   25,
+         /*   520 */ 97,   98,   66,   86,  129,  147,  170,   40,  105,  134,
+         /*   530 */ 138,  175,  137,  158,  165,   94,  179,   96,  129,   97,
+         /*   540 */ 98,  185,  128,  134,  138,  103,  105,  145,  192,  156,
+         /*   550 */ 109,  185,  196,  197,   24,  196,  197,  142,   97,   98,
+         /*   560 */ 1,    2,    3,  182,   95,    6,    7,    8,    9,   10,
+         /*   570 */ 11,   12,   13,   14,   15,   16,   17,   18,   19,  185,
+         /*   580 */ 129,  102,  131,  132,   25,  134,   24,  191,    3,    4,
+         /*   590 */ 5,  196,  197,   97,   98,  188,  129,  138,  141,  103,
+         /*   600 */ 15,   16,   17,  182,  153,  196,  197,   24,   24,   24,
+         /*   610 */ 198,  113,  114,  115,  116,  117,  118,  119,  120,  121,
+         /*   620 */ 122,  123,  124,  125,  126,  127,  129,   42,  130,  129,
+         /*   630 */ 129,  129,  129,  129,  128,  190,   51,  134,  129,  129,
+         /*   640 */ 129,  129,   93,  183,  139,  128,  147,  196,  197,  142,
+         /*   650 */ 24,   80,  178,  140,   54,  139,   97,   98,    1,    2,
+         /*   660 */ 3,  163,   51,    6,    7,    8,    9,   10,   11,   12,
+         /*   670 */ 13,   14,   15,   16,   17,   18,   19,   92,  150,   94,
+         /*   680 */ 95,   96,  150,  142,  149,  100,  120,  150,  165,  104,
+         /*   690 */ 105,  106,  107,   47,  109,  110,    1,    2,    3,  196,
+         /*   700 */ 197,    6,    7,    8,    9,   10,   11,   12,   13,   14,
+         /*   710 */ 15,   16,   17,   18,   19,    1,    2,    3,  142,  142,
+         /*   720 */ 6,    7,    8,    9,   10,   11,   12,   13,   14,   15,
+         /*   730 */ 16,   17,   18,   19,    1,    2,    3,  199,  199,    6,
+         /*   740 */ 7,    8,    9,   10,   11,   12,   13,   14,   15,   16,
+         /*   750 */ 17,   18,   19,  199,   97,   98,  199,    2,    3,  199,
+         /*   760 */ 199,    6,    7,    8,    9,   10,   11,   12,   13,   14,
+         /*   770 */ 15,   16,   17,   18,   19,    4,    5,  129,  199,  199,
+         /*   780 */ 199,  199,  134,  199,  199,  199,   15,   16,   17,  199,
+         /*   790 */ 199,    3,   97,   98,    6,    7,    8,    9,   10,   11,
+         /*   800 */ 12,   13,   14,   15,   16,   17,   18,   19,  199,  199,
+         /*   810 */ 199,   97,   98,   42,  199,  199,  168,  169,  170,  199,
+         /*   820 */ 199,  199,   51,  199,  199,  199,  199,  199,  199,  199,
+         /*   830 */ 97,   98,  199,  199,  199,    4,    5,  199,  199,  199,
+         /*   840 */ 199,  199,  199,  199,  196,  197,  199,  199,   17,  199,
+         /*   850 */ 199,  129,   97,   98,  129,  199,  134,  199,  199,  134,
+         /*   860 */ 199,  199,  199,   92,  199,   94,   95,   96,   37,   38,
+         /*   870 */ 39,  199,   41,   42,  199,  104,  105,  106,  107,   48,
+         /*   880 */ 109,  110,   51,  199,  199,   97,   98,    6,    7,    8,
+         /*   890 */ 9,   10,   11,   12,   13,   14,   15,   16,   17,   18,
+         /*   900 */ 19,  199,  115,  116,  117,  118,  119,  120,  121,  122,
+         /*   910 */ 123,  124,  125,  126,  127,  199,  199,  130,  196,  197,
+         /*   920 */ 199,  196,  197,  199,  129,   94,  199,   96,  129,  134,
+         /*   930 */ 4,    5,  199,  134,  129,  199,  105,  106,  107,  134,
+         /*   940 */ 109,  110,  129,   17,  199,  199,  199,  134,  199,  199,
+         /*   950 */ 163,  115,  116,  117,  118,  119,  120,  121,  122,  123,
+         /*   960 */ 124,  125,  126,  127,   38,   39,  130,  199,   42,  170,
+         /*   970 */ 199,  199,  199,  199,   48,  176,  177,   51,   97,   98,
+         /*   980 */ 199,  199,  129,  170,  131,  199,  199,  134,  175,  136,
+         /*   990 */ 199,  196,  197,  199,  199,  196,  197,  144,  185,  163,
+         /*  1000 */ 199,  196,  197,  120,  151,  192,  129,  199,  131,  196,
+         /*  1010 */ 197,  134,  129,  136,  131,  199,  129,  134,  199,  136,
+         /*  1020 */ 94,  134,   96,  170,  199,  199,  199,  199,  175,  199,
+         /*  1030 */ 199,  105,  106,  107,  199,  109,  110,  184,  185,  162,
+         /*  1040 */ 199,  129,  189,  199,  199,  192,  134,  170,  195,  196,
+         /*  1050 */ 197,  199,  175,  170,  199,  168,  169,  170,  175,  199,
+         /*  1060 */ 199,  184,  185,  199,  199,  188,  189,  184,  185,  192,
+         /*  1070 */ 199,  194,  189,  196,  197,  192,  120,  194,  199,  196,
+         /*  1080 */ 197,  169,  170,  196,  197,  129,  199,  131,  199,  129,
+         /*  1090 */ 134,  129,  136,  131,  134,  199,  134,    6,  136,  199,
+         /*  1100 */ 199,  199,  199,  199,  199,  120,  199,  199,  196,  197,
+         /*  1110 */ 199,  199,  129,  199,  129,  199,  131,  134,  199,  134,
+         /*  1120 */ 199,  136,  160,  161,  199,  199,  170,  199,  199,  199,
+         /*  1130 */ 199,  175,  170,   42,  199,  199,  199,  175,  199,  199,
+         /*  1140 */ 184,  185,   51,  199,  199,  189,  184,  185,  192,  199,
+         /*  1150 */ 194,  189,  196,  197,  192,  170,  196,  197,  196,  197,
+         /*  1160 */ 175,  199,  199,    4,    5,  199,  129,  199,  131,  184,
+         /*  1170 */ 185,  134,  199,  136,  189,  199,   17,  192,  129,  196,
+         /*  1180 */ 197,  196,  197,  134,   42,   94,  199,   96,  199,  199,
+         /*  1190 */ 199,   49,  199,   51,  199,  199,  105,  199,  161,  199,
+         /*  1200 */ 109,   42,  199,  199,  199,   17,  129,  170,  199,  132,
+         /*  1210 */ 51,  134,  175,  199,  199,  199,  199,  199,  199,  129,
+         /*  1220 */ 199,  184,  185,  199,  134,  199,  189,  199,  199,  192,
+         /*  1230 */ 42,  199,  199,  196,  197,  129,   94,  131,   96,   51,
+         /*  1240 */ 134,  199,  136,  199,  167,  196,  197,  105,   89,  199,
+         /*  1250 */ 199,  109,  199,   94,  199,   96,  129,  199,    4,    5,
+         /*  1260 */ 199,  134,  199,  199,  105,  106,  107,  199,  109,  110,
+         /*  1270 */ 129,   17,  131,  196,  197,  134,  170,  136,   24,  199,
+         /*  1280 */ 42,  175,   94,  199,   96,  199,  196,  197,  199,   51,
+         /*  1290 */ 184,  185,  199,  105,  199,  189,   42,  109,  192,  129,
+         /*  1300 */ 199,  195,  196,  197,  134,   51,    4,    5,  129,  199,
+         /*  1310 */ 199,  170,  199,  134,  199,  199,  175,  199,  199,   17,
+         /*  1320 */ 199,  199,  199,  196,  197,  184,  185,  199,  199,  199,
+         /*  1330 */ 189,  199,   94,  192,   96,  194,  199,  196,  197,  199,
+         /*  1340 */ 199,  199,  199,  105,   42,  199,  199,  109,   94,  129,
+         /*  1350 */ 96,  199,  199,   51,  134,  199,  199,  199,  199,  105,
+         /*  1360 */ 106,  107,  199,  109,  110,  199,  196,  197,  199,  199,
+         /*  1370 */ 199,  199,  129,  199,  131,  196,  197,  134,  129,  136,
+         /*  1380 */ 131,  199,  199,  134,  199,  136,  199,  199,  199,  199,
+         /*  1390 */ 199,  199,  199,  199,  199,  199,   94,  199,   96,  129,
+         /*  1400 */ 199,  131,  132,  199,  134,  199,  199,  105,  106,  107,
+         /*  1410 */ 199,  109,  110,  170,  199,  199,  196,  197,  175,  170,
+         /*  1420 */ 199,  199,  199,  153,  175,  199,  129,  184,  185,  132,
+         /*  1430 */ 199,  134,  189,  184,  185,  192,  199,  199,  189,  196,
+         /*  1440 */ 197,  192,  199,  199,  199,  196,  197,  199,  199,  129,
+         /*  1450 */ 199,  131,  199,  199,  134,  129,  136,  131,  199,  199,
+         /*  1460 */ 134,  199,  136,  199,  167,  199,  196,  197,  129,  199,
+         /*  1470 */ 131,  132,  199,  134,  199,  199,  199,  199,  129,  199,
+         /*  1480 */ 131,  199,  199,  134,  199,  136,  199,  199,  199,  199,
+         /*  1490 */ 170,  199,  153,  196,  197,  175,  170,  199,  199,  199,
+         /*  1500 */ 199,  175,  199,  199,  184,  185,  199,  199,  199,  189,
+         /*  1510 */ 184,  185,  192,  199,  199,  189,  196,  197,  192,  170,
+         /*  1520 */ 199,  199,  196,  197,  175,  199,  199,  199,  199,  199,
+         /*  1530 */ 199,  199,  199,  184,  185,  196,  197,  129,  189,  131,
+         /*  1540 */ 199,  192,  134,  199,  136,  196,  197,  199,  199,  199,
+         /*  1550 */ 199,  199,  199,  199,  199,  199,  199,  129,  199,  131,
+         /*  1560 */ 199,  199,  134,  199,  136,  199,  199,  199,  199,  199,
+         /*  1570 */ 199,  199,  199,  199,  199,  129,  199,  131,  170,  199,
+         /*  1580 */ 134,  199,  136,  175,  199,  199,  199,  199,  199,  199,
+         /*  1590 */ 199,  199,  184,  185,  199,  199,  199,  189,  170,  199,
+         /*  1600 */ 192,  199,  199,  175,  196,  197,  199,  199,  199,  199,
+         /*  1610 */ 199,  199,  184,  185,  199,  199,  170,  189,  199,  199,
+         /*  1620 */ 192,  175,  199,  199,  196,  197,  199,  199,  199,  199,
+         /*  1630 */ 184,  185,  199,  199,  129,  189,  131,  199,  192,  134,
+         /*  1640 */ 199,  136,  196,  197,  199,  199,  199,  199,  199,  199,
+         /*  1650 */ 199,  199,  129,  199,  131,  199,  199,  134,  199,  136,
+         /*  1660 */ 199,  199,  199,  199,  199,  199,  199,  199,  199,  199,
+         /*  1670 */ 199,  199,  129,  199,  131,  170,  199,  134,  199,  136,
+         /*  1680 */ 175,  199,  199,  199,  199,  199,  199,  199,  199,  184,
+         /*  1690 */ 185,  199,  199,  170,  189,  199,  199,  192,  175,  199,
+         /*  1700 */ 199,  196,  197,  199,  199,  199,  199,  184,  185,  199,
+         /*  1710 */ 199,  199,  189,  170,  199,  192,  199,  199,  175,  196,
+         /*  1720 */ 197,  199,  199,  199,  199,  199,  199,  184,  185,  199,
+         /*  1730 */ 199,  199,  189,  199,  199,  192,  199,  199,  199,  196,
+         /*  1740 */ 197,  199,  129,  199,  131,  199,  199,  134,  199,  136,
+         /*  1750 */ 199,  199,  199,  199,  199,  199,  199,  199,  199,  199,
+         /*  1760 */ 129,  199,  131,  199,  199,  134,  129,  136,  131,  199,
+         /*  1770 */ 199,  134,  199,  136,  199,  199,  199,  199,  199,  199,
+         /*  1780 */ 199,  199,  199,  170,  129,  199,  131,  199,  175,  134,
+         /*  1790 */ 199,  136,  199,  199,  199,  199,  199,  184,  185,  199,
+         /*  1800 */ 199,  170,  189,  199,  199,  192,  175,  170,  199,  196,
+         /*  1810 */ 197,  199,  175,  199,  199,  184,  185,  199,  199,  199,
+         /*  1820 */ 189,  184,  185,  192,  199,  170,  189,  196,  197,  192,
+         /*  1830 */ 175,  199,  199,  196,  197,  199,  199,  199,  199,  184,
+         /*  1840 */ 185,  199,  199,  129,  189,  131,  199,  192,  134,  199,
+         /*  1850 */ 136,  196,  197,  199,  199,  199,  199,  199,  199,  199,
+         /*  1860 */ 199,  199,  199,  199,  199,  199,  199,  199,  199,  199,
+         /*  1870 */ 199,  199,  129,  199,  131,  199,  199,  134,  199,  136,
+         /*  1880 */ 199,  199,  199,  199,  170,  199,  199,  199,  199,  175,
+         /*  1890 */ 129,  199,  131,  199,  199,  134,  199,  136,  184,  185,
+         /*  1900 */ 199,  199,  199,  189,  199,  199,  192,  199,  199,  199,
+         /*  1910 */ 196,  197,  199,  170,  129,  199,  131,  199,  175,  134,
+         /*  1920 */ 199,  136,  199,  199,  199,  199,  199,  184,  185,  199,
+         /*  1930 */ 199,  170,  189,  199,  199,  192,  175,  199,  199,  196,
+         /*  1940 */ 197,  199,  129,  199,  131,  184,  185,  134,  199,  136,
+         /*  1950 */ 189,  199,  199,  192,  199,  170,  199,  196,  197,  199,
+         /*  1960 */ 175,  199,  199,  199,  199,  199,  199,  199,  199,  184,
+         /*  1970 */ 185,  199,  199,  129,  189,  131,  199,  192,  134,  199,
+         /*  1980 */ 136,  196,  197,  170,  199,  199,  199,  199,  175,  199,
+         /*  1990 */ 199,  199,  199,  199,  199,  199,  199,  184,  185,  199,
+         /*  2000 */ 199,  199,  189,  199,  199,  192,  199,  199,  199,  196,
+         /*  2010 */ 197,  199,  199,  199,  170,  199,  199,  199,  199,  175,
+         /*  2020 */ 129,  199,  131,  199,  199,  134,  199,  136,  184,  185,
+         /*  2030 */ 199,  199,  199,  189,  199,  199,  192,  199,  199,  199,
+         /*  2040 */ 196,  197,  199,  129,  199,  131,  199,  199,  134,  129,
+         /*  2050 */ 136,  131,  199,  199,  134,  199,  136,  199,  199,  199,
+         /*  2060 */ 199,  170,  199,  199,  199,  199,  175,  199,  199,  199,
+         /*  2070 */ 199,  199,  129,  199,  131,  184,  185,  134,  199,  136,
+         /*  2080 */ 189,  199,  199,  192,  170,  199,  199,  196,  197,  175,
+         /*  2090 */ 170,  199,  199,  199,  199,  175,  199,  199,  184,  185,
+         /*  2100 */ 199,  199,  199,  189,  184,  185,  192,  199,  199,  189,
+         /*  2110 */ 196,  197,  192,  170,  199,  199,  196,  197,  175,  199,
+         /*  2120 */ 199,  199,  199,  199,  199,  199,  199,  184,  185,  199,
+         /*  2130 */ 199,  199,  189,  199,  199,  192,  199,  199,  199,  196,
+         /*  2140 */ 197,
+     ];
+     public static $yy_shift_ofst = [
+         /*     0 */ 298,   -3,  585,  298,  298,  113,  113,  313,  186,  113,
+         /*    10 */ 313,  313,  313,  313,  313,  313,  313,  313,  313,  313,
+         /*    20 */ 313,  313,  313,  313,  313,  313,  313,  313,  313,  313,
+         /*    30 */ 313,  313,  313,  313,  313,  313,  313,  313,  771,  771,
+         /*    40 */ 771,  771, 1254, 1254, 1254, 1254, 1254, 1254, 1302, 1302,
+         /*    50 */ 1302,  926, 1159, 1302, 1302, 1302,  831,  926,  926,  926,
+         /*    60 */ 1302,   63, 1302, 1302, 1302, 1302, 1302, 1302, 1302, 1302,
+         /*    70 */ 1302, 1302, 1302, 1302, 1302, 1302,  -65,   43,  168,  296,
+         /*    80 */ 423,  461,  559,  442,  559,  496,  657,  657,  657,  657,
+         /*    90 */ 657,  657,  733,  657,  714,  695,  657,  657,  657,  657,
+         /*   100 */ 657,  755,  788,  788,  788,  881, 1238,  223,  316,  583,
+         /*   110 */ 1188,  441, 1238, 1238, 1238,  -26,   71,  246,  584,  562,
+         /*   120 */ 158,  307, 1091, 1142, 1238, 1238, 1238, 1238, 1238, 1238,
+         /*   130 */ 1238,  136,  189,  100,  176,  227,  311,   30,  -15,  115,
+         /*   140 */ 0,  172,  115,  194,  -15,  -32,  -15,   72,  530,  469,
+         /*   150 */ 479,  562,  549,  530,  530,  646,  600,  626,  571,  197,
+         /*   160 */ 530,  247,  571,  530,  611,  571,  290,  197,  304,  247,
+         /*   170 */ 287,  290,  247,  -93,  -93,  -93,  -93,  240,  177,   75,
+         /*   180 */ 347,  -31,  328,  348,    1,  -39,  167,   38,  149,   32,
+         /*   190 */ 54,  157,  174,  343,  367,  487,  397,  339,  437,  456,
+         /*   200 */ 304,  304,  482,  -39,  477,  411,  455,  481,  444,  458,
+         /*   210 */ 424,  382,  243,  388,  372,  -92,  -92,  321,  337,  329,
+         /*   220 */ 345,  354,  399,  416,  361,  449,  433,  492,  494,  243,
+     ];
+     public static $yy_reduce_ofst = [
+         /*     0 */ 498,  853,  877,  787,  836,  883,  956,  962, 1141,  985,
+         /*    10 */ 1141, 1106, 1037, 1637, 1631, 1320, 1613, 1543, 1523, 1505,
+         /*    20 */ 1446, 1428, 1408, 1349, 1326, 1243, 1249, 1920, 1785, 1761,
+         /*    30 */ 1914, 1844, 1813, 1943, 1891, 1743, 1655, 1714,  813,  -44,
+         /*    40 */ 356,   92, -109, -102,  214, 1270,  451, 1339,  887,  799,
+         /*    50 */ 648,  -88, 1077, 1297,   59,  912,  395,  359,  142,   -2,
+         /*    60 */ -98,  190,  503,  409, 1220, 1179, 1170, 1127, 1090, 1049,
+         /*    70 */ 983,  960,  722,  805,  795,  725,  -34,  -21,  -24,  -24,
+         /*    80 */ -24,  -24,  -24,  -24,  -24,  -24,  -24,  -24,  -24,  -24,
+         /*    90 */ -24,  -24,  -24,  -24,  -24,  -24,  -24,  -24,  -24,  -24,
+         /*   100 */ -24,  -24,  -24,  -24,  -24,  -24,   25,  -24,  230,  203,
+         /*   110 */ 225,  231,  114,  222,  -94,   23,   91,  133, -148,  201,
+         /*   120 */ 412,  497,  500,  501,  502,  467,  504,  509,  510,  511,
+         /*   130 */ 512,  445,  460,  505,  513,  506,  457,  366,  459,  517,
+         /*   140 */ 369,  357,  414,  402,  406,  393,  392,  381,  415,  394,
+         /*   150 */ 396,  407,  421,  577,  576,  523,  566,  474,  528,  499,
+         /*   160 */ 507,  535,  537,  541,  516,  532,  375,  378,  233,  229,
+         /*   170 */ 220,  204,  187,  129,  148,  144,   94,
+     ];
+     public static $yyExpectedTokens = [
+         /* 0 */ [24, 26, 27, 28, 29, 33, 34, 35, 37, 46, 54, 85, 86, 87, 88],
+         /* 1 */ [3, 4, 5, 15, 16, 17, 24, 42, 51, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 92, 94, 95, 96, 100, 104, 105, 106, 107, 109, 110],
+         /* 2 */ [3, 4, 5, 15, 16, 17, 24, 42, 51, 92, 94, 95, 96, 100, 104, 105, 106, 107, 109, 110],
+         /* 3 */ [24, 26, 27, 28, 29, 33, 34, 35, 37, 46, 54, 85, 86, 87, 88],
+         /* 4 */ [24, 26, 27, 28, 29, 33, 34, 35, 37, 46, 54, 85, 86, 87, 88],
+         /* 5 */ [3, 4, 5, 15, 16, 17, 24, 42, 51, 54, 92, 94, 95, 96, 100, 104, 105, 106, 107, 109, 110],
+         /* 6 */ [3, 4, 5, 15, 16, 17, 24, 42, 51, 54, 92, 94, 95, 96, 100, 104, 105, 106, 107, 109, 110],
+         /* 7 */ [3, 4, 5, 15, 16, 17, 24, 42, 51, 92, 94, 95, 96, 100, 104, 105, 106, 107, 109, 110],
+         /* 8 */ [3, 4, 5, 15, 16, 17, 24, 25, 42, 51, 92, 94, 95, 96, 100, 104, 105, 106, 107, 109, 110],
+         /* 9 */ [3, 4, 5, 15, 16, 17, 24, 42, 51, 54, 92, 94, 95, 96, 100, 104, 105, 106, 107, 109, 110],
+         /* 10 */ [3, 4, 5, 15, 16, 17, 24, 42, 51, 92, 94, 95, 96, 100, 104, 105, 106, 107, 109, 110],
+         /* 11 */ [3, 4, 5, 15, 16, 17, 24, 42, 51, 92, 94, 95, 96, 100, 104, 105, 106, 107, 109, 110],
+         /* 12 */ [3, 4, 5, 15, 16, 17, 24, 42, 51, 92, 94, 95, 96, 100, 104, 105, 106, 107, 109, 110],
+         /* 13 */ [3, 4, 5, 15, 16, 17, 24, 42, 51, 92, 94, 95, 96, 100, 104, 105, 106, 107, 109, 110],
+         /* 14 */ [3, 4, 5, 15, 16, 17, 24, 42, 51, 92, 94, 95, 96, 100, 104, 105, 106, 107, 109, 110],
+         /* 15 */ [3, 4, 5, 15, 16, 17, 24, 42, 51, 92, 94, 95, 96, 100, 104, 105, 106, 107, 109, 110],
+         /* 16 */ [3, 4, 5, 15, 16, 17, 24, 42, 51, 92, 94, 95, 96, 100, 104, 105, 106, 107, 109, 110],
+         /* 17 */ [3, 4, 5, 15, 16, 17, 24, 42, 51, 92, 94, 95, 96, 100, 104, 105, 106, 107, 109, 110],
+         /* 18 */ [3, 4, 5, 15, 16, 17, 24, 42, 51, 92, 94, 95, 96, 100, 104, 105, 106, 107, 109, 110],
+         /* 19 */ [3, 4, 5, 15, 16, 17, 24, 42, 51, 92, 94, 95, 96, 100, 104, 105, 106, 107, 109, 110],
+         /* 20 */ [3, 4, 5, 15, 16, 17, 24, 42, 51, 92, 94, 95, 96, 100, 104, 105, 106, 107, 109, 110],
+         /* 21 */ [3, 4, 5, 15, 16, 17, 24, 42, 51, 92, 94, 95, 96, 100, 104, 105, 106, 107, 109, 110],
+         /* 22 */ [3, 4, 5, 15, 16, 17, 24, 42, 51, 92, 94, 95, 96, 100, 104, 105, 106, 107, 109, 110],
+         /* 23 */ [3, 4, 5, 15, 16, 17, 24, 42, 51, 92, 94, 95, 96, 100, 104, 105, 106, 107, 109, 110],
+         /* 24 */ [3, 4, 5, 15, 16, 17, 24, 42, 51, 92, 94, 95, 96, 100, 104, 105, 106, 107, 109, 110],
+         /* 25 */ [3, 4, 5, 15, 16, 17, 24, 42, 51, 92, 94, 95, 96, 100, 104, 105, 106, 107, 109, 110],
+         /* 26 */ [3, 4, 5, 15, 16, 17, 24, 42, 51, 92, 94, 95, 96, 100, 104, 105, 106, 107, 109, 110],
+         /* 27 */ [3, 4, 5, 15, 16, 17, 24, 42, 51, 92, 94, 95, 96, 100, 104, 105, 106, 107, 109, 110],
+         /* 28 */ [3, 4, 5, 15, 16, 17, 24, 42, 51, 92, 94, 95, 96, 100, 104, 105, 106, 107, 109, 110],
+         /* 29 */ [3, 4, 5, 15, 16, 17, 24, 42, 51, 92, 94, 95, 96, 100, 104, 105, 106, 107, 109, 110],
+         /* 30 */ [3, 4, 5, 15, 16, 17, 24, 42, 51, 92, 94, 95, 96, 100, 104, 105, 106, 107, 109, 110],
+         /* 31 */ [3, 4, 5, 15, 16, 17, 24, 42, 51, 92, 94, 95, 96, 100, 104, 105, 106, 107, 109, 110],
+         /* 32 */ [3, 4, 5, 15, 16, 17, 24, 42, 51, 92, 94, 95, 96, 100, 104, 105, 106, 107, 109, 110],
+         /* 33 */ [3, 4, 5, 15, 16, 17, 24, 42, 51, 92, 94, 95, 96, 100, 104, 105, 106, 107, 109, 110],
+         /* 34 */ [3, 4, 5, 15, 16, 17, 24, 42, 51, 92, 94, 95, 96, 100, 104, 105, 106, 107, 109, 110],
+         /* 35 */ [3, 4, 5, 15, 16, 17, 24, 42, 51, 92, 94, 95, 96, 100, 104, 105, 106, 107, 109, 110],
+         /* 36 */ [3, 4, 5, 15, 16, 17, 24, 42, 51, 92, 94, 95, 96, 100, 104, 105, 106, 107, 109, 110],
+         /* 37 */ [3, 4, 5, 15, 16, 17, 24, 42, 51, 92, 94, 95, 96, 100, 104, 105, 106, 107, 109, 110],
+         /* 38 */ [4, 5, 15, 16, 17, 42, 51, 92, 94, 95, 96, 104, 105, 106, 107, 109, 110],
+         /* 39 */ [4, 5, 15, 16, 17, 42, 51, 92, 94, 95, 96, 104, 105, 106, 107, 109, 110],
+         /* 40 */ [4, 5, 15, 16, 17, 42, 51, 92, 94, 95, 96, 104, 105, 106, 107, 109, 110],
+         /* 41 */ [4, 5, 15, 16, 17, 42, 51, 92, 94, 95, 96, 104, 105, 106, 107, 109, 110],
+         /* 42 */ [4, 5, 17, 24, 42, 51, 94, 96, 105, 106, 107, 109, 110],
+         /* 43 */ [4, 5, 17, 24, 42, 51, 94, 96, 105, 106, 107, 109, 110],
+         /* 44 */ [4, 5, 17, 24, 42, 51, 94, 96, 105, 106, 107, 109, 110],
+         /* 45 */ [4, 5, 17, 24, 42, 51, 94, 96, 105, 106, 107, 109, 110],
+         /* 46 */ [4, 5, 17, 24, 42, 51, 94, 96, 105, 106, 107, 109, 110],
+         /* 47 */ [4, 5, 17, 24, 42, 51, 94, 96, 105, 106, 107, 109, 110],
+         /* 48 */ [4, 5, 17, 42, 51, 94, 96, 105, 106, 107, 109, 110],
+         /* 49 */ [4, 5, 17, 42, 51, 94, 96, 105, 106, 107, 109, 110],
+         /* 50 */ [4, 5, 17, 42, 51, 94, 96, 105, 106, 107, 109, 110],
+         /* 51 */ [4, 5, 17, 38, 39, 42, 48, 51, 94, 96, 105, 106, 107, 109, 110],
+         /* 52 */ [4, 5, 17, 42, 51, 89, 94, 96, 105, 106, 107, 109, 110],
+         /* 53 */ [4, 5, 17, 42, 51, 94, 96, 105, 106, 107, 109, 110],
+         /* 54 */ [4, 5, 17, 42, 51, 94, 96, 105, 106, 107, 109, 110],
+         /* 55 */ [4, 5, 17, 42, 51, 94, 96, 105, 106, 107, 109, 110],
+         /* 56 */ [4, 5, 17, 37, 38, 39, 41, 42, 48, 51, 94, 96, 105, 106, 107, 109, 110],
+         /* 57 */ [4, 5, 17, 38, 39, 42, 48, 51, 94, 96, 105, 106, 107, 109, 110],
+         /* 58 */ [4, 5, 17, 38, 39, 42, 48, 51, 94, 96, 105, 106, 107, 109, 110],
+         /* 59 */ [4, 5, 17, 38, 39, 42, 48, 51, 94, 96, 105, 106, 107, 109, 110],
+         /* 60 */ [4, 5, 17, 42, 51, 94, 96, 105, 106, 107, 109, 110],
+         /* 61 */ [1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 42, 49, 51, 94, 96, 97, 98, 105, 109],
+         /* 62 */ [4, 5, 17, 42, 51, 94, 96, 105, 106, 107, 109, 110],
+         /* 63 */ [4, 5, 17, 42, 51, 94, 96, 105, 106, 107, 109, 110],
+         /* 64 */ [4, 5, 17, 42, 51, 94, 96, 105, 106, 107, 109, 110],
+         /* 65 */ [4, 5, 17, 42, 51, 94, 96, 105, 106, 107, 109, 110],
+         /* 66 */ [4, 5, 17, 42, 51, 94, 96, 105, 106, 107, 109, 110],
+         /* 67 */ [4, 5, 17, 42, 51, 94, 96, 105, 106, 107, 109, 110],
+         /* 68 */ [4, 5, 17, 42, 51, 94, 96, 105, 106, 107, 109, 110],
+         /* 69 */ [4, 5, 17, 42, 51, 94, 96, 105, 106, 107, 109, 110],
+         /* 70 */ [4, 5, 17, 42, 51, 94, 96, 105, 106, 107, 109, 110],
+         /* 71 */ [4, 5, 17, 42, 51, 94, 96, 105, 106, 107, 109, 110],
+         /* 72 */ [4, 5, 17, 42, 51, 94, 96, 105, 106, 107, 109, 110],
+         /* 73 */ [4, 5, 17, 42, 51, 94, 96, 105, 106, 107, 109, 110],
+         /* 74 */ [4, 5, 17, 42, 51, 94, 96, 105, 106, 107, 109, 110],
+         /* 75 */ [4, 5, 17, 42, 51, 94, 96, 105, 106, 107, 109, 110],
+         /* 76 */ [68, 69, 70, 71, 72, 75],
+         /* 77 */ [41, 72],
+         /* 78 */ [1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 67, 81, 97, 98],
+         /* 79 */ [1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 78, 79, 97, 98],
+         /* 80 */ [1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 97, 98, 105],
+         /* 81 */ [1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 34, 97, 98],
+         /* 82 */ [1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 25, 97, 98],
+         /* 83 */ [1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 97, 98, 103],
+         /* 84 */ [1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 25, 97, 98],
+         /* 85 */ [1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 97, 98, 103],
+         /* 86 */ [1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 97, 98],
+         /* 87 */ [1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 97, 98],
+         /* 88 */ [1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 97, 98],
+         /* 89 */ [1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 97, 98],
+         /* 90 */ [1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 97, 98],
+         /* 91 */ [1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 97, 98],
+         /* 92 */ [1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 97, 98],
+         /* 93 */ [1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 97, 98],
+         /* 94 */ [1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 97, 98],
+         /* 95 */ [1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 97, 98],
+         /* 96 */ [1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 97, 98],
+         /* 97 */ [1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 97, 98],
+         /* 98 */ [1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 97, 98],
+         /* 99 */ [1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 97, 98],
+         /* 100 */ [1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 97, 98],
+         /* 101 */ [2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 97, 98],
+         /* 102 */ [3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 97, 98],
+         /* 103 */ [3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 97, 98],
+         /* 104 */ [3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 97, 98],
+         /* 105 */ [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 97, 98],
+         /* 106 */ [42, 51, 94, 96, 105, 109],
+         /* 107 */ [17, 18, 19, 97, 98],
+         /* 108 */ [24, 41, 54, 84],
+         /* 109 */ [24],
+         /* 110 */ [17, 42, 51, 94, 96, 105, 109],
+         /* 111 */ [24, 42, 51, 94, 96, 105, 109],
+         /* 112 */ [42, 51, 94, 96, 105, 109],
+         /* 113 */ [42, 51, 94, 96, 105, 109],
+         /* 114 */ [42, 51, 94, 96, 105, 109],
+         /* 115 */ [37, 43, 44, 45, 50],
+         /* 116 */ [39, 40, 48, 51],
+         /* 117 */ [24, 54],
+         /* 118 */ [24],
+         /* 119 */ [24],
+         /* 120 */ [39, 42, 54, 66, 80, 81, 86, 87, 94, 96, 105, 111],
+         /* 121 */ [42, 49, 51, 94, 96, 105, 109],
+         /* 122 */ [6, 42, 51, 94, 96, 105, 109],
+         /* 123 */ [42, 49, 51, 94, 96, 105, 109],
+         /* 124 */ [42, 51, 94, 96, 105, 109],
+         /* 125 */ [42, 51, 94, 96, 105, 109],
+         /* 126 */ [42, 51, 94, 96, 105, 109],
+         /* 127 */ [42, 51, 94, 96, 105, 109],
+         /* 128 */ [42, 51, 94, 96, 105, 109],
+         /* 129 */ [42, 51, 94, 96, 105, 109],
+         /* 130 */ [42, 51, 94, 96, 105, 109],
+         /* 131 */ [7, 8, 14, 97, 98],
+         /* 132 */ [3, 38, 42, 94, 96],
+         /* 133 */ [38, 39, 40, 51],
+         /* 134 */ [30, 39, 40, 49],
+         /* 135 */ [30, 31, 32],
+         /* 136 */ [36, 48, 91],
+         /* 137 */ [3, 95],
+         /* 138 */ [52, 53],
+         /* 139 */ [31, 32],
+         /* 140 */ [47, 67],
+         /* 141 */ [78, 79],
+         /* 142 */ [31, 32],
+         /* 143 */ [66, 67],
+         /* 144 */ [52, 53],
+         /* 145 */ [47, 74],
+         /* 146 */ [52, 53],
+         /* 147 */ [24, 93],
+         /* 148 */ [24],
+         /* 149 */ [95],
+         /* 150 */ [102],
+         /* 151 */ [24],
+         /* 152 */ [93],
+         /* 153 */ [24],
+         /* 154 */ [24],
+         /* 155 */ [47],
+         /* 156 */ [54],
+         /* 157 */ [24],
+         /* 158 */ [80],
+         /* 159 */ [75],
+         /* 160 */ [24],
+         /* 161 */ [76],
+         /* 162 */ [80],
+         /* 163 */ [24],
+         /* 164 */ [51],
+         /* 165 */ [80],
+         /* 166 */ [73],
+         /* 167 */ [75],
+         /* 168 */ [67],
+         /* 169 */ [76],
+         /* 170 */ [82],
+         /* 171 */ [73],
+         /* 172 */ [76],
+         /* 173 */ [],
+         /* 174 */ [],
+         /* 175 */ [],
+         /* 176 */ [],
+         /* 177 */ [34, 101, 102],
+         /* 178 */ [69, 70, 71],
+         /* 179 */ [25, 67],
+         /* 180 */ [25, 67],
+         /* 181 */ [39, 40],
+         /* 182 */ [25, 67],
+         /* 183 */ [25, 67],
+         /* 184 */ [25, 67],
+         /* 185 */ [67],
+         /* 186 */ [47],
+         /* 187 */ [25],
+         /* 188 */ [24],
+         /* 189 */ [92],
+         /* 190 */ [95],
+         /* 191 */ [39],
+         /* 192 */ [30],
+         /* 193 */ [39],
+         /* 194 */ [25],
+         /* 195 */ [40],
+         /* 196 */ [92],
+         /* 197 */ [49],
+         /* 198 */ [86],
+         /* 199 */ [66],
+         /* 200 */ [67],
+         /* 201 */ [67],
+         /* 202 */ [36],
+         /* 203 */ [67],
+         /* 204 */ [39],
+         /* 205 */ [90],
+         /* 206 */ [39],
+         /* 207 */ [6],
+         /* 208 */ [42],
+         /* 209 */ [24],
+         /* 210 */ [23],
+         /* 211 */ [99],
+         /* 212 */ [25],
+         /* 213 */ [39],
+         /* 214 */ [27],
+         /* 215 */ [108],
+         /* 216 */ [108],
+         /* 217 */ [77],
+         /* 218 */ [67],
+         /* 219 */ [77],
+         /* 220 */ [83],
+         /* 221 */ [92],
+         /* 222 */ [67],
+         /* 223 */ [68],
+         /* 224 */ [36],
+         /* 225 */ [42],
+         /* 226 */ [67],
+         /* 227 */ [25],
+         /* 228 */ [25],
+         /* 229 */ [25],
+         /* 230 */ [],
+         /* 231 */ [],
+         /* 232 */ [],
+         /* 233 */ [],
+         /* 234 */ [],
+         /* 235 */ [],
+         /* 236 */ [],
+         /* 237 */ [],
+         /* 238 */ [],
+         /* 239 */ [],
+         /* 240 */ [],
+         /* 241 */ [],
+         /* 242 */ [],
+         /* 243 */ [],
+         /* 244 */ [],
+         /* 245 */ [],
+         /* 246 */ [],
+         /* 247 */ [],
+         /* 248 */ [],
+         /* 249 */ [],
+         /* 250 */ [],
+         /* 251 */ [],
+         /* 252 */ [],
+         /* 253 */ [],
+         /* 254 */ [],
+         /* 255 */ [],
+         /* 256 */ [],
+         /* 257 */ [],
+         /* 258 */ [],
+         /* 259 */ [],
+         /* 260 */ [],
+         /* 261 */ [],
+         /* 262 */ [],
+         /* 263 */ [],
+         /* 264 */ [],
+         /* 265 */ [],
+         /* 266 */ [],
+         /* 267 */ [],
+         /* 268 */ [],
+         /* 269 */ [],
+         /* 270 */ [],
+         /* 271 */ [],
+         /* 272 */ [],
+         /* 273 */ [],
+         /* 274 */ [],
+         /* 275 */ [],
+         /* 276 */ [],
+         /* 277 */ [],
+         /* 278 */ [],
+         /* 279 */ [],
+         /* 280 */ [],
+         /* 281 */ [],
+         /* 282 */ [],
+         /* 283 */ [],
+         /* 284 */ [],
+         /* 285 */ [],
+         /* 286 */ [],
+         /* 287 */ [],
+         /* 288 */ [],
+         /* 289 */ [],
+         /* 290 */ [],
+         /* 291 */ [],
+         /* 292 */ [],
+         /* 293 */ [],
+         /* 294 */ [],
+         /* 295 */ [],
+         /* 296 */ [],
+         /* 297 */ [],
+         /* 298 */ [],
+         /* 299 */ [],
+         /* 300 */ [],
+         /* 301 */ [],
+         /* 302 */ [],
+         /* 303 */ [],
+         /* 304 */ [],
+         /* 305 */ [],
+         /* 306 */ [],
+         /* 307 */ [],
+         /* 308 */ [],
+         /* 309 */ [],
+         /* 310 */ [],
+         /* 311 */ [],
+         /* 312 */ [],
+         /* 313 */ [],
+         /* 314 */ [],
+         /* 315 */ [],
+         /* 316 */ [],
+         /* 317 */ [],
+         /* 318 */ [],
+         /* 319 */ [],
+         /* 320 */ [],
+         /* 321 */ [],
+         /* 322 */ [],
+         /* 323 */ [],
+         /* 324 */ [],
+         /* 325 */ [],
+         /* 326 */ [],
+         /* 327 */ [],
+         /* 328 */ [],
+         /* 329 */ [],
+         /* 330 */ [],
+         /* 331 */ [],
+         /* 332 */ [],
+         /* 333 */ [],
+         /* 334 */ [],
+         /* 335 */ [],
+         /* 336 */ [],
+         /* 337 */ [],
+         /* 338 */ [],
+         /* 339 */ [],
+         /* 340 */ [],
+         /* 341 */ [],
+         /* 342 */ [],
+         /* 343 */ [],
+         /* 344 */ [],
+         /* 345 */ [],
+         /* 346 */ [],
+         /* 347 */ [],
+         /* 348 */ [],
+         /* 349 */ [],
+         /* 350 */ [],
+         /* 351 */ [],
+         /* 352 */ [],
+         /* 353 */ [],
+         /* 354 */ [],
+         /* 355 */ [],
+         /* 356 */ [],
+         /* 357 */ [],
+         /* 358 */ [],
+         /* 359 */ [],
+         /* 360 */ [],
+         /* 361 */ [],
+         /* 362 */ [],
+         /* 363 */ [],
+         /* 364 */ [],
+         /* 365 */ [],
+         /* 366 */ [],
+         /* 367 */ [],
+         /* 368 */ [],
+         /* 369 */ [],
+         /* 370 */ [],
+         /* 371 */ [],
+         /* 372 */ [],
+         /* 373 */ [],
+         /* 374 */ [],
+         /* 375 */ [],
+         /* 376 */ [],
+         /* 377 */ [],
+         /* 378 */ [],
+         /* 379 */ [],
+         /* 380 */ [],
+         /* 381 */ [],
+         /* 382 */ [],
+         /* 383 */ [],
+         /* 384 */ [],
+         /* 385 */ [],
+         /* 386 */ [],
+         /* 387 */ [],
+         /* 388 */ [],
+         /* 389 */ [],
+     ];
+     public static $yy_default = [
+         /*     0 */ 406,  611,  611,  406,  406,  611,  611,  611,  611,  611,
+         /*    10 */ 611,  611,  611,  611,  611,  611,  611,  611,  611,  611,
+         /*    20 */ 611,  611,  611,  611,  611,  611,  611,  611,  611,  611,
+         /*    30 */ 611,  611,  611,  611,  611,  611,  611,  611,  611,  611,
+         /*    40 */ 611,  611,  611,  611,  611,  611,  611,  611,  611,  611,
+         /*    50 */ 611,  611,  611,  611,  611,  611,  611,  611,  611,  611,
+         /*    60 */ 611,  590,  611,  611,  611,  611,  611,  611,  611,  611,
+         /*    70 */ 611,  611,  611,  611,  611,  611,  471,  463,  480,  477,
+         /*    80 */ 611,  611,  587,  611,  611,  611,  586,  466,  470,  587,
+         /*    90 */ 546,  483,  545,  501,  611,  611,  422,  479,  561,  562,
+         /*   100 */ 478,  536,  544,  537,  535,  540,  503,  543,  611,  611,
+         /*   110 */ 611,  611,  611,  611,  611,  611,  438,  611,  603,  611,
+         /*   120 */ 611,  611,  611,  454,  611,  611,  611,  611,  611,  611,
+         /*   130 */ 611,  611,  522,  438,  435,  414,  433,  555,  441,  414,
+         /*   140 */ 497,  519,  414,  447,  441,  469,  441,  526,  611,  611,
+         /*   150 */ 611,  611,  526,  611,  611,  497,  611,  521,  481,  471,
+         /*   160 */ 611,  473,  481,  611,  438,  481,  465,  471,  456,  473,
+         /*   170 */ 484,  465,  473,  505,  456,  444,  529,  611,  461,  611,
+         /*   180 */ 611,  611,  611,  611,  611,  496,  611,  611,  494,  611,
+         /*   190 */ 611,  611,  611,  611,  611,  611,  611,  611,  611,  611,
+         /*   200 */ 446,  489,  611,  498,  611,  611,  611,  611,  611,  611,
+         /*   210 */ 390,  556,  611,  611,  611,  571,  605,  611,  472,  611,
+         /*   220 */ 482,  611,  582,  611,  611,  611,  467,  611,  611,  573,
+         /*   230 */ 420,  486,  485,  421,  510,  429,  594,  509,  541,  434,
+         /*   240 */ 508,  442,  507,  506,  437,  504,  605,  502,  427,  431,
+         /*   250 */ 610,  417,  609,  608,  607,  606,  487,  597,  436,  596,
+         /*   260 */ 418,  595,  598,  411,  419,  397,  403,  402,  490,  401,
+         /*   270 */ 400,  399,  398,  396,  405,  491,  395,  394,  492,  393,
+         /*   280 */ 391,  495,  493,  404,  407,  416,  604,  415,  412,  542,
+         /*   290 */ 499,  410,  409,  500,  583,  413,  603,  584,  602,  488,
+         /*   300 */ 601,  600,  599,  408,  575,  577,  428,  440,  589,  538,
+         /*   310 */ 423,  475,  424,  439,  476,  474,  443,  511,  555,  514,
+         /*   320 */ 553,  515,  552,  548,  517,  445,  588,  547,  460,  578,
+         /*   330 */ 593,  458,  457,  459,  464,  453,  462,  592,  452,  451,
+         /*   340 */ 450,  448,  449,  455,  581,  591,  518,  585,  551,  550,
+         /*   350 */ 564,  563,  524,  527,  560,  559,  425,  549,  565,  539,
+         /*   360 */ 426,  558,  557,  468,  430,  432,  554,  523,  534,  520,
+         /*   370 */ 572,  516,  580,  573,  579,  512,  576,  574,  513,  570,
+         /*   380 */ 533,  528,  569,  530,  568,  531,  567,  532,  566,  392,
+     ];
+     /** The next table maps tokens into fallback tokens.  If a construct
+      * like the following:.
+      *
+      *      %fallback ID X Y Z.
+      *
+      * appears in the grammer, then ID becomes a fallback token for X, Y,
+      * and Z.  Whenever one of the tokens X, Y, or Z is input to the parser
+      * but it does not parse, the type of the token is changed to ID and
+      * the parse is retried before an error is thrown.
+      */
+     public static $yyFallback = [
+     ];
 
-    /**
-     * Output debug information to output (php://output stream)
-     */
-    static function PrintTrace()
-    {
-        self::$yyTraceFILE = fopen('php://output', 'w');
-        self::$yyTracePrompt = '';
-    }
+     /**
+      * @var 0|resource
+      */
+     public static $yyTraceFILE;
+     /**
+      * String to prepend to debug output.
+      *
+      * @var 0|string
+      */
+     public static $yyTracePrompt;
+     /**
+      * @var int
+      */
+     public $yyidx = -1;                    // Index of top element in stack
+     /**
+      * @var int
+      */
+     public $yyerrcnt;                 // Shifts left before out of the error
+     /**
+      * @var array
+      */
+     public $yystack = [];  // The parser's stack
 
-    /**
-     * @var resource|0
-     */
-    static public $yyTraceFILE;
-    /**
-     * String to prepend to debug output
-     * @var string|0
-     */
-    static public $yyTracePrompt;
-    /**
-     * @var int
-     */
-    public $yyidx = -1;                    /* Index of top element in stack */
-    /**
-     * @var int
-     */
-    public $yyerrcnt;                 /* Shifts left before out of the error */
-    /**
-     * @var array
-     */
-    public $yystack = array();  /* The parser's stack */
+     /**
+      * For tracing shifts, the names of all terminals and nonterminals
+      * are required.  The following table supplies these names.
+      *
+      * @var array
+      */
+     public static $yyTokenName = [
+         '$',             'T_OR',          'T_AND',         'T_NOT',
+         'T_QUESTION',    'T_COLON',       'T_EQ',          'T_LIKE',
+         'T_GLOB',        'T_NE',          'T_GT',          'T_GE',
+         'T_LT',          'T_LE',          'T_IN',          'T_PLUS',
+         'T_MINUS',       'T_TIMES',       'T_DIV',         'T_MOD',
+         'T_PIPE',        'T_BITWISE',     'T_FILTER_PIPE',  'T_SEMICOLON',
+         'T_PAR_OPEN',    'T_PAR_CLOSE',   'T_BEGIN',       'T_SAVEPOINT',
+         'T_RELEASE',     'T_ROLLBACK',    'T_TO',          'T_TRANSACTION',
+         'T_WORK',        'T_COMMIT',      'T_END',         'T_ALTER',
+         'T_TABLE',       'T_DROP',        'T_PRIMARY',     'T_KEY',
+         'T_INDEX',       'T_SET',         'T_DEFAULT',     'T_MODIFY',
+         'T_ADD',         'T_RENAME',      'T_CREATE',      'T_ON',
+         'T_UNIQUE',      'T_AS',          'T_CHANGE',      'T_COLUMN',
+         'T_FIRST',       'T_AFTER',       'T_SELECT',      'T_ALL',
+         'T_DISTINCT',    'T_DISTINCTROW',  'T_HIGH_PRIORITY',  'T_STRAIGHT_JOIN',
+         'T_SQL_SMALL_RESULT',  'T_SQL_BIG_RESULT',  'T_SQL_CACHE',   'T_SQL_CALC_FOUND_ROWS',
+         'T_SQL_BUFFER_RESULT',  'T_SQL_NO_CACHE',  'T_FROM',        'T_COMMA',
+         'T_JOIN',        'T_INNER',       'T_LEFT',        'T_RT_IGHT',
+         'T_NATURAL',     'T_OUTER',       'T_USING',       'T_WHERE',
+         'T_ORDER',       'T_BY',          'T_DESC',        'T_ASC',
+         'T_LIMIT',       'T_OFFSET',      'T_GROUP',       'T_HAVING',
+         'T_VALUES',      'T_DELETE',      'T_UPDATE',      'T_INSERT',
+         'REPLACE',       'T_INTO',        'T_DUPLICATE',   'T_VIEW',
+         'NUMBER',        'T_UNSIGNED',    'T_COLLATE',     'T_NULL',
+         'T_AUTO_INCREMENT',  'T_IS',          'T_BETWEEN',     'T_BINARY',
+         'T_CASE',        'T_ELSE',        'T_WHEN',        'T_THEN',
+         'T_INTERVAL',    'ALPHA',         'T_STRING1',     'T_STRING2',
+         'T_DOT',         'INTERVAL',      'T_DOLLAR',      'PRIMARY',
+         'error',         'query',         'stmts',         'stmt',
+         'begin',         'commit',        'rollback',      'drop',
+         'select',        'insert',        'update',        'delete',
+         'alter_table',   'create_table',  'create_index',  'create_view',
+         'transaction_keyword',  'alpha',         'commit_keyword',  'inner_select',
+         'table_name',    'alter_operation',  'colname',       'alter_change',
+         'expr',          'create_column',  'after',         'optional_column',
+         'to',            'index_type',    'index_list',    'select_opts',
+         'expr_list_as',  'from',          'joins',         'where',
+         'group_by',      'order_by',      'limit',         'select_mod',
+         'table_list',    'table_with_alias',  'join',          'join_type',
+         'join_condition',  'join_prefix',   'join_postfix',  'columns',
+         'order_by_fields',  'order_by_field',  'expr_list_par_optional',  'insert_stmt',
+         'expr_list_par_many',  'on_dup',        'set_expr',      'insert_table',
+         'set_expr_values',  'assign',        'term_colname',  'create_fields',
+         'table_opts',    'table_opt',     'table_key',     'term',
+         'indexes',       'index_col_name',  'length',        'order',
+         'data_type',     'column_mods',   'unsigned',      'column_mod',
+         'term_select',   'null',          'negable',       'in',
+         'expr_list_par',  'case',          'negable_expr',  'case_options',
+         'function_call',  'expr_list_par_or_null',  'expr_list',     'expr_as',
+         'alpha_or_all',  'variable',      'variable_name',
+     ];
 
-    /**
-     * For tracing shifts, the names of all terminals and nonterminals
-     * are required.  The following table supplies these names
-     * @var array
-     */
-    static public $yyTokenName = array( 
-  '$',             'T_OR',          'T_AND',         'T_NOT',       
-  'T_QUESTION',    'T_COLON',       'T_EQ',          'T_LIKE',      
-  'T_GLOB',        'T_NE',          'T_GT',          'T_GE',        
-  'T_LT',          'T_LE',          'T_IN',          'T_PLUS',      
-  'T_MINUS',       'T_CONCAT',      'T_TIMES',       'T_DIV',       
-  'T_MOD',         'T_PIPE',        'T_BITWISE',     'T_FILTER_PIPE',
-  'SEMICOLON',     'PAR_OPEN',      'PAR_CLOSE',     'BEGIN',       
-  'SAVEPOINT',     'RELEASE',       'ROLLBACK',      'TO',          
-  'TRANSACTION',   'WORK',          'COMMIT',        'T_END',       
-  'ALTER',         'TABLE',         'DROP',          'PRIMARY',     
-  'KEY',           'INDEX',         'SET',           'T_DEFAULT',   
-  'MODIFY',        'ADD',           'RENAME',        'CREATE',      
-  'ON',            'UNIQUE',        'T_AS',          'CHANGE',      
-  'T_COLUMN',      'T_FIRST',       'T_AFTER',       'SELECT',      
-  'ALL',           'DISTINCT',      'DISTINCTROW',   'HIGH_PRIORITY',
-  'STRAIGHT_JOIN',  'SQL_SMALL_RESULT',  'SQL_BIG_RESULT',  'SQL_CACHE',   
-  'SQL_CALC_FOUND_ROWS',  'SQL_BUFFER_RESULT',  'SQL_NO_CACHE',  'FROM',        
-  'COMMA',         'JOIN',          'INNER',         'LEFT',        
-  'RIGHT',         'NATURAL',       'OUTER',         'USING',       
-  'WHERE',         'ORDER',         'BY',            'DESC',        
-  'ASC',           'LIMIT',         'OFFSET',        'GROUP',       
-  'HAVING',        'VALUES',        'DELETE',        'UPDATE',      
-  'INSERT',        'REPLACE',       'INTO',          'DUPLICATE',   
-  'VIEW',          'NUMBER',        'T_UNSIGNED',    'COLLATE',     
-  'T_NULL',        'AUTO_INCREMENT',  'T_IS',          'T_BETWEEN',   
-  'T_BINARY',      'T_CASE',        'T_ELSE',        'WHEN',        
-  'THEN',          'INTERVAL',      'ALPHA',         'T_STRING1',   
-  'T_STRING2',     'T_DOT',         'COLUMN',        'QUESTION',    
-  'T_DOLLAR',      'error',         'query',         'stmts',       
-  'stmt',          'begin',         'commit',        'rollback',    
-  'drop',          'select',        'insert',        'update',      
-  'delete',        'alter_table',   'create_table',  'create_index',
-  'create_view',   'transaction_keyword',  'alpha',         'commit_keyword',
-  'inner_select',  'table_name',    'alter_operation',  'colname',     
-  'alter_change',  'expr',          'create_column',  'after',       
-  'optional_column',  'to',            'index_type',    'index_list',  
-  'select_opts',   'expr_list_as',  'from',          'joins',       
-  'where',         'group_by',      'order_by',      'limit',       
-  'select_mod',    'table_list',    'table_with_alias',  'join',        
-  'join_type',     'join_condition',  'join_prefix',   'join_postfix',
-  'columns',       'order_by_fields',  'order_by_field',  'expr_list_par_optional',
-  'insert_stmt',   'expr_list_par_many',  'on_dup',        'set_expr',    
-  'insert_table',  'set_expr_values',  'assign',        'term_colname',
-  'create_fields',  'table_opts',    'table_opt',     'table_key',   
-  'term',          'indexes',       'index_col_name',  'length',      
-  'order',         'data_type',     'column_mods',   'unsigned',    
-  'column_mod',    'term_select',   'null',          'negable',     
-  'in',            'expr_list_par',  'case',          'negable_expr',
-  'case_options',  'function_call',  'expr_list_par_or_null',  'expr_list',   
-  'expr_as',       'alpha_or_all',  'variable',      'variable_name',
-    );
+     /**
+      * For tracing reduce actions, the names of all rules are required.
+      *
+      * @var array
+      */
+     public static $yyRuleName = [
+         /*   0 */ 'query ::= stmts',
+         /*   1 */ 'stmts ::= stmts T_SEMICOLON stmt',
+         /*   2 */ 'stmts ::= stmt',
+         /*   3 */ 'stmt ::= T_PAR_OPEN stmt T_PAR_CLOSE',
+         /*   4 */ 'stmt ::= begin',
+         /*   5 */ 'stmt ::= commit',
+         /*   6 */ 'stmt ::= rollback',
+         /*   7 */ 'stmt ::= drop',
+         /*   8 */ 'stmt ::= select',
+         /*   9 */ 'stmt ::= insert',
+         /*  10 */ 'stmt ::= update',
+         /*  11 */ 'stmt ::= delete',
+         /*  12 */ 'stmt ::= alter_table',
+         /*  13 */ 'stmt ::= create_table',
+         /*  14 */ 'stmt ::= create_index',
+         /*  15 */ 'stmt ::= create_view',
+         /*  16 */ 'stmt ::=',
+         /*  17 */ 'begin ::= T_BEGIN transaction_keyword',
+         /*  18 */ 'begin ::= T_SAVEPOINT alpha',
+         /*  19 */ 'commit ::= commit_keyword transaction_keyword',
+         /*  20 */ 'commit ::= T_RELEASE T_SAVEPOINT alpha',
+         /*  21 */ 'rollback ::= T_ROLLBACK transaction_keyword',
+         /*  22 */ 'rollback ::= T_ROLLBACK T_TO alpha',
+         /*  23 */ 'transaction_keyword ::= T_TRANSACTION|T_WORK',
+         /*  24 */ 'transaction_keyword ::=',
+         /*  25 */ 'commit_keyword ::= T_COMMIT',
+         /*  26 */ 'commit_keyword ::= T_END',
+         /*  27 */ 'inner_select ::= T_PAR_OPEN inner_select T_PAR_CLOSE',
+         /*  28 */ 'inner_select ::= T_PAR_OPEN select T_PAR_CLOSE',
+         /*  29 */ 'alter_table ::= T_ALTER T_TABLE table_name alter_operation',
+         /*  30 */ 'alter_operation ::= T_DROP T_PRIMARY T_KEY',
+         /*  31 */ 'alter_operation ::= T_DROP T_KEY|T_INDEX colname',
+         /*  32 */ 'alter_operation ::= alter_change T_SET T_DEFAULT expr',
+         /*  33 */ 'alter_operation ::= alter_change T_DROP T_DEFAULT',
+         /*  34 */ 'alter_operation ::= alter_change create_column after',
+         /*  35 */ 'alter_operation ::= T_MODIFY create_column after',
+         /*  36 */ 'alter_operation ::= T_ADD optional_column create_column after',
+         /*  37 */ 'alter_operation ::= T_DROP optional_column colname',
+         /*  38 */ 'alter_operation ::= T_RENAME to colname',
+         /*  39 */ 'alter_operation ::= T_RENAME T_KEY|T_INDEX colname T_TO colname',
+         /*  40 */ 'alter_operation ::= T_ADD index_type T_KEY|T_INDEX colname index_list',
+         /*  41 */ 'create_index ::= T_CREATE index_type T_INDEX colname T_ON colname index_list',
+         /*  42 */ 'index_type ::= T_UNIQUE',
+         /*  43 */ 'index_type ::=',
+         /*  44 */ 'to ::= T_TO|T_AS',
+         /*  45 */ 'to ::=',
+         /*  46 */ 'alter_change ::= T_CHANGE optional_column colname',
+         /*  47 */ 'optional_column ::= T_COLUMN',
+         /*  48 */ 'optional_column ::=',
+         /*  49 */ 'after ::= T_FIRST',
+         /*  50 */ 'after ::= T_AFTER colname',
+         /*  51 */ 'after ::=',
+         /*  52 */ 'select ::= T_SELECT select_opts expr_list_as from joins where group_by order_by limit',
+         /*  53 */ 'select_opts ::= select_opts select_mod',
+         /*  54 */ 'select_opts ::=',
+         /*  55 */ 'select_mod ::= T_ALL|T_DISTINCT|T_DISTINCTROW|T_HIGH_PRIORITY|T_STRAIGHT_JOIN|T_SQL_SMALL_RESULT|T_SQL_BIG_RESULT|T_SQL_CACHE|T_SQL_CALC_FOUND_ROWS|T_SQL_BUFFER_RESULT|T_SQL_NO_CACHE',
+         /*  56 */ 'from ::= T_FROM table_list',
+         /*  57 */ 'from ::=',
+         /*  58 */ 'table_list ::= table_list T_COMMA table_with_alias',
+         /*  59 */ 'table_list ::= table_with_alias',
+         /*  60 */ 'table_with_alias ::= inner_select T_AS alpha',
+         /*  61 */ 'table_with_alias ::= inner_select alpha',
+         /*  62 */ 'table_with_alias ::= table_name T_AS alpha',
+         /*  63 */ 'table_with_alias ::= table_name alpha',
+         /*  64 */ 'table_with_alias ::= table_name',
+         /*  65 */ 'joins ::= joins join',
+         /*  66 */ 'joins ::=',
+         /*  67 */ 'join ::= join_type T_JOIN table_with_alias join_condition',
+         /*  68 */ 'join_type ::= join_prefix T_INNER',
+         /*  69 */ 'join_type ::= join_prefix T_LEFT join_postfix',
+         /*  70 */ 'join_type ::= join_prefix T_RT_IGHT join_postfix',
+         /*  71 */ 'join_type ::= join_prefix',
+         /*  72 */ 'join_prefix ::= T_NATURAL',
+         /*  73 */ 'join_prefix ::=',
+         /*  74 */ 'join_postfix ::= T_OUTER',
+         /*  75 */ 'join_postfix ::=',
+         /*  76 */ 'join_condition ::= T_ON expr',
+         /*  77 */ 'join_condition ::= T_USING columns',
+         /*  78 */ 'join_condition ::= T_USING T_PAR_OPEN columns T_PAR_CLOSE',
+         /*  79 */ 'join_condition ::=',
+         /*  80 */ 'where ::= T_WHERE expr',
+         /*  81 */ 'where ::=',
+         /*  82 */ 'order_by ::= T_ORDER T_BY order_by_fields',
+         /*  83 */ 'order_by ::=',
+         /*  84 */ 'order_by_fields ::= order_by_fields T_COMMA order_by_field',
+         /*  85 */ 'order_by_fields ::= order_by_field',
+         /*  86 */ 'order_by_field ::= expr T_DESC|T_ASC',
+         /*  87 */ 'order_by_field ::= expr',
+         /*  88 */ 'limit ::= T_LIMIT expr T_OFFSET expr',
+         /*  89 */ 'limit ::= T_LIMIT expr T_COMMA expr',
+         /*  90 */ 'limit ::= T_LIMIT expr',
+         /*  91 */ 'limit ::=',
+         /*  92 */ 'group_by ::= T_GROUP T_BY expr_list_par_optional',
+         /*  93 */ 'group_by ::= T_GROUP T_BY expr_list_par_optional T_HAVING expr',
+         /*  94 */ 'group_by ::=',
+         /*  95 */ 'insert ::= insert_stmt select',
+         /*  96 */ 'insert ::= insert_stmt inner_select',
+         /*  97 */ 'insert ::= insert_stmt T_VALUES expr_list_par_many on_dup',
+         /*  98 */ 'insert ::= insert_stmt set_expr on_dup',
+         /*  99 */ 'drop ::= T_DROP T_TABLE table_list',
+         /* 100 */ 'delete ::= T_DELETE T_FROM table_with_alias where order_by limit',
+         /* 101 */ 'update ::= T_UPDATE table_list joins set_expr where order_by limit',
+         /* 102 */ 'insert_stmt ::= T_INSERT|REPLACE T_INTO insert_table',
+         /* 103 */ 'insert_stmt ::= T_INSERT|REPLACE insert_table',
+         /* 104 */ 'insert_table ::= table_name',
+         /* 105 */ 'insert_table ::= table_name T_PAR_OPEN columns T_PAR_CLOSE',
+         /* 106 */ 'on_dup ::= T_ON T_DUPLICATE T_KEY T_UPDATE set_expr_values',
+         /* 107 */ 'on_dup ::=',
+         /* 108 */ 'set_expr ::= T_SET set_expr_values',
+         /* 109 */ 'set_expr_values ::= set_expr_values T_COMMA assign',
+         /* 110 */ 'set_expr_values ::= assign',
+         /* 111 */ 'assign ::= term_colname T_EQ expr',
+         /* 112 */ 'create_view ::= T_CREATE T_VIEW colname T_AS select',
+         /* 113 */ 'create_table ::= T_CREATE T_TABLE colname T_PAR_OPEN create_fields T_PAR_CLOSE table_opts',
+         /* 114 */ 'table_opts ::= table_opts table_opt',
+         /* 115 */ 'table_opts ::=',
+         /* 116 */ 'table_opt ::= table_key T_EQ term',
+         /* 117 */ 'table_key ::= table_key alpha',
+         /* 118 */ 'table_key ::= alpha',
+         /* 119 */ 'create_fields ::= create_fields T_COMMA create_column',
+         /* 120 */ 'create_fields ::= create_column',
+         /* 121 */ 'create_column ::= T_PRIMARY T_KEY index_list',
+         /* 122 */ 'create_column ::= T_UNIQUE T_KEY colname index_list',
+         /* 123 */ 'create_column ::= T_KEY colname index_list',
+         /* 124 */ 'index_list ::= T_PAR_OPEN indexes T_PAR_CLOSE',
+         /* 125 */ 'indexes ::= indexes T_COMMA index_col_name',
+         /* 126 */ 'indexes ::= index_col_name',
+         /* 127 */ 'index_col_name ::= term_colname length order',
+         /* 128 */ 'order ::= T_DESC|T_ASC',
+         /* 129 */ 'order ::=',
+         /* 130 */ 'length ::= T_PAR_OPEN NUMBER T_PAR_CLOSE',
+         /* 131 */ 'length ::=',
+         /* 132 */ 'create_column ::= colname data_type column_mods',
+         /* 133 */ 'data_type ::= alpha unsigned',
+         /* 134 */ 'data_type ::= alpha T_PAR_OPEN NUMBER T_PAR_CLOSE unsigned',
+         /* 135 */ 'data_type ::= alpha T_PAR_OPEN NUMBER T_PAR_CLOSE unsigned',
+         /* 136 */ 'unsigned ::=',
+         /* 137 */ 'unsigned ::= T_UNSIGNED',
+         /* 138 */ 'column_mods ::= column_mods column_mod',
+         /* 139 */ 'column_mods ::=',
+         /* 140 */ 'column_mod ::= T_DEFAULT term',
+         /* 141 */ 'column_mod ::= T_COLLATE term',
+         /* 142 */ 'column_mod ::= T_PRIMARY T_KEY',
+         /* 143 */ 'column_mod ::= T_NOT T_NULL',
+         /* 144 */ 'column_mod ::= T_AUTO_INCREMENT',
+         /* 145 */ 'expr ::= expr T_AND expr',
+         /* 146 */ 'expr ::= expr T_OR expr',
+         /* 147 */ 'expr ::= T_NOT expr',
+         /* 148 */ 'expr ::= T_PAR_OPEN expr T_PAR_CLOSE',
+         /* 149 */ 'expr ::= term_select',
+         /* 150 */ 'expr ::= expr T_EQ|T_NE|T_GT|T_GE|T_LT|T_LE expr',
+         /* 151 */ 'expr ::= expr T_IS T_NOT null',
+         /* 152 */ 'expr ::= expr T_IS null',
+         /* 153 */ 'expr ::= expr T_PLUS|T_MINUS|T_TIMES|T_DIV|T_MOD expr',
+         /* 154 */ 'expr ::= expr T_NOT T_BETWEEN expr T_AND expr',
+         /* 155 */ 'expr ::= expr T_BETWEEN expr T_AND expr',
+         /* 156 */ 'expr ::= expr negable expr',
+         /* 157 */ 'expr ::= expr in term_select',
+         /* 158 */ 'expr ::= expr in expr_list_par',
+         /* 159 */ 'expr ::= case',
+         /* 160 */ 'expr ::= term',
+         /* 161 */ 'in ::= T_IN',
+         /* 162 */ 'in ::= T_NOT T_IN',
+         /* 163 */ 'negable ::= T_NOT negable_expr',
+         /* 164 */ 'negable ::= negable_expr',
+         /* 165 */ 'negable_expr ::= T_IS',
+         /* 166 */ 'negable_expr ::= T_LIKE',
+         /* 167 */ 'negable_expr ::= T_LIKE T_BINARY',
+         /* 168 */ 'negable_expr ::= T_GLOB',
+         /* 169 */ 'case ::= T_CASE case_options T_END',
+         /* 170 */ 'case ::= T_CASE case_options T_ELSE expr T_END',
+         /* 171 */ 'case_options ::= case_options T_WHEN expr T_THEN expr',
+         /* 172 */ 'case_options ::= T_WHEN expr T_THEN expr',
+         /* 173 */ 'term ::= T_INTERVAL expr ALPHA',
+         /* 174 */ 'term ::= T_PLUS term',
+         /* 175 */ 'term ::= T_MINUS NUMBER',
+         /* 176 */ 'term ::= NUMBER',
+         /* 177 */ 'term ::= null',
+         /* 178 */ 'term ::= function_call',
+         /* 179 */ 'term ::= T_STRING1',
+         /* 180 */ 'term ::= T_STRING2',
+         /* 181 */ 'term ::= alpha',
+         /* 182 */ 'term ::= term_colname',
+         /* 183 */ 'term_select ::= inner_select',
+         /* 184 */ 'term_colname ::= colname',
+         /* 185 */ 'null ::= T_NULL',
+         /* 186 */ 'function_call ::= ALPHA expr_list_par_or_null',
+         /* 187 */ 'columns ::= columns T_COMMA alpha',
+         /* 188 */ 'columns ::= alpha',
+         /* 189 */ 'expr_list_par_or_null ::= expr_list_par',
+         /* 190 */ 'expr_list_par_or_null ::= T_PAR_OPEN T_PAR_CLOSE',
+         /* 191 */ 'expr_list_par_optional ::= expr_list_par',
+         /* 192 */ 'expr_list_par_optional ::= expr_list',
+         /* 193 */ 'expr_list_par_many ::= expr_list_par_many T_COMMA expr_list_par',
+         /* 194 */ 'expr_list_par_many ::= expr_list_par',
+         /* 195 */ 'expr_list_par ::= T_PAR_OPEN expr_list T_PAR_CLOSE',
+         /* 196 */ 'expr_list ::= expr_list T_COMMA expr',
+         /* 197 */ 'expr_list ::= expr',
+         /* 198 */ 'expr_list_as ::= expr_list_as T_COMMA expr_as',
+         /* 199 */ 'expr_list_as ::= expr_as',
+         /* 200 */ 'expr_as ::= expr',
+         /* 201 */ 'expr_as ::= expr T_AS alpha',
+         /* 202 */ 'expr_as ::= expr alpha',
+         /* 203 */ 'table_name ::= colname',
+         /* 204 */ 'colname ::= alpha T_DOT alpha_or_all',
+         /* 205 */ 'colname ::= alpha_or_all',
+         /* 206 */ 'colname ::= T_STRING1',
+         /* 207 */ 'colname ::= T_STRING2',
+         /* 208 */ 'colname ::= variable',
+         /* 209 */ 'alpha ::= T_DEFAULT',
+         /* 210 */ 'alpha ::= T_COLLATE',
+         /* 211 */ 'alpha ::= INTERVAL',
+         /* 212 */ 'alpha ::= T_AUTO_INCREMENT',
+         /* 213 */ 'alpha ::= ALPHA',
+         /* 214 */ 'alpha ::= T_COLUMN',
+         /* 215 */ 'alpha_or_all ::= alpha',
+         /* 216 */ 'alpha_or_all ::= T_TIMES',
+         /* 217 */ 'variable ::= T_QUESTION',
+         /* 218 */ 'variable ::= T_DOLLAR|T_COLON variable_name',
+         /* 219 */ 'variable_name ::= ALPHA',
+         /* 220 */ 'variable_name ::= T_LIMIT|T_INSERT|T_UPDATE|T_FROM|T_SELECT|T_COLLATE|T_AUTO_INCREMENT|T_DEFAULT|PRIMARY|T_OFFSET|T_KEY',
+     ];
 
-    /**
-     * For tracing reduce actions, the names of all rules are required.
-     * @var array
-     */
-    static public $yyRuleName = array(
- /*   0 */ "query ::= stmts",
- /*   1 */ "stmts ::= stmts SEMICOLON stmt",
- /*   2 */ "stmts ::= stmt",
- /*   3 */ "stmt ::= PAR_OPEN stmt PAR_CLOSE",
- /*   4 */ "stmt ::= begin",
- /*   5 */ "stmt ::= commit",
- /*   6 */ "stmt ::= rollback",
- /*   7 */ "stmt ::= drop",
- /*   8 */ "stmt ::= select",
- /*   9 */ "stmt ::= insert",
- /*  10 */ "stmt ::= update",
- /*  11 */ "stmt ::= delete",
- /*  12 */ "stmt ::= alter_table",
- /*  13 */ "stmt ::= create_table",
- /*  14 */ "stmt ::= create_index",
- /*  15 */ "stmt ::= create_view",
- /*  16 */ "stmt ::=",
- /*  17 */ "begin ::= BEGIN transaction_keyword",
- /*  18 */ "begin ::= SAVEPOINT alpha",
- /*  19 */ "commit ::= commit_keyword transaction_keyword",
- /*  20 */ "commit ::= RELEASE SAVEPOINT alpha",
- /*  21 */ "rollback ::= ROLLBACK transaction_keyword",
- /*  22 */ "rollback ::= ROLLBACK TO alpha",
- /*  23 */ "transaction_keyword ::= TRANSACTION|WORK",
- /*  24 */ "transaction_keyword ::=",
- /*  25 */ "commit_keyword ::= COMMIT",
- /*  26 */ "commit_keyword ::= T_END",
- /*  27 */ "inner_select ::= PAR_OPEN inner_select PAR_CLOSE",
- /*  28 */ "inner_select ::= PAR_OPEN select PAR_CLOSE",
- /*  29 */ "alter_table ::= ALTER TABLE table_name alter_operation",
- /*  30 */ "alter_operation ::= DROP PRIMARY KEY",
- /*  31 */ "alter_operation ::= DROP KEY|INDEX colname",
- /*  32 */ "alter_operation ::= alter_change SET T_DEFAULT expr",
- /*  33 */ "alter_operation ::= alter_change DROP T_DEFAULT",
- /*  34 */ "alter_operation ::= alter_change create_column after",
- /*  35 */ "alter_operation ::= MODIFY create_column after",
- /*  36 */ "alter_operation ::= ADD optional_column create_column after",
- /*  37 */ "alter_operation ::= DROP optional_column colname",
- /*  38 */ "alter_operation ::= RENAME to colname",
- /*  39 */ "alter_operation ::= RENAME KEY|INDEX colname TO colname",
- /*  40 */ "alter_operation ::= ADD index_type KEY|INDEX colname index_list",
- /*  41 */ "create_index ::= CREATE index_type INDEX colname ON colname index_list",
- /*  42 */ "index_type ::= UNIQUE",
- /*  43 */ "index_type ::=",
- /*  44 */ "to ::= TO|T_AS",
- /*  45 */ "to ::=",
- /*  46 */ "alter_change ::= CHANGE optional_column colname",
- /*  47 */ "optional_column ::= T_COLUMN",
- /*  48 */ "optional_column ::=",
- /*  49 */ "after ::= T_FIRST",
- /*  50 */ "after ::= T_AFTER colname",
- /*  51 */ "after ::=",
- /*  52 */ "select ::= SELECT select_opts expr_list_as from joins where group_by order_by limit",
- /*  53 */ "select_opts ::= select_opts select_mod",
- /*  54 */ "select_opts ::=",
- /*  55 */ "select_mod ::= ALL|DISTINCT|DISTINCTROW|HIGH_PRIORITY|STRAIGHT_JOIN|SQL_SMALL_RESULT|SQL_BIG_RESULT|SQL_CACHE|SQL_CALC_FOUND_ROWS|SQL_BUFFER_RESULT|SQL_NO_CACHE",
- /*  56 */ "from ::= FROM table_list",
- /*  57 */ "from ::=",
- /*  58 */ "table_list ::= table_list COMMA table_with_alias",
- /*  59 */ "table_list ::= table_with_alias",
- /*  60 */ "table_with_alias ::= inner_select T_AS alpha",
- /*  61 */ "table_with_alias ::= inner_select alpha",
- /*  62 */ "table_with_alias ::= table_name T_AS alpha",
- /*  63 */ "table_with_alias ::= table_name alpha",
- /*  64 */ "table_with_alias ::= table_name",
- /*  65 */ "joins ::= joins join",
- /*  66 */ "joins ::=",
- /*  67 */ "join ::= join_type JOIN table_with_alias join_condition",
- /*  68 */ "join_type ::= join_prefix INNER",
- /*  69 */ "join_type ::= join_prefix LEFT join_postfix",
- /*  70 */ "join_type ::= join_prefix RIGHT join_postfix",
- /*  71 */ "join_type ::= join_prefix",
- /*  72 */ "join_prefix ::= NATURAL",
- /*  73 */ "join_prefix ::=",
- /*  74 */ "join_postfix ::= OUTER",
- /*  75 */ "join_postfix ::=",
- /*  76 */ "join_condition ::= ON expr",
- /*  77 */ "join_condition ::= USING columns",
- /*  78 */ "join_condition ::= USING PAR_OPEN columns PAR_CLOSE",
- /*  79 */ "join_condition ::=",
- /*  80 */ "where ::= WHERE expr",
- /*  81 */ "where ::=",
- /*  82 */ "order_by ::= ORDER BY order_by_fields",
- /*  83 */ "order_by ::=",
- /*  84 */ "order_by_fields ::= order_by_fields COMMA order_by_field",
- /*  85 */ "order_by_fields ::= order_by_field",
- /*  86 */ "order_by_field ::= expr DESC|ASC",
- /*  87 */ "order_by_field ::= expr",
- /*  88 */ "limit ::= LIMIT expr OFFSET expr",
- /*  89 */ "limit ::= LIMIT expr COMMA expr",
- /*  90 */ "limit ::= LIMIT expr",
- /*  91 */ "limit ::=",
- /*  92 */ "group_by ::= GROUP BY expr_list_par_optional",
- /*  93 */ "group_by ::= GROUP BY expr_list_par_optional HAVING expr",
- /*  94 */ "group_by ::=",
- /*  95 */ "insert ::= insert_stmt select",
- /*  96 */ "insert ::= insert_stmt inner_select",
- /*  97 */ "insert ::= insert_stmt VALUES expr_list_par_many on_dup",
- /*  98 */ "insert ::= insert_stmt set_expr on_dup",
- /*  99 */ "drop ::= DROP TABLE table_list",
- /* 100 */ "delete ::= DELETE FROM table_with_alias where order_by limit",
- /* 101 */ "update ::= UPDATE table_list joins set_expr where order_by limit",
- /* 102 */ "insert_stmt ::= INSERT|REPLACE INTO insert_table",
- /* 103 */ "insert_stmt ::= INSERT|REPLACE insert_table",
- /* 104 */ "insert_table ::= table_name",
- /* 105 */ "insert_table ::= table_name PAR_OPEN columns PAR_CLOSE",
- /* 106 */ "on_dup ::= ON DUPLICATE KEY UPDATE set_expr_values",
- /* 107 */ "on_dup ::=",
- /* 108 */ "set_expr ::= SET set_expr_values",
- /* 109 */ "set_expr_values ::= set_expr_values COMMA assign",
- /* 110 */ "set_expr_values ::= assign",
- /* 111 */ "assign ::= term_colname T_EQ expr",
- /* 112 */ "create_view ::= CREATE VIEW colname T_AS select",
- /* 113 */ "create_table ::= CREATE TABLE colname PAR_OPEN create_fields PAR_CLOSE table_opts",
- /* 114 */ "table_opts ::= table_opts table_opt",
- /* 115 */ "table_opts ::=",
- /* 116 */ "table_opt ::= table_key T_EQ term",
- /* 117 */ "table_key ::= table_key alpha",
- /* 118 */ "table_key ::= alpha",
- /* 119 */ "create_fields ::= create_fields COMMA create_column",
- /* 120 */ "create_fields ::= create_column",
- /* 121 */ "create_column ::= PRIMARY KEY index_list",
- /* 122 */ "create_column ::= UNIQUE KEY colname index_list",
- /* 123 */ "create_column ::= KEY colname index_list",
- /* 124 */ "index_list ::= PAR_OPEN indexes PAR_CLOSE",
- /* 125 */ "indexes ::= indexes COMMA index_col_name",
- /* 126 */ "indexes ::= index_col_name",
- /* 127 */ "index_col_name ::= term_colname length order",
- /* 128 */ "order ::= DESC|ASC",
- /* 129 */ "order ::=",
- /* 130 */ "length ::= PAR_OPEN NUMBER PAR_CLOSE",
- /* 131 */ "length ::=",
- /* 132 */ "create_column ::= colname data_type column_mods",
- /* 133 */ "data_type ::= alpha unsigned",
- /* 134 */ "data_type ::= alpha PAR_OPEN NUMBER PAR_CLOSE unsigned",
- /* 135 */ "data_type ::= alpha PAR_OPEN NUMBER PAR_CLOSE unsigned",
- /* 136 */ "unsigned ::=",
- /* 137 */ "unsigned ::= T_UNSIGNED",
- /* 138 */ "column_mods ::= column_mods column_mod",
- /* 139 */ "column_mods ::=",
- /* 140 */ "column_mod ::= T_DEFAULT term",
- /* 141 */ "column_mod ::= COLLATE term",
- /* 142 */ "column_mod ::= PRIMARY KEY",
- /* 143 */ "column_mod ::= T_NOT T_NULL",
- /* 144 */ "column_mod ::= AUTO_INCREMENT",
- /* 145 */ "expr ::= expr T_AND expr",
- /* 146 */ "expr ::= expr T_OR expr",
- /* 147 */ "expr ::= T_NOT expr",
- /* 148 */ "expr ::= PAR_OPEN expr PAR_CLOSE",
- /* 149 */ "expr ::= term_select",
- /* 150 */ "expr ::= expr T_EQ|T_NE|T_GT|T_GE|T_LT|T_LE expr",
- /* 151 */ "expr ::= expr T_IS T_NOT null",
- /* 152 */ "expr ::= expr T_IS null",
- /* 153 */ "expr ::= expr T_PLUS|T_MINUS|T_TIMES|T_DIV|T_MOD expr",
- /* 154 */ "expr ::= expr T_NOT T_BETWEEN expr T_AND expr",
- /* 155 */ "expr ::= expr T_BETWEEN expr T_AND expr",
- /* 156 */ "expr ::= expr negable expr",
- /* 157 */ "expr ::= expr in term_select",
- /* 158 */ "expr ::= expr in expr_list_par",
- /* 159 */ "expr ::= case",
- /* 160 */ "expr ::= term",
- /* 161 */ "in ::= T_IN",
- /* 162 */ "in ::= T_NOT T_IN",
- /* 163 */ "negable ::= T_NOT negable_expr",
- /* 164 */ "negable ::= negable_expr",
- /* 165 */ "negable_expr ::= T_IS",
- /* 166 */ "negable_expr ::= T_LIKE",
- /* 167 */ "negable_expr ::= T_LIKE T_BINARY",
- /* 168 */ "negable_expr ::= T_GLOB",
- /* 169 */ "case ::= T_CASE case_options T_END",
- /* 170 */ "case ::= T_CASE case_options T_ELSE expr T_END",
- /* 171 */ "case_options ::= case_options WHEN expr THEN expr",
- /* 172 */ "case_options ::= WHEN expr THEN expr",
- /* 173 */ "term ::= INTERVAL expr ALPHA",
- /* 174 */ "term ::= T_PLUS term",
- /* 175 */ "term ::= T_MINUS NUMBER",
- /* 176 */ "term ::= NUMBER",
- /* 177 */ "term ::= null",
- /* 178 */ "term ::= function_call",
- /* 179 */ "term ::= T_STRING1",
- /* 180 */ "term ::= T_STRING2",
- /* 181 */ "term ::= alpha",
- /* 182 */ "term ::= term_colname",
- /* 183 */ "term_select ::= inner_select",
- /* 184 */ "term_colname ::= colname",
- /* 185 */ "null ::= T_NULL",
- /* 186 */ "function_call ::= ALPHA expr_list_par_or_null",
- /* 187 */ "columns ::= columns COMMA alpha",
- /* 188 */ "columns ::= alpha",
- /* 189 */ "expr_list_par_or_null ::= expr_list_par",
- /* 190 */ "expr_list_par_or_null ::= PAR_OPEN PAR_CLOSE",
- /* 191 */ "expr_list_par_optional ::= expr_list_par",
- /* 192 */ "expr_list_par_optional ::= expr_list",
- /* 193 */ "expr_list_par_many ::= expr_list_par_many COMMA expr_list_par",
- /* 194 */ "expr_list_par_many ::= expr_list_par",
- /* 195 */ "expr_list_par ::= PAR_OPEN expr_list PAR_CLOSE",
- /* 196 */ "expr_list ::= expr_list COMMA expr",
- /* 197 */ "expr_list ::= expr",
- /* 198 */ "expr_list_as ::= expr_list_as COMMA expr_as",
- /* 199 */ "expr_list_as ::= expr_as",
- /* 200 */ "expr_as ::= expr",
- /* 201 */ "expr_as ::= expr T_AS alpha",
- /* 202 */ "expr_as ::= expr alpha",
- /* 203 */ "table_name ::= colname",
- /* 204 */ "colname ::= alpha T_DOT alpha_or_all",
- /* 205 */ "colname ::= alpha_or_all",
- /* 206 */ "colname ::= T_STRING1",
- /* 207 */ "colname ::= T_STRING2",
- /* 208 */ "colname ::= variable",
- /* 209 */ "alpha ::= T_DEFAULT",
- /* 210 */ "alpha ::= COLLATE",
- /* 211 */ "alpha ::= INTERVAL",
- /* 212 */ "alpha ::= AUTO_INCREMENT",
- /* 213 */ "alpha ::= ALPHA",
- /* 214 */ "alpha ::= COLUMN",
- /* 215 */ "alpha_or_all ::= alpha",
- /* 216 */ "alpha_or_all ::= T_TIMES",
- /* 217 */ "variable ::= QUESTION",
- /* 218 */ "variable ::= T_DOLLAR|T_COLON variable_name",
- /* 219 */ "variable_name ::= ALPHA",
- /* 220 */ "variable_name ::= LIMIT|INSERT|UPDATE|FROM|SELECT|COLLATE|AUTO_INCREMENT|T_DEFAULT|PRIMARY|OFFSET|KEY",
-    );
+     /**
+      * The following table contains information about every rule that
+      * is used during the reduce.
+      *
+      * <pre>
+      * array(
+      *  array(
+      *   int $lhs;         Symbol on the left-hand side of the rule
+      *   int $nrhs;     Number of right-hand side symbols in the rule
+      *  ),...
+      * );
+      * </pre>
+      */
+     public static $yyRuleInfo = [
+         ['lhs' => 113, 'rhs' => 1],
+         ['lhs' => 114, 'rhs' => 3],
+         ['lhs' => 114, 'rhs' => 1],
+         ['lhs' => 115, 'rhs' => 3],
+         ['lhs' => 115, 'rhs' => 1],
+         ['lhs' => 115, 'rhs' => 1],
+         ['lhs' => 115, 'rhs' => 1],
+         ['lhs' => 115, 'rhs' => 1],
+         ['lhs' => 115, 'rhs' => 1],
+         ['lhs' => 115, 'rhs' => 1],
+         ['lhs' => 115, 'rhs' => 1],
+         ['lhs' => 115, 'rhs' => 1],
+         ['lhs' => 115, 'rhs' => 1],
+         ['lhs' => 115, 'rhs' => 1],
+         ['lhs' => 115, 'rhs' => 1],
+         ['lhs' => 115, 'rhs' => 1],
+         ['lhs' => 115, 'rhs' => 0],
+         ['lhs' => 116, 'rhs' => 2],
+         ['lhs' => 116, 'rhs' => 2],
+         ['lhs' => 117, 'rhs' => 2],
+         ['lhs' => 117, 'rhs' => 3],
+         ['lhs' => 118, 'rhs' => 2],
+         ['lhs' => 118, 'rhs' => 3],
+         ['lhs' => 128, 'rhs' => 1],
+         ['lhs' => 128, 'rhs' => 0],
+         ['lhs' => 130, 'rhs' => 1],
+         ['lhs' => 130, 'rhs' => 1],
+         ['lhs' => 131, 'rhs' => 3],
+         ['lhs' => 131, 'rhs' => 3],
+         ['lhs' => 124, 'rhs' => 4],
+         ['lhs' => 133, 'rhs' => 3],
+         ['lhs' => 133, 'rhs' => 3],
+         ['lhs' => 133, 'rhs' => 4],
+         ['lhs' => 133, 'rhs' => 3],
+         ['lhs' => 133, 'rhs' => 3],
+         ['lhs' => 133, 'rhs' => 3],
+         ['lhs' => 133, 'rhs' => 4],
+         ['lhs' => 133, 'rhs' => 3],
+         ['lhs' => 133, 'rhs' => 3],
+         ['lhs' => 133, 'rhs' => 5],
+         ['lhs' => 133, 'rhs' => 5],
+         ['lhs' => 126, 'rhs' => 7],
+         ['lhs' => 141, 'rhs' => 1],
+         ['lhs' => 141, 'rhs' => 0],
+         ['lhs' => 140, 'rhs' => 1],
+         ['lhs' => 140, 'rhs' => 0],
+         ['lhs' => 135, 'rhs' => 3],
+         ['lhs' => 139, 'rhs' => 1],
+         ['lhs' => 139, 'rhs' => 0],
+         ['lhs' => 138, 'rhs' => 1],
+         ['lhs' => 138, 'rhs' => 2],
+         ['lhs' => 138, 'rhs' => 0],
+         ['lhs' => 120, 'rhs' => 9],
+         ['lhs' => 143, 'rhs' => 2],
+         ['lhs' => 143, 'rhs' => 0],
+         ['lhs' => 151, 'rhs' => 1],
+         ['lhs' => 145, 'rhs' => 2],
+         ['lhs' => 145, 'rhs' => 0],
+         ['lhs' => 152, 'rhs' => 3],
+         ['lhs' => 152, 'rhs' => 1],
+         ['lhs' => 153, 'rhs' => 3],
+         ['lhs' => 153, 'rhs' => 2],
+         ['lhs' => 153, 'rhs' => 3],
+         ['lhs' => 153, 'rhs' => 2],
+         ['lhs' => 153, 'rhs' => 1],
+         ['lhs' => 146, 'rhs' => 2],
+         ['lhs' => 146, 'rhs' => 0],
+         ['lhs' => 154, 'rhs' => 4],
+         ['lhs' => 155, 'rhs' => 2],
+         ['lhs' => 155, 'rhs' => 3],
+         ['lhs' => 155, 'rhs' => 3],
+         ['lhs' => 155, 'rhs' => 1],
+         ['lhs' => 157, 'rhs' => 1],
+         ['lhs' => 157, 'rhs' => 0],
+         ['lhs' => 158, 'rhs' => 1],
+         ['lhs' => 158, 'rhs' => 0],
+         ['lhs' => 156, 'rhs' => 2],
+         ['lhs' => 156, 'rhs' => 2],
+         ['lhs' => 156, 'rhs' => 4],
+         ['lhs' => 156, 'rhs' => 0],
+         ['lhs' => 147, 'rhs' => 2],
+         ['lhs' => 147, 'rhs' => 0],
+         ['lhs' => 149, 'rhs' => 3],
+         ['lhs' => 149, 'rhs' => 0],
+         ['lhs' => 160, 'rhs' => 3],
+         ['lhs' => 160, 'rhs' => 1],
+         ['lhs' => 161, 'rhs' => 2],
+         ['lhs' => 161, 'rhs' => 1],
+         ['lhs' => 150, 'rhs' => 4],
+         ['lhs' => 150, 'rhs' => 4],
+         ['lhs' => 150, 'rhs' => 2],
+         ['lhs' => 150, 'rhs' => 0],
+         ['lhs' => 148, 'rhs' => 3],
+         ['lhs' => 148, 'rhs' => 5],
+         ['lhs' => 148, 'rhs' => 0],
+         ['lhs' => 121, 'rhs' => 2],
+         ['lhs' => 121, 'rhs' => 2],
+         ['lhs' => 121, 'rhs' => 4],
+         ['lhs' => 121, 'rhs' => 3],
+         ['lhs' => 119, 'rhs' => 3],
+         ['lhs' => 123, 'rhs' => 6],
+         ['lhs' => 122, 'rhs' => 7],
+         ['lhs' => 163, 'rhs' => 3],
+         ['lhs' => 163, 'rhs' => 2],
+         ['lhs' => 167, 'rhs' => 1],
+         ['lhs' => 167, 'rhs' => 4],
+         ['lhs' => 165, 'rhs' => 5],
+         ['lhs' => 165, 'rhs' => 0],
+         ['lhs' => 166, 'rhs' => 2],
+         ['lhs' => 168, 'rhs' => 3],
+         ['lhs' => 168, 'rhs' => 1],
+         ['lhs' => 169, 'rhs' => 3],
+         ['lhs' => 127, 'rhs' => 5],
+         ['lhs' => 125, 'rhs' => 7],
+         ['lhs' => 172, 'rhs' => 2],
+         ['lhs' => 172, 'rhs' => 0],
+         ['lhs' => 173, 'rhs' => 3],
+         ['lhs' => 174, 'rhs' => 2],
+         ['lhs' => 174, 'rhs' => 1],
+         ['lhs' => 171, 'rhs' => 3],
+         ['lhs' => 171, 'rhs' => 1],
+         ['lhs' => 137, 'rhs' => 3],
+         ['lhs' => 137, 'rhs' => 4],
+         ['lhs' => 137, 'rhs' => 3],
+         ['lhs' => 142, 'rhs' => 3],
+         ['lhs' => 176, 'rhs' => 3],
+         ['lhs' => 176, 'rhs' => 1],
+         ['lhs' => 177, 'rhs' => 3],
+         ['lhs' => 179, 'rhs' => 1],
+         ['lhs' => 179, 'rhs' => 0],
+         ['lhs' => 178, 'rhs' => 3],
+         ['lhs' => 178, 'rhs' => 0],
+         ['lhs' => 137, 'rhs' => 3],
+         ['lhs' => 180, 'rhs' => 2],
+         ['lhs' => 180, 'rhs' => 5],
+         ['lhs' => 180, 'rhs' => 5],
+         ['lhs' => 182, 'rhs' => 0],
+         ['lhs' => 182, 'rhs' => 1],
+         ['lhs' => 181, 'rhs' => 2],
+         ['lhs' => 181, 'rhs' => 0],
+         ['lhs' => 183, 'rhs' => 2],
+         ['lhs' => 183, 'rhs' => 2],
+         ['lhs' => 183, 'rhs' => 2],
+         ['lhs' => 183, 'rhs' => 2],
+         ['lhs' => 183, 'rhs' => 1],
+         ['lhs' => 136, 'rhs' => 3],
+         ['lhs' => 136, 'rhs' => 3],
+         ['lhs' => 136, 'rhs' => 2],
+         ['lhs' => 136, 'rhs' => 3],
+         ['lhs' => 136, 'rhs' => 1],
+         ['lhs' => 136, 'rhs' => 3],
+         ['lhs' => 136, 'rhs' => 4],
+         ['lhs' => 136, 'rhs' => 3],
+         ['lhs' => 136, 'rhs' => 3],
+         ['lhs' => 136, 'rhs' => 6],
+         ['lhs' => 136, 'rhs' => 5],
+         ['lhs' => 136, 'rhs' => 3],
+         ['lhs' => 136, 'rhs' => 3],
+         ['lhs' => 136, 'rhs' => 3],
+         ['lhs' => 136, 'rhs' => 1],
+         ['lhs' => 136, 'rhs' => 1],
+         ['lhs' => 187, 'rhs' => 1],
+         ['lhs' => 187, 'rhs' => 2],
+         ['lhs' => 186, 'rhs' => 2],
+         ['lhs' => 186, 'rhs' => 1],
+         ['lhs' => 190, 'rhs' => 1],
+         ['lhs' => 190, 'rhs' => 1],
+         ['lhs' => 190, 'rhs' => 2],
+         ['lhs' => 190, 'rhs' => 1],
+         ['lhs' => 189, 'rhs' => 3],
+         ['lhs' => 189, 'rhs' => 5],
+         ['lhs' => 191, 'rhs' => 5],
+         ['lhs' => 191, 'rhs' => 4],
+         ['lhs' => 175, 'rhs' => 3],
+         ['lhs' => 175, 'rhs' => 2],
+         ['lhs' => 175, 'rhs' => 2],
+         ['lhs' => 175, 'rhs' => 1],
+         ['lhs' => 175, 'rhs' => 1],
+         ['lhs' => 175, 'rhs' => 1],
+         ['lhs' => 175, 'rhs' => 1],
+         ['lhs' => 175, 'rhs' => 1],
+         ['lhs' => 175, 'rhs' => 1],
+         ['lhs' => 175, 'rhs' => 1],
+         ['lhs' => 184, 'rhs' => 1],
+         ['lhs' => 170, 'rhs' => 1],
+         ['lhs' => 185, 'rhs' => 1],
+         ['lhs' => 192, 'rhs' => 2],
+         ['lhs' => 159, 'rhs' => 3],
+         ['lhs' => 159, 'rhs' => 1],
+         ['lhs' => 193, 'rhs' => 1],
+         ['lhs' => 193, 'rhs' => 2],
+         ['lhs' => 162, 'rhs' => 1],
+         ['lhs' => 162, 'rhs' => 1],
+         ['lhs' => 164, 'rhs' => 3],
+         ['lhs' => 164, 'rhs' => 1],
+         ['lhs' => 188, 'rhs' => 3],
+         ['lhs' => 194, 'rhs' => 3],
+         ['lhs' => 194, 'rhs' => 1],
+         ['lhs' => 144, 'rhs' => 3],
+         ['lhs' => 144, 'rhs' => 1],
+         ['lhs' => 195, 'rhs' => 1],
+         ['lhs' => 195, 'rhs' => 3],
+         ['lhs' => 195, 'rhs' => 2],
+         ['lhs' => 132, 'rhs' => 1],
+         ['lhs' => 134, 'rhs' => 3],
+         ['lhs' => 134, 'rhs' => 1],
+         ['lhs' => 134, 'rhs' => 1],
+         ['lhs' => 134, 'rhs' => 1],
+         ['lhs' => 134, 'rhs' => 1],
+         ['lhs' => 129, 'rhs' => 1],
+         ['lhs' => 129, 'rhs' => 1],
+         ['lhs' => 129, 'rhs' => 1],
+         ['lhs' => 129, 'rhs' => 1],
+         ['lhs' => 129, 'rhs' => 1],
+         ['lhs' => 129, 'rhs' => 1],
+         ['lhs' => 196, 'rhs' => 1],
+         ['lhs' => 196, 'rhs' => 1],
+         ['lhs' => 197, 'rhs' => 1],
+         ['lhs' => 197, 'rhs' => 2],
+         ['lhs' => 198, 'rhs' => 1],
+         ['lhs' => 198, 'rhs' => 1],
+     ];
 
-    /**
-     * This function returns the symbolic name associated with a token
-     * value.
-     * @param int
-     * @return string
-     */
-    function tokenName($tokenType)
-    {
-        if ($tokenType === 0) {
-            return 'End of Input';
-        }
-        if ($tokenType > 0 && $tokenType < count(self::$yyTokenName)) {
-            return self::$yyTokenName[$tokenType];
-        } else {
-            return "Unknown";
-        }
-    }
+     /**
+      * The following table contains a mapping of reduce action to method name
+      * that handles the reduction.
+      *
+      * If a rule is not set, it has no handler.
+      */
+     public static $yyReduceMap = [
+         0 => 0,
+         1 => 1,
+         58 => 1,
+         84 => 1,
+         119 => 1,
+         193 => 1,
+         198 => 1,
+         2 => 2,
+         3 => 3,
+         124 => 3,
+         130 => 3,
+         195 => 3,
+         4 => 4,
+         5 => 4,
+         6 => 4,
+         7 => 4,
+         8 => 4,
+         9 => 4,
+         10 => 4,
+         11 => 4,
+         12 => 4,
+         13 => 4,
+         14 => 4,
+         15 => 4,
+         46 => 4,
+         50 => 4,
+         56 => 4,
+         80 => 4,
+         106 => 4,
+         108 => 4,
+         137 => 4,
+         149 => 4,
+         159 => 4,
+         160 => 4,
+         164 => 4,
+         177 => 4,
+         178 => 4,
+         182 => 4,
+         189 => 4,
+         191 => 4,
+         192 => 4,
+         203 => 4,
+         205 => 4,
+         206 => 4,
+         207 => 4,
+         208 => 4,
+         209 => 4,
+         210 => 4,
+         211 => 4,
+         212 => 4,
+         213 => 4,
+         215 => 4,
+         219 => 4,
+         220 => 4,
+         16 => 16,
+         17 => 17,
+         18 => 18,
+         19 => 19,
+         20 => 20,
+         21 => 21,
+         22 => 22,
+         27 => 27,
+         28 => 27,
+         29 => 29,
+         30 => 30,
+         31 => 31,
+         32 => 32,
+         33 => 33,
+         34 => 34,
+         35 => 35,
+         36 => 36,
+         37 => 37,
+         38 => 38,
+         39 => 39,
+         40 => 40,
+         41 => 41,
+         42 => 42,
+         43 => 43,
+         73 => 43,
+         75 => 43,
+         136 => 43,
+         49 => 49,
+         52 => 52,
+         53 => 53,
+         65 => 53,
+         117 => 53,
+         138 => 53,
+         54 => 54,
+         115 => 54,
+         55 => 55,
+         128 => 55,
+         59 => 59,
+         85 => 59,
+         118 => 59,
+         194 => 59,
+         199 => 59,
+         200 => 59,
+         60 => 60,
+         62 => 60,
+         88 => 60,
+         93 => 60,
+         201 => 60,
+         204 => 60,
+         61 => 61,
+         63 => 61,
+         202 => 61,
+         64 => 64,
+         90 => 64,
+         66 => 66,
+         139 => 66,
+         67 => 67,
+         68 => 68,
+         69 => 69,
+         70 => 70,
+         71 => 71,
+         72 => 72,
+         74 => 74,
+         76 => 76,
+         77 => 77,
+         78 => 78,
+         79 => 79,
+         81 => 79,
+         83 => 79,
+         91 => 79,
+         107 => 79,
+         129 => 79,
+         131 => 79,
+         82 => 82,
+         86 => 86,
+         87 => 87,
+         89 => 89,
+         92 => 92,
+         95 => 95,
+         96 => 95,
+         97 => 97,
+         98 => 98,
+         99 => 99,
+         100 => 100,
+         101 => 101,
+         102 => 102,
+         103 => 103,
+         104 => 104,
+         105 => 105,
+         109 => 109,
+         125 => 109,
+         187 => 109,
+         196 => 109,
+         110 => 110,
+         126 => 110,
+         188 => 110,
+         197 => 110,
+         111 => 111,
+         112 => 112,
+         113 => 113,
+         114 => 114,
+         116 => 116,
+         120 => 120,
+         121 => 121,
+         122 => 122,
+         123 => 123,
+         127 => 127,
+         132 => 132,
+         133 => 133,
+         134 => 134,
+         135 => 134,
+         140 => 140,
+         141 => 141,
+         142 => 142,
+         143 => 143,
+         144 => 144,
+         145 => 145,
+         146 => 146,
+         147 => 147,
+         148 => 148,
+         150 => 150,
+         156 => 150,
+         151 => 151,
+         152 => 152,
+         153 => 153,
+         157 => 153,
+         154 => 154,
+         155 => 155,
+         158 => 158,
+         161 => 161,
+         162 => 162,
+         163 => 163,
+         165 => 165,
+         166 => 166,
+         167 => 167,
+         168 => 167,
+         169 => 169,
+         170 => 170,
+         171 => 171,
+         172 => 172,
+         173 => 173,
+         174 => 174,
+         175 => 175,
+         176 => 176,
+         179 => 179,
+         180 => 180,
+         181 => 181,
+         183 => 183,
+         184 => 184,
+         185 => 185,
+         186 => 186,
+         190 => 190,
+         214 => 214,
+         216 => 216,
+         217 => 217,
+         218 => 218,
+     ];
+     //line 2895 "src/SQLParser/Parser.php"
 
-    /**
-     * The following function deletes the value associated with a
-     * symbol.  The symbol can be either a terminal or nonterminal.
-     * @param int the symbol code
-     * @param mixed the symbol's value
-     */
-    static function yy_destructor($yymajor, $yypminor)
-    {
-        switch ($yymajor) {
+     /**
+      * placeholder for the left hand side in a reduce operation.
+      *
+      * For a parser with a rule like this:
+      * <pre>
+      * rule(A) ::= B. { A = 1; }
+      * </pre>
+      *
+      * The parser will translate to something like:
+      *
+      * <code>
+      * function yy_r0(){$this->_retvalue = 1;}
+      * </code>
+      */
+     private $_retvalue;
+
+     /**
+      * Deallocate and destroy a parser.  Destructors are all called for
+      * all stack elements before shutting the parser down.
+      */
+     public function __destruct()
+     {
+         while ($this->yyidx >= 0) {
+             $this->yy_pop_parser_stack();
+         }
+         if (is_resource(self::$yyTraceFILE)) {
+             fclose(self::$yyTraceFILE);
+         }
+     }
+
+     /**
+      * Turn parser tracing on by giving a stream to which to write the trace
+      * and a prompt to preface each trace message.  Tracing is turned off
+      * by making either argument NULL.
+      *
+      * Inputs:
+      *
+      * - A stream resource to which trace output should be written.
+      *   If NULL, then tracing is turned off.
+      * - A prefix string written at the beginning of every
+      *   line of trace output.  If NULL, then tracing is
+      *   turned off.
+      *
+      * Outputs:
+      *
+      * - None.
+      *
+      * @param resource
+      * @param string
+      * @param mixed $TraceFILE
+      * @param mixed $zTracePrompt
+      */
+     public static function Trace($TraceFILE, $zTracePrompt)
+     {
+         if (!$TraceFILE) {
+             $zTracePrompt = 0;
+         } elseif (!$zTracePrompt) {
+             $TraceFILE = 0;
+         }
+         self::$yyTraceFILE = $TraceFILE;
+         self::$yyTracePrompt = $zTracePrompt;
+     }
+
+     /**
+      * Output debug information to output (php://output stream).
+      */
+     public static function PrintTrace()
+     {
+         self::$yyTraceFILE = fopen('php://output', 'w');
+         self::$yyTracePrompt = '';
+     }
+
+     /**
+      * This function returns the symbolic name associated with a token
+      * value.
+      *
+      * @param int
+      * @param mixed $tokenType
+      *
+      * @return string
+      */
+     public function tokenName($tokenType)
+     {
+         if (0 === $tokenType) {
+             return 'End of Input';
+         }
+         if ($tokenType > 0 && $tokenType < count(self::$yyTokenName)) {
+             return self::$yyTokenName[$tokenType];
+         }
+
+         return 'Unknown';
+     }
+
+     /**
+      * The following function deletes the value associated with a
+      * symbol.  The symbol can be either a terminal or nonterminal.
+      *
+      * @param int the symbol code
+      * @param mixed the symbol's value
+      * @param mixed $yymajor
+      * @param mixed $yypminor
+      */
+     public static function yy_destructor($yymajor, $yypminor)
+     {
+         switch ($yymajor) {
         /* Here is inserted the actions which take place when a
         ** terminal or non-terminal is destroyed.  This can happen
         ** when the symbol is popped from the stack during a
-        ** reduce or during error processing or when a parser is 
+        ** reduce or during error processing or when a parser is
         ** being destroyed before it is finished parsing.
         **
         ** Note: during a reduce, the only symbols destroyed are those
         ** which appear on the RHS of the rule, but which are not used
         ** inside the C code.
         */
-            default:  break;   /* If no destructor action specified: do nothing */
+            default:  break;   // If no destructor action specified: do nothing
         }
-    }
+     }
 
-    /**
-     * Pop the parser's stack once.
-     *
-     * If there is a destructor routine associated with the token which
-     * is popped from the stack, then call it.
-     *
-     * Return the major token number for the symbol popped.
-     * @param SQLParser_yyParser
-     * @return int
+     /**
+      * Pop the parser's stack once.
+      *
+      * If there is a destructor routine associated with the token which
+      * is popped from the stack, then call it.
+      *
+      * Return the major token number for the symbol popped.
+      *
+      * @param SQLParser_yyParser
+      *
+      * @return int
+      */
+     public function yy_pop_parser_stack()
+     {
+         if (!count($this->yystack)) {
+             return;
+         }
+         $yytos = array_pop($this->yystack);
+         if (self::$yyTraceFILE && $this->yyidx >= 0) {
+             fwrite(
+                 self::$yyTraceFILE,
+                 self::$yyTracePrompt.'Popping '.self::$yyTokenName[$yytos->major].
+                    "\n"
+             );
+         }
+         $yymajor = $yytos->major;
+         self::yy_destructor($yymajor, $yytos->minor);
+         --$this->yyidx;
+
+         return $yymajor;
+     }
+
+     /**
+      * Based on the current state and parser stack, get a list of all
+      * possible lookahead tokens.
+      *
+      * @param int
+      * @param mixed $token
+      *
+      * @return array
+      */
+     public function yy_get_expected_tokens($token)
+     {
+         $state = $this->yystack[$this->yyidx]->stateno;
+         $expected = self::$yyExpectedTokens[$state];
+         if (in_array($token, self::$yyExpectedTokens[$state], true)) {
+             return $expected;
+         }
+         $stack = $this->yystack;
+         $yyidx = $this->yyidx;
+         do {
+             $yyact = $this->yy_find_shift_action($token);
+             if ($yyact >= self::YYNSTATE && $yyact < self::YYNSTATE + self::YYNRULE) {
+                 // reduce action
+                 $done = 0;
+                 do {
+                     if (100 === $done++) {
+                         $this->yyidx = $yyidx;
+                         $this->yystack = $stack;
+                         // too much recursion prevents proper detection
+                         // so give up
+                         return array_unique($expected);
+                     }
+                     $yyruleno = $yyact - self::YYNSTATE;
+                     $this->yyidx -= self::$yyRuleInfo[$yyruleno]['rhs'];
+                     $nextstate = $this->yy_find_reduce_action(
+                         $this->yystack[$this->yyidx]->stateno,
+                         self::$yyRuleInfo[$yyruleno]['lhs']
+                     );
+                     if (isset(self::$yyExpectedTokens[$nextstate])) {
+                         $expected += self::$yyExpectedTokens[$nextstate];
+                         if (in_array(
+                             $token,
+                             self::$yyExpectedTokens[$nextstate],
+                             true
+                         )) {
+                             $this->yyidx = $yyidx;
+                             $this->yystack = $stack;
+
+                             return array_unique($expected);
+                         }
+                     }
+                     if ($nextstate < self::YYNSTATE) {
+                         // we need to shift a non-terminal
+                         ++$this->yyidx;
+                         $x = new SQLParser_yyStackEntry();
+                         $x->stateno = $nextstate;
+                         $x->major = self::$yyRuleInfo[$yyruleno]['lhs'];
+                         $this->yystack[$this->yyidx] = $x;
+
+                         continue 2;
+                     }
+                     if ($nextstate === self::YYNSTATE + self::YYNRULE + 1) {
+                         $this->yyidx = $yyidx;
+                         $this->yystack = $stack;
+                         // the last token was just ignored, we can't accept
+                         // by ignoring input, this is in essence ignoring a
+                         // syntax error!
+                         return array_unique($expected);
+                     }
+                     if (self::YY_NO_ACTION === $nextstate) {
+                         $this->yyidx = $yyidx;
+                         $this->yystack = $stack;
+                         // input accepted, but not shifted (I guess)
+                         return $expected;
+                     }
+                     $yyact = $nextstate;
+                 } while (true);
+             }
+
+             break;
+         } while (true);
+
+         return array_unique($expected);
+     }
+
+     /**
+      * Based on the parser state and current parser stack, determine whether
+      * the lookahead token is possible.
+      *
+      * The parser will convert the token value to an error token if not.  This
+      * catches some unusual edge cases where the parser would fail.
+      *
+      * @param int
+      * @param mixed $token
+      *
+      * @return bool
+      */
+     public function yy_is_expected_token($token)
+     {
+         if (0 === $token) {
+             return true; // 0 is not part of this
+         }
+         $state = $this->yystack[$this->yyidx]->stateno;
+         if (in_array($token, self::$yyExpectedTokens[$state], true)) {
+             return true;
+         }
+         $stack = $this->yystack;
+         $yyidx = $this->yyidx;
+         do {
+             $yyact = $this->yy_find_shift_action($token);
+             if ($yyact >= self::YYNSTATE && $yyact < self::YYNSTATE + self::YYNRULE) {
+                 // reduce action
+                 $done = 0;
+                 do {
+                     if (100 === $done++) {
+                         $this->yyidx = $yyidx;
+                         $this->yystack = $stack;
+                         // too much recursion prevents proper detection
+                         // so give up
+                         return true;
+                     }
+                     $yyruleno = $yyact - self::YYNSTATE;
+                     $this->yyidx -= self::$yyRuleInfo[$yyruleno]['rhs'];
+                     $nextstate = $this->yy_find_reduce_action(
+                         $this->yystack[$this->yyidx]->stateno,
+                         self::$yyRuleInfo[$yyruleno]['lhs']
+                     );
+                     if (isset(self::$yyExpectedTokens[$nextstate])
+                          && in_array($token, self::$yyExpectedTokens[$nextstate], true)) {
+                         $this->yyidx = $yyidx;
+                         $this->yystack = $stack;
+
+                         return true;
+                     }
+                     if ($nextstate < self::YYNSTATE) {
+                         // we need to shift a non-terminal
+                         ++$this->yyidx;
+                         $x = new SQLParser_yyStackEntry();
+                         $x->stateno = $nextstate;
+                         $x->major = self::$yyRuleInfo[$yyruleno]['lhs'];
+                         $this->yystack[$this->yyidx] = $x;
+
+                         continue 2;
+                     }
+                     if ($nextstate === self::YYNSTATE + self::YYNRULE + 1) {
+                         $this->yyidx = $yyidx;
+                         $this->yystack = $stack;
+                         if (!$token) {
+                             // end of input: this is valid
+                             return true;
+                         }
+                         // the last token was just ignored, we can't accept
+                         // by ignoring input, this is in essence ignoring a
+                         // syntax error!
+                         return false;
+                     }
+                     if (self::YY_NO_ACTION === $nextstate) {
+                         $this->yyidx = $yyidx;
+                         $this->yystack = $stack;
+                         // input accepted, but not shifted (I guess)
+                         return true;
+                     }
+                     $yyact = $nextstate;
+                 } while (true);
+             }
+
+             break;
+         } while (true);
+         $this->yyidx = $yyidx;
+         $this->yystack = $stack;
+
+         return true;
+     }
+
+     /**
+      * Find the appropriate action for a parser given the terminal
+      * look-ahead token iLookAhead.
+      *
+      * If the look-ahead token is YYNOCODE, then check to see if the action is
+      * independent of the look-ahead.  If it is, return the action, otherwise
+      * return YY_NO_ACTION.
+      *
+      * @param int The look-ahead token
+      * @param mixed $iLookAhead
+      */
+     public function yy_find_shift_action($iLookAhead)
+     {
+         $stateno = $this->yystack[$this->yyidx]->stateno;
+
+         // if ($this->yyidx < 0) return self::YY_NO_ACTION;
+         if (!isset(self::$yy_shift_ofst[$stateno])) {
+             // no shift actions
+             return self::$yy_default[$stateno];
+         }
+         $i = self::$yy_shift_ofst[$stateno];
+         if (self::YY_SHIFT_USE_DFLT === $i) {
+             return self::$yy_default[$stateno];
+         }
+         if (self::YYNOCODE === $iLookAhead) {
+             return self::YY_NO_ACTION;
+         }
+         $i += $iLookAhead;
+         if ($i < 0 || $i >= self::YY_SZ_ACTTAB
+              || self::$yy_lookahead[$i] !== $iLookAhead) {
+             if (count(self::$yyFallback) && $iLookAhead < count(self::$yyFallback)
+                   && ($iFallback = self::$yyFallback[$iLookAhead]) !== 0) {
+                 if (self::$yyTraceFILE) {
+                     fwrite(self::$yyTraceFILE, self::$yyTracePrompt.'FALLBACK '.
+                        self::$yyTokenName[$iLookAhead].' => '.
+                        self::$yyTokenName[$iFallback]."\n");
+                 }
+
+                 return $this->yy_find_shift_action($iFallback);
+             }
+
+             return self::$yy_default[$stateno];
+         }
+
+         return self::$yy_action[$i];
+     }
+
+     /**
+      * Find the appropriate action for a parser given the non-terminal
+      * look-ahead token $iLookAhead.
+      *
+      * If the look-ahead token is self::YYNOCODE, then check to see if the action is
+      * independent of the look-ahead.  If it is, return the action, otherwise
+      * return self::YY_NO_ACTION.
+      *
+      * @param int Current state number
+      * @param int The look-ahead token
+      * @param mixed $stateno
+      * @param mixed $iLookAhead
+      */
+     public function yy_find_reduce_action($stateno, $iLookAhead)
+     {
+         // $stateno = $this->yystack[$this->yyidx]->stateno;
+
+         if (!isset(self::$yy_reduce_ofst[$stateno])) {
+             return self::$yy_default[$stateno];
+         }
+         $i = self::$yy_reduce_ofst[$stateno];
+         if (self::YY_REDUCE_USE_DFLT === $i) {
+             return self::$yy_default[$stateno];
+         }
+         if (self::YYNOCODE === $iLookAhead) {
+             return self::YY_NO_ACTION;
+         }
+         $i += $iLookAhead;
+         if ($i < 0 || $i >= self::YY_SZ_ACTTAB
+              || self::$yy_lookahead[$i] !== $iLookAhead) {
+             return self::$yy_default[$stateno];
+         }
+
+         return self::$yy_action[$i];
+     }
+
+     /**
+      * Perform a shift action.
+      *
+      * @param int The new state to shift in
+      * @param int The major token to shift in
+      * @param mixed the minor token to shift in
+      * @param mixed $yyNewState
+      * @param mixed $yyMajor
+      * @param mixed $yypMinor
+      */
+     public function yy_shift($yyNewState, $yyMajor, $yypMinor)
+     {
+         ++$this->yyidx;
+         if ($this->yyidx >= self::YYSTACKDEPTH) {
+             --$this->yyidx;
+             if (self::$yyTraceFILE) {
+                 fprintf(self::$yyTraceFILE, "%sStack Overflow!\n", self::$yyTracePrompt);
+             }
+             while ($this->yyidx >= 0) {
+                 $this->yy_pop_parser_stack();
+             }
+             /* Here code is inserted which will execute if the parser
+             ** stack ever overflows */
+             return;
+         }
+         $yytos = new SQLParser_yyStackEntry();
+         $yytos->stateno = $yyNewState;
+         $yytos->major = $yyMajor;
+         $yytos->minor = $yypMinor;
+         $this->yystack[] = $yytos;
+         if (self::$yyTraceFILE && $this->yyidx > 0) {
+             fprintf(
+                 self::$yyTraceFILE,
+                 "%sShift %d\n",
+                 self::$yyTracePrompt,
+                 $yyNewState
+             );
+             fprintf(self::$yyTraceFILE, '%sStack:', self::$yyTracePrompt);
+             for ($i = 1; $i <= $this->yyidx; ++$i) {
+                 fprintf(
+                     self::$yyTraceFILE,
+                     ' %s',
+                     self::$yyTokenName[$this->yystack[$i]->major]
+                 );
+             }
+             fwrite(self::$yyTraceFILE, "\n");
+         }
+     }
+
+     /* Beginning here are the reduction cases.  A typical example
+     ** follows:
+     **  #line <lineno> <grammarfile>
+     **   function yy_r0($yymsp){ ... }           // User supplied code
+     **  #line <lineno> <thisfile>
      */
-    function yy_pop_parser_stack()
-    {
-        if (!count($this->yystack)) {
-            return;
-        }
-        $yytos = array_pop($this->yystack);
-        if (self::$yyTraceFILE && $this->yyidx >= 0) {
-            fwrite(self::$yyTraceFILE,
-                self::$yyTracePrompt . 'Popping ' . self::$yyTokenName[$yytos->major] .
-                    "\n");
-        }
-        $yymajor = $yytos->major;
-        self::yy_destructor($yymajor, $yytos->minor);
-        $this->yyidx--;
-        return $yymajor;
-    }
+     //line 30 "src/SQLParser/Parser.y"
+     public function yy_r0()
+     {
+         $this->body = $this->yystack[$this->yyidx + 0]->minor;
+     }
 
-    /**
-     * Deallocate and destroy a parser.  Destructors are all called for
-     * all stack elements before shutting the parser down.
-     */
-    function __destruct()
-    {
-        while ($this->yyidx >= 0) {
-            $this->yy_pop_parser_stack();
-        }
-        if (is_resource(self::$yyTraceFILE)) {
-            fclose(self::$yyTraceFILE);
-        }
-    }
+     //line 2402 "src/SQLParser/Parser.php"
+     //line 32 "src/SQLParser/Parser.y"
+     public function yy_r1()
+     {
+         $this->_retvalue = $this->yystack[$this->yyidx + -2]->minor;
+         $this->_retvalue[] = $this->yystack[$this->yyidx + 0]->minor;
+     }
 
-    /**
-     * Based on the current state and parser stack, get a list of all
-     * possible lookahead tokens
-     * @param int
-     * @return array
-     */
-    function yy_get_expected_tokens($token)
-    {
-        $state = $this->yystack[$this->yyidx]->stateno;
-        $expected = self::$yyExpectedTokens[$state];
-        if (in_array($token, self::$yyExpectedTokens[$state], true)) {
-            return $expected;
-        }
-        $stack = $this->yystack;
-        $yyidx = $this->yyidx;
-        do {
-            $yyact = $this->yy_find_shift_action($token);
-            if ($yyact >= self::YYNSTATE && $yyact < self::YYNSTATE + self::YYNRULE) {
-                // reduce action
-                $done = 0;
-                do {
-                    if ($done++ == 100) {
-                        $this->yyidx = $yyidx;
-                        $this->yystack = $stack;
-                        // too much recursion prevents proper detection
-                        // so give up
-                        return array_unique($expected);
-                    }
-                    $yyruleno = $yyact - self::YYNSTATE;
-                    $this->yyidx -= self::$yyRuleInfo[$yyruleno]['rhs'];
-                    $nextstate = $this->yy_find_reduce_action(
-                        $this->yystack[$this->yyidx]->stateno,
-                        self::$yyRuleInfo[$yyruleno]['lhs']);
-                    if (isset(self::$yyExpectedTokens[$nextstate])) {
-                        $expected += self::$yyExpectedTokens[$nextstate];
-                            if (in_array($token,
-                                  self::$yyExpectedTokens[$nextstate], true)) {
-                            $this->yyidx = $yyidx;
-                            $this->yystack = $stack;
-                            return array_unique($expected);
-                        }
-                    }
-                    if ($nextstate < self::YYNSTATE) {
-                        // we need to shift a non-terminal
-                        $this->yyidx++;
-                        $x = new SQLParser_yyStackEntry;
-                        $x->stateno = $nextstate;
-                        $x->major = self::$yyRuleInfo[$yyruleno]['lhs'];
-                        $this->yystack[$this->yyidx] = $x;
-                        continue 2;
-                    } elseif ($nextstate == self::YYNSTATE + self::YYNRULE + 1) {
-                        $this->yyidx = $yyidx;
-                        $this->yystack = $stack;
-                        // the last token was just ignored, we can't accept
-                        // by ignoring input, this is in essence ignoring a
-                        // syntax error!
-                        return array_unique($expected);
-                    } elseif ($nextstate === self::YY_NO_ACTION) {
-                        $this->yyidx = $yyidx;
-                        $this->yystack = $stack;
-                        // input accepted, but not shifted (I guess)
-                        return $expected;
-                    } else {
-                        $yyact = $nextstate;
-                    }
-                } while (true);
-            }
-            break;
-        } while (true);
-        return array_unique($expected);
-    }
+     //line 2405 "src/SQLParser/Parser.php"
+     //line 33 "src/SQLParser/Parser.y"
+     public function yy_r2()
+     {
+         $this->_retvalue = [$this->yystack[$this->yyidx + 0]->minor];
+     }
 
-    /**
-     * Based on the parser state and current parser stack, determine whether
-     * the lookahead token is possible.
-     * 
-     * The parser will convert the token value to an error token if not.  This
-     * catches some unusual edge cases where the parser would fail.
-     * @param int
-     * @return bool
-     */
-    function yy_is_expected_token($token)
-    {
-        if ($token === 0) {
-            return true; // 0 is not part of this
-        }
-        $state = $this->yystack[$this->yyidx]->stateno;
-        if (in_array($token, self::$yyExpectedTokens[$state], true)) {
-            return true;
-        }
-        $stack = $this->yystack;
-        $yyidx = $this->yyidx;
-        do {
-            $yyact = $this->yy_find_shift_action($token);
-            if ($yyact >= self::YYNSTATE && $yyact < self::YYNSTATE + self::YYNRULE) {
-                // reduce action
-                $done = 0;
-                do {
-                    if ($done++ == 100) {
-                        $this->yyidx = $yyidx;
-                        $this->yystack = $stack;
-                        // too much recursion prevents proper detection
-                        // so give up
-                        return true;
-                    }
-                    $yyruleno = $yyact - self::YYNSTATE;
-                    $this->yyidx -= self::$yyRuleInfo[$yyruleno]['rhs'];
-                    $nextstate = $this->yy_find_reduce_action(
-                        $this->yystack[$this->yyidx]->stateno,
-                        self::$yyRuleInfo[$yyruleno]['lhs']);
-                    if (isset(self::$yyExpectedTokens[$nextstate]) &&
-                          in_array($token, self::$yyExpectedTokens[$nextstate], true)) {
-                        $this->yyidx = $yyidx;
-                        $this->yystack = $stack;
-                        return true;
-                    }
-                    if ($nextstate < self::YYNSTATE) {
-                        // we need to shift a non-terminal
-                        $this->yyidx++;
-                        $x = new SQLParser_yyStackEntry;
-                        $x->stateno = $nextstate;
-                        $x->major = self::$yyRuleInfo[$yyruleno]['lhs'];
-                        $this->yystack[$this->yyidx] = $x;
-                        continue 2;
-                    } elseif ($nextstate == self::YYNSTATE + self::YYNRULE + 1) {
-                        $this->yyidx = $yyidx;
-                        $this->yystack = $stack;
-                        if (!$token) {
-                            // end of input: this is valid
-                            return true;
-                        }
-                        // the last token was just ignored, we can't accept
-                        // by ignoring input, this is in essence ignoring a
-                        // syntax error!
-                        return false;
-                    } elseif ($nextstate === self::YY_NO_ACTION) {
-                        $this->yyidx = $yyidx;
-                        $this->yystack = $stack;
-                        // input accepted, but not shifted (I guess)
-                        return true;
-                    } else {
-                        $yyact = $nextstate;
-                    }
-                } while (true);
-            }
-            break;
-        } while (true);
-        $this->yyidx = $yyidx;
-        $this->yystack = $stack;
-        return true;
-    }
+     //line 2408 "src/SQLParser/Parser.php"
+     //line 35 "src/SQLParser/Parser.y"
+     public function yy_r3()
+     {
+         $this->_retvalue = $this->yystack[$this->yyidx + -1]->minor;
+     }
 
-    /**
-     * Find the appropriate action for a parser given the terminal
-     * look-ahead token iLookAhead.
-     *
-     * If the look-ahead token is YYNOCODE, then check to see if the action is
-     * independent of the look-ahead.  If it is, return the action, otherwise
-     * return YY_NO_ACTION.
-     * @param int The look-ahead token
-     */
-    function yy_find_shift_action($iLookAhead)
-    {
-        $stateno = $this->yystack[$this->yyidx]->stateno;
-     
-        /* if ($this->yyidx < 0) return self::YY_NO_ACTION;  */
-        if (!isset(self::$yy_shift_ofst[$stateno])) {
-            // no shift actions
-            return self::$yy_default[$stateno];
-        }
-        $i = self::$yy_shift_ofst[$stateno];
-        if ($i === self::YY_SHIFT_USE_DFLT) {
-            return self::$yy_default[$stateno];
-        }
-        if ($iLookAhead == self::YYNOCODE) {
-            return self::YY_NO_ACTION;
-        }
-        $i += $iLookAhead;
-        if ($i < 0 || $i >= self::YY_SZ_ACTTAB ||
-              self::$yy_lookahead[$i] != $iLookAhead) {
-            if (count(self::$yyFallback) && $iLookAhead < count(self::$yyFallback)
-                   && ($iFallback = self::$yyFallback[$iLookAhead]) != 0) {
-                if (self::$yyTraceFILE) {
-                    fwrite(self::$yyTraceFILE, self::$yyTracePrompt . "FALLBACK " .
-                        self::$yyTokenName[$iLookAhead] . " => " .
-                        self::$yyTokenName[$iFallback] . "\n");
-                }
-                return $this->yy_find_shift_action($iFallback);
-            }
-            return self::$yy_default[$stateno];
-        } else {
-            return self::$yy_action[$i];
-        }
-    }
+     //line 2411 "src/SQLParser/Parser.php"
+     //line 37 "src/SQLParser/Parser.y"
+     public function yy_r4()
+     {
+         $this->_retvalue = $this->yystack[$this->yyidx + 0]->minor;
+     }
 
-    /**
-     * Find the appropriate action for a parser given the non-terminal
-     * look-ahead token $iLookAhead.
-     *
-     * If the look-ahead token is self::YYNOCODE, then check to see if the action is
-     * independent of the look-ahead.  If it is, return the action, otherwise
-     * return self::YY_NO_ACTION.
-     * @param int Current state number
-     * @param int The look-ahead token
-     */
-    function yy_find_reduce_action($stateno, $iLookAhead)
-    {
-        /* $stateno = $this->yystack[$this->yyidx]->stateno; */
+     //line 2414 "src/SQLParser/Parser.php"
+     //line 49 "src/SQLParser/Parser.y"
+     public function yy_r16()
+     {
+         $this->_retvalue = null;
+     }
 
-        if (!isset(self::$yy_reduce_ofst[$stateno])) {
-            return self::$yy_default[$stateno];
-        }
-        $i = self::$yy_reduce_ofst[$stateno];
-        if ($i == self::YY_REDUCE_USE_DFLT) {
-            return self::$yy_default[$stateno];
-        }
-        if ($iLookAhead == self::YYNOCODE) {
-            return self::YY_NO_ACTION;
-        }
-        $i += $iLookAhead;
-        if ($i < 0 || $i >= self::YY_SZ_ACTTAB ||
-              self::$yy_lookahead[$i] != $iLookAhead) {
-            return self::$yy_default[$stateno];
-        } else {
-            return self::$yy_action[$i];
-        }
-    }
+     //line 2417 "src/SQLParser/Parser.php"
+     //line 51 "src/SQLParser/Parser.y"
+     public function yy_r17()
+     {
+         $this->_retvalue = new SQL\BeginTransaction();
+     }
 
-    /**
-     * Perform a shift action.
-     * @param int The new state to shift in
-     * @param int The major token to shift in
-     * @param mixed the minor token to shift in
-     */
-    function yy_shift($yyNewState, $yyMajor, $yypMinor)
-    {
-        $this->yyidx++;
-        if ($this->yyidx >= self::YYSTACKDEPTH) {
-            $this->yyidx--;
-            if (self::$yyTraceFILE) {
-                fprintf(self::$yyTraceFILE, "%sStack Overflow!\n", self::$yyTracePrompt);
-            }
-            while ($this->yyidx >= 0) {
-                $this->yy_pop_parser_stack();
-            }
-            /* Here code is inserted which will execute if the parser
-            ** stack ever overflows */
-            return;
-        }
-        $yytos = new SQLParser_yyStackEntry;
-        $yytos->stateno = $yyNewState;
-        $yytos->major = $yyMajor;
-        $yytos->minor = $yypMinor;
-        array_push($this->yystack, $yytos);
-        if (self::$yyTraceFILE && $this->yyidx > 0) {
-            fprintf(self::$yyTraceFILE, "%sShift %d\n", self::$yyTracePrompt,
-                $yyNewState);
-            fprintf(self::$yyTraceFILE, "%sStack:", self::$yyTracePrompt);
-            for ($i = 1; $i <= $this->yyidx; $i++) {
-                fprintf(self::$yyTraceFILE, " %s",
-                    self::$yyTokenName[$this->yystack[$i]->major]);
-            }
-            fwrite(self::$yyTraceFILE,"\n");
-        }
-    }
+     //line 2420 "src/SQLParser/Parser.php"
+     //line 52 "src/SQLParser/Parser.y"
+     public function yy_r18()
+     {
+         $this->_retvalue = new SQL\BeginTransaction($this->yystack[$this->yyidx + 0]->minor);
+     }
 
-    /**
-     * The following table contains information about every rule that
-     * is used during the reduce.
-     *
-     * <pre>
-     * array(
-     *  array(
-     *   int $lhs;         Symbol on the left-hand side of the rule
-     *   int $nrhs;     Number of right-hand side symbols in the rule
-     *  ),...
-     * );
-     * </pre>
-     */
-    static public $yyRuleInfo = array(
-  array( 'lhs' => 114, 'rhs' => 1 ),
-  array( 'lhs' => 115, 'rhs' => 3 ),
-  array( 'lhs' => 115, 'rhs' => 1 ),
-  array( 'lhs' => 116, 'rhs' => 3 ),
-  array( 'lhs' => 116, 'rhs' => 1 ),
-  array( 'lhs' => 116, 'rhs' => 1 ),
-  array( 'lhs' => 116, 'rhs' => 1 ),
-  array( 'lhs' => 116, 'rhs' => 1 ),
-  array( 'lhs' => 116, 'rhs' => 1 ),
-  array( 'lhs' => 116, 'rhs' => 1 ),
-  array( 'lhs' => 116, 'rhs' => 1 ),
-  array( 'lhs' => 116, 'rhs' => 1 ),
-  array( 'lhs' => 116, 'rhs' => 1 ),
-  array( 'lhs' => 116, 'rhs' => 1 ),
-  array( 'lhs' => 116, 'rhs' => 1 ),
-  array( 'lhs' => 116, 'rhs' => 1 ),
-  array( 'lhs' => 116, 'rhs' => 0 ),
-  array( 'lhs' => 117, 'rhs' => 2 ),
-  array( 'lhs' => 117, 'rhs' => 2 ),
-  array( 'lhs' => 118, 'rhs' => 2 ),
-  array( 'lhs' => 118, 'rhs' => 3 ),
-  array( 'lhs' => 119, 'rhs' => 2 ),
-  array( 'lhs' => 119, 'rhs' => 3 ),
-  array( 'lhs' => 129, 'rhs' => 1 ),
-  array( 'lhs' => 129, 'rhs' => 0 ),
-  array( 'lhs' => 131, 'rhs' => 1 ),
-  array( 'lhs' => 131, 'rhs' => 1 ),
-  array( 'lhs' => 132, 'rhs' => 3 ),
-  array( 'lhs' => 132, 'rhs' => 3 ),
-  array( 'lhs' => 125, 'rhs' => 4 ),
-  array( 'lhs' => 134, 'rhs' => 3 ),
-  array( 'lhs' => 134, 'rhs' => 3 ),
-  array( 'lhs' => 134, 'rhs' => 4 ),
-  array( 'lhs' => 134, 'rhs' => 3 ),
-  array( 'lhs' => 134, 'rhs' => 3 ),
-  array( 'lhs' => 134, 'rhs' => 3 ),
-  array( 'lhs' => 134, 'rhs' => 4 ),
-  array( 'lhs' => 134, 'rhs' => 3 ),
-  array( 'lhs' => 134, 'rhs' => 3 ),
-  array( 'lhs' => 134, 'rhs' => 5 ),
-  array( 'lhs' => 134, 'rhs' => 5 ),
-  array( 'lhs' => 127, 'rhs' => 7 ),
-  array( 'lhs' => 142, 'rhs' => 1 ),
-  array( 'lhs' => 142, 'rhs' => 0 ),
-  array( 'lhs' => 141, 'rhs' => 1 ),
-  array( 'lhs' => 141, 'rhs' => 0 ),
-  array( 'lhs' => 136, 'rhs' => 3 ),
-  array( 'lhs' => 140, 'rhs' => 1 ),
-  array( 'lhs' => 140, 'rhs' => 0 ),
-  array( 'lhs' => 139, 'rhs' => 1 ),
-  array( 'lhs' => 139, 'rhs' => 2 ),
-  array( 'lhs' => 139, 'rhs' => 0 ),
-  array( 'lhs' => 121, 'rhs' => 9 ),
-  array( 'lhs' => 144, 'rhs' => 2 ),
-  array( 'lhs' => 144, 'rhs' => 0 ),
-  array( 'lhs' => 152, 'rhs' => 1 ),
-  array( 'lhs' => 146, 'rhs' => 2 ),
-  array( 'lhs' => 146, 'rhs' => 0 ),
-  array( 'lhs' => 153, 'rhs' => 3 ),
-  array( 'lhs' => 153, 'rhs' => 1 ),
-  array( 'lhs' => 154, 'rhs' => 3 ),
-  array( 'lhs' => 154, 'rhs' => 2 ),
-  array( 'lhs' => 154, 'rhs' => 3 ),
-  array( 'lhs' => 154, 'rhs' => 2 ),
-  array( 'lhs' => 154, 'rhs' => 1 ),
-  array( 'lhs' => 147, 'rhs' => 2 ),
-  array( 'lhs' => 147, 'rhs' => 0 ),
-  array( 'lhs' => 155, 'rhs' => 4 ),
-  array( 'lhs' => 156, 'rhs' => 2 ),
-  array( 'lhs' => 156, 'rhs' => 3 ),
-  array( 'lhs' => 156, 'rhs' => 3 ),
-  array( 'lhs' => 156, 'rhs' => 1 ),
-  array( 'lhs' => 158, 'rhs' => 1 ),
-  array( 'lhs' => 158, 'rhs' => 0 ),
-  array( 'lhs' => 159, 'rhs' => 1 ),
-  array( 'lhs' => 159, 'rhs' => 0 ),
-  array( 'lhs' => 157, 'rhs' => 2 ),
-  array( 'lhs' => 157, 'rhs' => 2 ),
-  array( 'lhs' => 157, 'rhs' => 4 ),
-  array( 'lhs' => 157, 'rhs' => 0 ),
-  array( 'lhs' => 148, 'rhs' => 2 ),
-  array( 'lhs' => 148, 'rhs' => 0 ),
-  array( 'lhs' => 150, 'rhs' => 3 ),
-  array( 'lhs' => 150, 'rhs' => 0 ),
-  array( 'lhs' => 161, 'rhs' => 3 ),
-  array( 'lhs' => 161, 'rhs' => 1 ),
-  array( 'lhs' => 162, 'rhs' => 2 ),
-  array( 'lhs' => 162, 'rhs' => 1 ),
-  array( 'lhs' => 151, 'rhs' => 4 ),
-  array( 'lhs' => 151, 'rhs' => 4 ),
-  array( 'lhs' => 151, 'rhs' => 2 ),
-  array( 'lhs' => 151, 'rhs' => 0 ),
-  array( 'lhs' => 149, 'rhs' => 3 ),
-  array( 'lhs' => 149, 'rhs' => 5 ),
-  array( 'lhs' => 149, 'rhs' => 0 ),
-  array( 'lhs' => 122, 'rhs' => 2 ),
-  array( 'lhs' => 122, 'rhs' => 2 ),
-  array( 'lhs' => 122, 'rhs' => 4 ),
-  array( 'lhs' => 122, 'rhs' => 3 ),
-  array( 'lhs' => 120, 'rhs' => 3 ),
-  array( 'lhs' => 124, 'rhs' => 6 ),
-  array( 'lhs' => 123, 'rhs' => 7 ),
-  array( 'lhs' => 164, 'rhs' => 3 ),
-  array( 'lhs' => 164, 'rhs' => 2 ),
-  array( 'lhs' => 168, 'rhs' => 1 ),
-  array( 'lhs' => 168, 'rhs' => 4 ),
-  array( 'lhs' => 166, 'rhs' => 5 ),
-  array( 'lhs' => 166, 'rhs' => 0 ),
-  array( 'lhs' => 167, 'rhs' => 2 ),
-  array( 'lhs' => 169, 'rhs' => 3 ),
-  array( 'lhs' => 169, 'rhs' => 1 ),
-  array( 'lhs' => 170, 'rhs' => 3 ),
-  array( 'lhs' => 128, 'rhs' => 5 ),
-  array( 'lhs' => 126, 'rhs' => 7 ),
-  array( 'lhs' => 173, 'rhs' => 2 ),
-  array( 'lhs' => 173, 'rhs' => 0 ),
-  array( 'lhs' => 174, 'rhs' => 3 ),
-  array( 'lhs' => 175, 'rhs' => 2 ),
-  array( 'lhs' => 175, 'rhs' => 1 ),
-  array( 'lhs' => 172, 'rhs' => 3 ),
-  array( 'lhs' => 172, 'rhs' => 1 ),
-  array( 'lhs' => 138, 'rhs' => 3 ),
-  array( 'lhs' => 138, 'rhs' => 4 ),
-  array( 'lhs' => 138, 'rhs' => 3 ),
-  array( 'lhs' => 143, 'rhs' => 3 ),
-  array( 'lhs' => 177, 'rhs' => 3 ),
-  array( 'lhs' => 177, 'rhs' => 1 ),
-  array( 'lhs' => 178, 'rhs' => 3 ),
-  array( 'lhs' => 180, 'rhs' => 1 ),
-  array( 'lhs' => 180, 'rhs' => 0 ),
-  array( 'lhs' => 179, 'rhs' => 3 ),
-  array( 'lhs' => 179, 'rhs' => 0 ),
-  array( 'lhs' => 138, 'rhs' => 3 ),
-  array( 'lhs' => 181, 'rhs' => 2 ),
-  array( 'lhs' => 181, 'rhs' => 5 ),
-  array( 'lhs' => 181, 'rhs' => 5 ),
-  array( 'lhs' => 183, 'rhs' => 0 ),
-  array( 'lhs' => 183, 'rhs' => 1 ),
-  array( 'lhs' => 182, 'rhs' => 2 ),
-  array( 'lhs' => 182, 'rhs' => 0 ),
-  array( 'lhs' => 184, 'rhs' => 2 ),
-  array( 'lhs' => 184, 'rhs' => 2 ),
-  array( 'lhs' => 184, 'rhs' => 2 ),
-  array( 'lhs' => 184, 'rhs' => 2 ),
-  array( 'lhs' => 184, 'rhs' => 1 ),
-  array( 'lhs' => 137, 'rhs' => 3 ),
-  array( 'lhs' => 137, 'rhs' => 3 ),
-  array( 'lhs' => 137, 'rhs' => 2 ),
-  array( 'lhs' => 137, 'rhs' => 3 ),
-  array( 'lhs' => 137, 'rhs' => 1 ),
-  array( 'lhs' => 137, 'rhs' => 3 ),
-  array( 'lhs' => 137, 'rhs' => 4 ),
-  array( 'lhs' => 137, 'rhs' => 3 ),
-  array( 'lhs' => 137, 'rhs' => 3 ),
-  array( 'lhs' => 137, 'rhs' => 6 ),
-  array( 'lhs' => 137, 'rhs' => 5 ),
-  array( 'lhs' => 137, 'rhs' => 3 ),
-  array( 'lhs' => 137, 'rhs' => 3 ),
-  array( 'lhs' => 137, 'rhs' => 3 ),
-  array( 'lhs' => 137, 'rhs' => 1 ),
-  array( 'lhs' => 137, 'rhs' => 1 ),
-  array( 'lhs' => 188, 'rhs' => 1 ),
-  array( 'lhs' => 188, 'rhs' => 2 ),
-  array( 'lhs' => 187, 'rhs' => 2 ),
-  array( 'lhs' => 187, 'rhs' => 1 ),
-  array( 'lhs' => 191, 'rhs' => 1 ),
-  array( 'lhs' => 191, 'rhs' => 1 ),
-  array( 'lhs' => 191, 'rhs' => 2 ),
-  array( 'lhs' => 191, 'rhs' => 1 ),
-  array( 'lhs' => 190, 'rhs' => 3 ),
-  array( 'lhs' => 190, 'rhs' => 5 ),
-  array( 'lhs' => 192, 'rhs' => 5 ),
-  array( 'lhs' => 192, 'rhs' => 4 ),
-  array( 'lhs' => 176, 'rhs' => 3 ),
-  array( 'lhs' => 176, 'rhs' => 2 ),
-  array( 'lhs' => 176, 'rhs' => 2 ),
-  array( 'lhs' => 176, 'rhs' => 1 ),
-  array( 'lhs' => 176, 'rhs' => 1 ),
-  array( 'lhs' => 176, 'rhs' => 1 ),
-  array( 'lhs' => 176, 'rhs' => 1 ),
-  array( 'lhs' => 176, 'rhs' => 1 ),
-  array( 'lhs' => 176, 'rhs' => 1 ),
-  array( 'lhs' => 176, 'rhs' => 1 ),
-  array( 'lhs' => 185, 'rhs' => 1 ),
-  array( 'lhs' => 171, 'rhs' => 1 ),
-  array( 'lhs' => 186, 'rhs' => 1 ),
-  array( 'lhs' => 193, 'rhs' => 2 ),
-  array( 'lhs' => 160, 'rhs' => 3 ),
-  array( 'lhs' => 160, 'rhs' => 1 ),
-  array( 'lhs' => 194, 'rhs' => 1 ),
-  array( 'lhs' => 194, 'rhs' => 2 ),
-  array( 'lhs' => 163, 'rhs' => 1 ),
-  array( 'lhs' => 163, 'rhs' => 1 ),
-  array( 'lhs' => 165, 'rhs' => 3 ),
-  array( 'lhs' => 165, 'rhs' => 1 ),
-  array( 'lhs' => 189, 'rhs' => 3 ),
-  array( 'lhs' => 195, 'rhs' => 3 ),
-  array( 'lhs' => 195, 'rhs' => 1 ),
-  array( 'lhs' => 145, 'rhs' => 3 ),
-  array( 'lhs' => 145, 'rhs' => 1 ),
-  array( 'lhs' => 196, 'rhs' => 1 ),
-  array( 'lhs' => 196, 'rhs' => 3 ),
-  array( 'lhs' => 196, 'rhs' => 2 ),
-  array( 'lhs' => 133, 'rhs' => 1 ),
-  array( 'lhs' => 135, 'rhs' => 3 ),
-  array( 'lhs' => 135, 'rhs' => 1 ),
-  array( 'lhs' => 135, 'rhs' => 1 ),
-  array( 'lhs' => 135, 'rhs' => 1 ),
-  array( 'lhs' => 135, 'rhs' => 1 ),
-  array( 'lhs' => 130, 'rhs' => 1 ),
-  array( 'lhs' => 130, 'rhs' => 1 ),
-  array( 'lhs' => 130, 'rhs' => 1 ),
-  array( 'lhs' => 130, 'rhs' => 1 ),
-  array( 'lhs' => 130, 'rhs' => 1 ),
-  array( 'lhs' => 130, 'rhs' => 1 ),
-  array( 'lhs' => 197, 'rhs' => 1 ),
-  array( 'lhs' => 197, 'rhs' => 1 ),
-  array( 'lhs' => 198, 'rhs' => 1 ),
-  array( 'lhs' => 198, 'rhs' => 2 ),
-  array( 'lhs' => 199, 'rhs' => 1 ),
-  array( 'lhs' => 199, 'rhs' => 1 ),
-    );
+     //line 2423 "src/SQLParser/Parser.php"
+     //line 53 "src/SQLParser/Parser.y"
+     public function yy_r19()
+     {
+         $this->_retvalue = new SQL\CommitTransaction();
+     }
 
-    /**
-     * The following table contains a mapping of reduce action to method name
-     * that handles the reduction.
-     * 
-     * If a rule is not set, it has no handler.
-     */
-    static public $yyReduceMap = array(
-        0 => 0,
-        1 => 1,
-        58 => 1,
-        84 => 1,
-        119 => 1,
-        193 => 1,
-        198 => 1,
-        2 => 2,
-        3 => 3,
-        124 => 3,
-        130 => 3,
-        195 => 3,
-        4 => 4,
-        5 => 4,
-        6 => 4,
-        7 => 4,
-        8 => 4,
-        9 => 4,
-        10 => 4,
-        11 => 4,
-        12 => 4,
-        13 => 4,
-        14 => 4,
-        15 => 4,
-        46 => 4,
-        50 => 4,
-        56 => 4,
-        80 => 4,
-        106 => 4,
-        108 => 4,
-        137 => 4,
-        149 => 4,
-        159 => 4,
-        160 => 4,
-        164 => 4,
-        177 => 4,
-        178 => 4,
-        182 => 4,
-        189 => 4,
-        191 => 4,
-        192 => 4,
-        203 => 4,
-        205 => 4,
-        206 => 4,
-        207 => 4,
-        208 => 4,
-        209 => 4,
-        210 => 4,
-        211 => 4,
-        212 => 4,
-        213 => 4,
-        215 => 4,
-        219 => 4,
-        220 => 4,
-        16 => 16,
-        17 => 17,
-        18 => 18,
-        19 => 19,
-        20 => 20,
-        21 => 21,
-        22 => 22,
-        27 => 27,
-        28 => 27,
-        29 => 29,
-        30 => 30,
-        31 => 31,
-        32 => 32,
-        33 => 33,
-        34 => 34,
-        35 => 35,
-        36 => 36,
-        37 => 37,
-        38 => 38,
-        39 => 39,
-        40 => 40,
-        41 => 41,
-        42 => 42,
-        43 => 43,
-        73 => 43,
-        75 => 43,
-        136 => 43,
-        49 => 49,
-        52 => 52,
-        53 => 53,
-        65 => 53,
-        117 => 53,
-        138 => 53,
-        54 => 54,
-        115 => 54,
-        55 => 55,
-        128 => 55,
-        59 => 59,
-        85 => 59,
-        118 => 59,
-        194 => 59,
-        199 => 59,
-        200 => 59,
-        60 => 60,
-        62 => 60,
-        88 => 60,
-        93 => 60,
-        201 => 60,
-        204 => 60,
-        61 => 61,
-        63 => 61,
-        202 => 61,
-        64 => 64,
-        90 => 64,
-        66 => 66,
-        139 => 66,
-        67 => 67,
-        68 => 68,
-        69 => 69,
-        70 => 70,
-        71 => 71,
-        72 => 72,
-        74 => 74,
-        76 => 76,
-        77 => 77,
-        78 => 78,
-        79 => 79,
-        81 => 79,
-        83 => 79,
-        91 => 79,
-        107 => 79,
-        129 => 79,
-        131 => 79,
-        82 => 82,
-        86 => 86,
-        87 => 87,
-        89 => 89,
-        92 => 92,
-        95 => 95,
-        96 => 95,
-        97 => 97,
-        98 => 98,
-        99 => 99,
-        100 => 100,
-        101 => 101,
-        102 => 102,
-        103 => 103,
-        104 => 104,
-        105 => 105,
-        109 => 109,
-        125 => 109,
-        187 => 109,
-        196 => 109,
-        110 => 110,
-        126 => 110,
-        188 => 110,
-        197 => 110,
-        111 => 111,
-        112 => 112,
-        113 => 113,
-        114 => 114,
-        116 => 116,
-        120 => 120,
-        121 => 121,
-        122 => 122,
-        123 => 123,
-        127 => 127,
-        132 => 132,
-        133 => 133,
-        134 => 134,
-        135 => 134,
-        140 => 140,
-        141 => 141,
-        142 => 142,
-        143 => 143,
-        144 => 144,
-        145 => 145,
-        146 => 146,
-        147 => 147,
-        148 => 148,
-        150 => 150,
-        156 => 150,
-        151 => 151,
-        152 => 152,
-        153 => 153,
-        157 => 153,
-        154 => 154,
-        155 => 155,
-        158 => 158,
-        161 => 161,
-        162 => 162,
-        163 => 163,
-        165 => 165,
-        166 => 166,
-        167 => 167,
-        168 => 167,
-        169 => 169,
-        170 => 170,
-        171 => 171,
-        172 => 172,
-        173 => 173,
-        174 => 174,
-        175 => 175,
-        176 => 176,
-        179 => 179,
-        180 => 180,
-        181 => 181,
-        183 => 183,
-        184 => 184,
-        185 => 185,
-        186 => 186,
-        190 => 190,
-        214 => 214,
-        216 => 216,
-        217 => 217,
-        218 => 218,
-    );
-    /* Beginning here are the reduction cases.  A typical example
-    ** follows:
-    **  #line <lineno> <grammarfile>
-    **   function yy_r0($yymsp){ ... }           // User supplied code
-    **  #line <lineno> <thisfile>
-    */
-#line 30 "src/SQLParser/Parser.y"
-    function yy_r0(){ $this->body = $this->yystack[$this->yyidx + 0]->minor;     }
-#line 2397 "src/SQLParser/Parser.php"
-#line 32 "src/SQLParser/Parser.y"
-    function yy_r1(){ $this->_retvalue = $this->yystack[$this->yyidx + -2]->minor; $this->_retvalue[] = $this->yystack[$this->yyidx + 0]->minor;     }
-#line 2400 "src/SQLParser/Parser.php"
-#line 33 "src/SQLParser/Parser.y"
-    function yy_r2(){ $this->_retvalue = [$this->yystack[$this->yyidx + 0]->minor];      }
-#line 2403 "src/SQLParser/Parser.php"
-#line 35 "src/SQLParser/Parser.y"
-    function yy_r3(){ $this->_retvalue = $this->yystack[$this->yyidx + -1]->minor;     }
-#line 2406 "src/SQLParser/Parser.php"
-#line 37 "src/SQLParser/Parser.y"
-    function yy_r4(){ $this->_retvalue = $this->yystack[$this->yyidx + 0]->minor;     }
-#line 2409 "src/SQLParser/Parser.php"
-#line 49 "src/SQLParser/Parser.y"
-    function yy_r16(){ $this->_retvalue = null;     }
-#line 2412 "src/SQLParser/Parser.php"
-#line 51 "src/SQLParser/Parser.y"
-    function yy_r17(){ $this->_retvalue = new SQL\BeginTransaction;     }
-#line 2415 "src/SQLParser/Parser.php"
-#line 52 "src/SQLParser/Parser.y"
-    function yy_r18(){ $this->_retvalue = new SQL\BeginTransaction($this->yystack[$this->yyidx + 0]->minor);     }
-#line 2418 "src/SQLParser/Parser.php"
-#line 53 "src/SQLParser/Parser.y"
-    function yy_r19(){ $this->_retvalue = new SQL\CommitTransaction;     }
-#line 2421 "src/SQLParser/Parser.php"
-#line 54 "src/SQLParser/Parser.y"
-    function yy_r20(){ $this->_retvalue = new SQL\CommitTransaction($this->yystack[$this->yyidx + 0]->minor);     }
-#line 2424 "src/SQLParser/Parser.php"
-#line 55 "src/SQLParser/Parser.y"
-    function yy_r21(){ $this->_retvalue = new SQL\RollbackTransaction;     }
-#line 2427 "src/SQLParser/Parser.php"
-#line 56 "src/SQLParser/Parser.y"
-    function yy_r22(){ $this->_retvalue = new SQL\RollbackTransaction($this->yystack[$this->yyidx + 0]->minor);     }
-#line 2430 "src/SQLParser/Parser.php"
-#line 65 "src/SQLParser/Parser.y"
-    function yy_r27(){ $this->_retvalue = $this->yystack[$this->yyidx + -1]->minor;    }
-#line 2433 "src/SQLParser/Parser.php"
-#line 68 "src/SQLParser/Parser.y"
-    function yy_r29(){ $this->_retvalue = $this->yystack[$this->yyidx + 0]->minor->setTableName($this->yystack[$this->yyidx + -1]->minor);     }
-#line 2436 "src/SQLParser/Parser.php"
-#line 70 "src/SQLParser/Parser.y"
-    function yy_r30(){ $this->_retvalue = new SQL\AlterTable\DropPrimaryKey;     }
-#line 2439 "src/SQLParser/Parser.php"
-#line 71 "src/SQLParser/Parser.y"
-    function yy_r31(){ $this->_retvalue = new SQL\AlterTable\DropIndex($this->yystack[$this->yyidx + 0]->minor);     }
-#line 2442 "src/SQLParser/Parser.php"
-#line 72 "src/SQLParser/Parser.y"
-    function yy_r32(){ $this->_retvalue = new SQL\AlterTable\SetDefault($this->yystack[$this->yyidx + -3]->minor, $this->yystack[$this->yyidx + 0]->minor);     }
-#line 2445 "src/SQLParser/Parser.php"
-#line 73 "src/SQLParser/Parser.y"
-    function yy_r33(){ $this->_retvalue = new SQL\AlterTable\SetDefault($this->yystack[$this->yyidx + -2]->minor, NULL);     }
-#line 2448 "src/SQLParser/Parser.php"
-#line 74 "src/SQLParser/Parser.y"
-    function yy_r34(){ $this->_retvalue = new SQL\AlterTable\ChangeColumn($this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + 0]->minor);     }
-#line 2451 "src/SQLParser/Parser.php"
-#line 75 "src/SQLParser/Parser.y"
-    function yy_r35(){ $this->_retvalue = new SQL\AlterTable\ChangeColumn($this->yystack[$this->yyidx + -1]->minor->getName(), $this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + 0]->minor);     }
-#line 2454 "src/SQLParser/Parser.php"
-#line 76 "src/SQLParser/Parser.y"
-    function yy_r36(){ $this->_retvalue = new SQL\AlterTable\AddColumn($this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + 0]->minor);     }
-#line 2457 "src/SQLParser/Parser.php"
-#line 77 "src/SQLParser/Parser.y"
-    function yy_r37(){ $this->_retvalue = new SQL\AlterTable\DropColumn($this->yystack[$this->yyidx + 0]->minor);     }
-#line 2460 "src/SQLParser/Parser.php"
-#line 78 "src/SQLParser/Parser.y"
-    function yy_r38(){ $this->_retvalue = new SQL\AlterTable\RenameTable($this->yystack[$this->yyidx + 0]->minor);     }
-#line 2463 "src/SQLParser/Parser.php"
-#line 79 "src/SQLParser/Parser.y"
-    function yy_r39(){ $this->_retvalue = new SQL\AlterTable\RenameIndex($this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);     }
-#line 2466 "src/SQLParser/Parser.php"
-#line 80 "src/SQLParser/Parser.y"
-    function yy_r40(){ $this->_retvalue = new SQL\AlterTable\AddIndex($this->yystack[$this->yyidx + -3]->minor, $this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + 0]->minor);     }
-#line 2469 "src/SQLParser/Parser.php"
-#line 82 "src/SQLParser/Parser.y"
-    function yy_r41(){
-    $this->_retvalue = new SQL\AlterTable\AddIndex($this->yystack[$this->yyidx + -5]->minor, $this->yystack[$this->yyidx + -3]->minor, $this->yystack[$this->yyidx + 0]->minor);
-    $this->_retvalue->setTableName($this->yystack[$this->yyidx + -1]->minor);
-    }
-#line 2475 "src/SQLParser/Parser.php"
-#line 87 "src/SQLParser/Parser.y"
-    function yy_r42(){ $this->_retvalue = 'UNIQUE';     }
-#line 2478 "src/SQLParser/Parser.php"
-#line 88 "src/SQLParser/Parser.y"
-    function yy_r43(){ $this->_retvalue = '';     }
-#line 2481 "src/SQLParser/Parser.php"
-#line 98 "src/SQLParser/Parser.y"
-    function yy_r49(){ $this->_retvalue = TRUE;     }
-#line 2484 "src/SQLParser/Parser.php"
-#line 104 "src/SQLParser/Parser.y"
-    function yy_r52(){
-    $this->_retvalue = new SQL\Select($this->yystack[$this->yyidx + -6]->minor);
-    if ($this->yystack[$this->yyidx + -5]->minor)  {
-        foreach ($this->yystack[$this->yyidx + -5]->minor as $table) {
-            $this->_retvalue->from($table[0], $table[1]);
-        }
-    }
-    if ($this->yystack[$this->yyidx + -7]->minor) $this->_retvalue->setOptions($this->yystack[$this->yyidx + -7]->minor);
-    if ($this->yystack[$this->yyidx + -3]->minor)  $this->_retvalue->where($this->yystack[$this->yyidx + -3]->minor);
-    if ($this->yystack[$this->yyidx + -4]->minor)  $this->_retvalue->joins($this->yystack[$this->yyidx + -4]->minor);
-    if ($this->yystack[$this->yyidx + -1]->minor)  $this->_retvalue->orderBy($this->yystack[$this->yyidx + -1]->minor);
-    if ($this->yystack[$this->yyidx + -2]->minor) $this->_retvalue->groupBy($this->yystack[$this->yyidx + -2]->minor[0], $this->yystack[$this->yyidx + -2]->minor[1]);
-    if ($this->yystack[$this->yyidx + 0]->minor) $this->_retvalue->limit($this->yystack[$this->yyidx + 0]->minor[0], $this->yystack[$this->yyidx + 0]->minor[1]);
-    }
-#line 2500 "src/SQLParser/Parser.php"
-#line 119 "src/SQLParser/Parser.y"
-    function yy_r53(){ $this->_retvalue = $this->yystack[$this->yyidx + -1]->minor; $this->_retvalue[] = $this->yystack[$this->yyidx + 0]->minor;     }
-#line 2503 "src/SQLParser/Parser.php"
-#line 120 "src/SQLParser/Parser.y"
-    function yy_r54(){ $this->_retvalue = array();     }
-#line 2506 "src/SQLParser/Parser.php"
-#line 121 "src/SQLParser/Parser.y"
-    function yy_r55(){ $this->_retvalue = strtoupper($this->yystack[$this->yyidx + 0]->minor);     }
-#line 2509 "src/SQLParser/Parser.php"
-#line 127 "src/SQLParser/Parser.y"
-    function yy_r59(){ $this->_retvalue = [$this->yystack[$this->yyidx + 0]->minor];     }
-#line 2512 "src/SQLParser/Parser.php"
-#line 129 "src/SQLParser/Parser.y"
-    function yy_r60(){ $this->_retvalue = [$this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor];     }
-#line 2515 "src/SQLParser/Parser.php"
-#line 130 "src/SQLParser/Parser.y"
-    function yy_r61(){ $this->_retvalue = [$this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + 0]->minor];     }
-#line 2518 "src/SQLParser/Parser.php"
-#line 133 "src/SQLParser/Parser.y"
-    function yy_r64(){ $this->_retvalue = [$this->yystack[$this->yyidx + 0]->minor, NULL];     }
-#line 2521 "src/SQLParser/Parser.php"
-#line 136 "src/SQLParser/Parser.y"
-    function yy_r66(){ $this->_retvalue = [];     }
-#line 2524 "src/SQLParser/Parser.php"
-#line 138 "src/SQLParser/Parser.y"
-    function yy_r67(){
-    $this->_retvalue = $this->yystack[$this->yyidx + -3]->minor->setTable($this->yystack[$this->yyidx + -1]->minor[0], $this->yystack[$this->yyidx + -1]->minor[1]);
-    if (is_array($this->yystack[$this->yyidx + 0]->minor) && $this->yystack[$this->yyidx + 0]->minor[0]) {
-        $this->_retvalue->{$this->yystack[$this->yyidx + 0]->minor[0]}($this->yystack[$this->yyidx + 0]->minor[1]);
-    }
-    }
-#line 2532 "src/SQLParser/Parser.php"
-#line 145 "src/SQLParser/Parser.y"
-    function yy_r68(){ $this->_retvalue = new Stmt\Join('INNER', $this->yystack[$this->yyidx + -1]->minor);     }
-#line 2535 "src/SQLParser/Parser.php"
-#line 146 "src/SQLParser/Parser.y"
-    function yy_r69(){ $this->_retvalue = new Stmt\Join('LEFT', $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);     }
-#line 2538 "src/SQLParser/Parser.php"
-#line 147 "src/SQLParser/Parser.y"
-    function yy_r70(){ $this->_retvalue = new Stmt\Join('RIGHT', $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);     }
-#line 2541 "src/SQLParser/Parser.php"
-#line 148 "src/SQLParser/Parser.y"
-    function yy_r71(){ $this->_retvalue = new Stmt\Join('INNER', $this->yystack[$this->yyidx + 0]->minor);     }
-#line 2544 "src/SQLParser/Parser.php"
-#line 150 "src/SQLParser/Parser.y"
-    function yy_r72(){ $this->_retvalue = 'NATURAL';     }
-#line 2547 "src/SQLParser/Parser.php"
-#line 152 "src/SQLParser/Parser.y"
-    function yy_r74(){ $this->_retvalue = 'OUTER';     }
-#line 2550 "src/SQLParser/Parser.php"
-#line 155 "src/SQLParser/Parser.y"
-    function yy_r76(){ $this->_retvalue = ['ON', $this->yystack[$this->yyidx + 0]->minor];     }
-#line 2553 "src/SQLParser/Parser.php"
-#line 156 "src/SQLParser/Parser.y"
-    function yy_r77(){ $this->_retvalue = ['USING', $this->yystack[$this->yyidx + 0]->minor];     }
-#line 2556 "src/SQLParser/Parser.php"
-#line 157 "src/SQLParser/Parser.y"
-    function yy_r78(){ $this->_retvalue =['USING',  $this->yystack[$this->yyidx + -1]->minor];     }
-#line 2559 "src/SQLParser/Parser.php"
-#line 158 "src/SQLParser/Parser.y"
-    function yy_r79(){ $this->_retvalue = NULL;     }
-#line 2562 "src/SQLParser/Parser.php"
-#line 163 "src/SQLParser/Parser.y"
-    function yy_r82(){
-    $this->_retvalue = new Stmt\ExprList;
-    $this->_retvalue->setExprs($this->yystack[$this->yyidx + 0]->minor);
-    }
-#line 2568 "src/SQLParser/Parser.php"
-#line 172 "src/SQLParser/Parser.y"
-    function yy_r86(){
-    $this->_retvalue = new Stmt\Expr(strtoupper($this->yystack[$this->yyidx + 0]->minor), $this->yystack[$this->yyidx + -1]->minor);
-    }
-#line 2573 "src/SQLParser/Parser.php"
-#line 175 "src/SQLParser/Parser.y"
-    function yy_r87(){ $this->_retvalue = new Stmt\Expr("ASC", $this->yystack[$this->yyidx + 0]->minor);     }
-#line 2576 "src/SQLParser/Parser.php"
-#line 178 "src/SQLParser/Parser.y"
-    function yy_r89(){ $this->_retvalue = [$this->yystack[$this->yyidx + 0]->minor, $this->yystack[$this->yyidx + -2]->minor];     }
-#line 2579 "src/SQLParser/Parser.php"
-#line 182 "src/SQLParser/Parser.y"
-    function yy_r92(){ $this->_retvalue = [$this->yystack[$this->yyidx + 0]->minor, null];     }
-#line 2582 "src/SQLParser/Parser.php"
-#line 186 "src/SQLParser/Parser.y"
-    function yy_r95(){ $this->_retvalue = $this->yystack[$this->yyidx + -1]->minor; $this->yystack[$this->yyidx + -1]->minor->values($this->yystack[$this->yyidx + 0]->minor);     }
-#line 2585 "src/SQLParser/Parser.php"
-#line 188 "src/SQLParser/Parser.y"
-    function yy_r97(){
-    $this->_retvalue = $this->yystack[$this->yyidx + -3]->minor; $this->yystack[$this->yyidx + -3]->minor->values($this->yystack[$this->yyidx + -1]->minor);
-    if ($this->yystack[$this->yyidx + 0]->minor) $this->_retvalue->onDuplicate($this->yystack[$this->yyidx + 0]->minor);
-    }
-#line 2591 "src/SQLParser/Parser.php"
-#line 192 "src/SQLParser/Parser.y"
-    function yy_r98(){
-    $this->_retvalue = $this->yystack[$this->yyidx + -2]->minor;
-    $keys   = new Stmt\ExprList;
-    $values = [];
-    foreach ($this->yystack[$this->yyidx + -1]->minor->getExprs() as $field) {
-        $member = $field->getMembers();
-        $keys->addTerm($member[0]);
-        $values[] = $member[1];
-    }
-    $this->yystack[$this->yyidx + -2]->minor->values([$values])->fields($keys);
-    if ($this->yystack[$this->yyidx + 0]->minor) $this->_retvalue->onDuplicate($this->yystack[$this->yyidx + 0]->minor);
-    }
-#line 2605 "src/SQLParser/Parser.php"
-#line 205 "src/SQLParser/Parser.y"
-    function yy_r99(){
-    $this->_retvalue = new SQL\Drop('TABLE', $this->yystack[$this->yyidx + 0]->minor);
-    }
-#line 2610 "src/SQLParser/Parser.php"
-#line 209 "src/SQLParser/Parser.y"
-    function yy_r100(){
-    $this->_retvalue = new SQL\Delete($this->yystack[$this->yyidx + -3]->minor[0], $this->yystack[$this->yyidx + -3]->minor[1]);
-    if ($this->yystack[$this->yyidx + -2]->minor) $this->_retvalue->where($this->yystack[$this->yyidx + -2]->minor);
-    if ($this->yystack[$this->yyidx + -1]->minor) $this->_retvalue->orderBy($this->yystack[$this->yyidx + -1]->minor);
-    if ($this->yystack[$this->yyidx + 0]->minor) $this->_retvalue->limit($this->yystack[$this->yyidx + 0]->minor[0], $this->yystack[$this->yyidx + 0]->minor[1]);
-    }
-#line 2618 "src/SQLParser/Parser.php"
-#line 216 "src/SQLParser/Parser.y"
-    function yy_r101(){
-    $this->_retvalue = new SQL\Update($this->yystack[$this->yyidx + -5]->minor, $this->yystack[$this->yyidx + -3]->minor);
-    if ($this->yystack[$this->yyidx + -4]->minor) $this->_retvalue->joins($this->yystack[$this->yyidx + -4]->minor);
-    if ($this->yystack[$this->yyidx + -2]->minor)  $this->_retvalue->where($this->yystack[$this->yyidx + -2]->minor);
-    if ($this->yystack[$this->yyidx + -1]->minor) $this->_retvalue->orderBy($this->yystack[$this->yyidx + -1]->minor);
-    if ($this->yystack[$this->yyidx + 0]->minor) $this->_retvalue->limit($this->yystack[$this->yyidx + 0]->minor[0], $this->yystack[$this->yyidx + 0]->minor[1]);
-    }
-#line 2627 "src/SQLParser/Parser.php"
-#line 224 "src/SQLParser/Parser.y"
-    function yy_r102(){
-    $this->_retvalue = new SQL\Insert($this->yystack[$this->yyidx + -2]->minor);
-    $this->_retvalue->into($this->yystack[$this->yyidx + 0]->minor[0]);
-    if ($this->yystack[$this->yyidx + 0]->minor[1]) $this->_retvalue->fields($this->yystack[$this->yyidx + 0]->minor[1]);
-    }
-#line 2634 "src/SQLParser/Parser.php"
-#line 229 "src/SQLParser/Parser.y"
-    function yy_r103(){
-    $this->_retvalue = new SQL\Insert($this->yystack[$this->yyidx + -1]->minor);
-    $this->_retvalue->into($this->yystack[$this->yyidx + 0]->minor[0]);
-    if ($this->yystack[$this->yyidx + 0]->minor[1]) $this->_retvalue->fields($this->yystack[$this->yyidx + 0]->minor[1]);
-    }
-#line 2641 "src/SQLParser/Parser.php"
-#line 235 "src/SQLParser/Parser.y"
-    function yy_r104(){ $this->_retvalue = [$this->yystack[$this->yyidx + 0]->minor, null];    }
-#line 2644 "src/SQLParser/Parser.php"
-#line 236 "src/SQLParser/Parser.y"
-    function yy_r105(){ $this->_retvalue = [$this->yystack[$this->yyidx + -3]->minor, $this->yystack[$this->yyidx + -1]->minor];     }
-#line 2647 "src/SQLParser/Parser.php"
-#line 243 "src/SQLParser/Parser.y"
-    function yy_r109(){ $this->_retvalue = $this->yystack[$this->yyidx + -2]->minor->addTerm($this->yystack[$this->yyidx + 0]->minor);     }
-#line 2650 "src/SQLParser/Parser.php"
-#line 244 "src/SQLParser/Parser.y"
-    function yy_r110(){ $this->_retvalue = new Stmt\ExprList($this->yystack[$this->yyidx + 0]->minor);     }
-#line 2653 "src/SQLParser/Parser.php"
-#line 245 "src/SQLParser/Parser.y"
-    function yy_r111(){
-    $this->_retvalue = new Stmt\Expr("=", $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);
-    }
-#line 2658 "src/SQLParser/Parser.php"
-#line 249 "src/SQLParser/Parser.y"
-    function yy_r112(){
-    $this->_retvalue = new SQL\View($this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);
-    }
-#line 2663 "src/SQLParser/Parser.php"
-#line 253 "src/SQLParser/Parser.y"
-    function yy_r113(){
-    $this->_retvalue = new SQL\Table($this->yystack[$this->yyidx + -4]->minor, $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);
-    }
-#line 2668 "src/SQLParser/Parser.php"
-#line 257 "src/SQLParser/Parser.y"
-    function yy_r114(){ $this->_retvalue = array_merge($this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + 0]->minor);     }
-#line 2671 "src/SQLParser/Parser.php"
-#line 260 "src/SQLParser/Parser.y"
-    function yy_r116(){
-    $this->_retvalue[implode(" ", $this->yystack[$this->yyidx + -2]->minor)] = $this->yystack[$this->yyidx + 0]->minor->getMember(0);
-    }
-#line 2676 "src/SQLParser/Parser.php"
-#line 268 "src/SQLParser/Parser.y"
-    function yy_r120(){ $this->_retvalue = array($this->yystack[$this->yyidx + 0]->minor);     }
-#line 2679 "src/SQLParser/Parser.php"
-#line 270 "src/SQLParser/Parser.y"
-    function yy_r121(){
-    $this->_retvalue = ['primary', $this->yystack[$this->yyidx + 0]->minor];
-    }
-#line 2684 "src/SQLParser/Parser.php"
-#line 273 "src/SQLParser/Parser.y"
-    function yy_r122(){
-    $this->_retvalue = ['unique', $this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + 0]->minor];
-    }
-#line 2689 "src/SQLParser/Parser.php"
-#line 276 "src/SQLParser/Parser.y"
-    function yy_r123(){
-    $this->_retvalue = ['key', $this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + 0]->minor];
-    }
-#line 2694 "src/SQLParser/Parser.php"
-#line 284 "src/SQLParser/Parser.y"
-    function yy_r127(){
-    $this->_retvalue = new Stmt\Expr('INDEX', $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + 0]->minor);
-    }
-#line 2699 "src/SQLParser/Parser.php"
-#line 293 "src/SQLParser/Parser.y"
-    function yy_r132(){
-    $this->_retvalue = new Stmt\Column($this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + -1]->minor[0], $this->yystack[$this->yyidx + -1]->minor[1], $this->yystack[$this->yyidx + -1]->minor[2]);
-    foreach ($this->yystack[$this->yyidx + 0]->minor as $setting) {
-        if (is_array($setting)) {
-            $this->_retvalue->{$setting[0]}($setting[1]);
-        } else {
-            $this->_retvalue->$setting();
-        }
-    }
-    }
-#line 2711 "src/SQLParser/Parser.php"
-#line 304 "src/SQLParser/Parser.y"
-    function yy_r133(){
-    $this->_retvalue = [$this->yystack[$this->yyidx + -1]->minor, NULL, $this->yystack[$this->yyidx + 0]->minor];
-    }
-#line 2716 "src/SQLParser/Parser.php"
-#line 308 "src/SQLParser/Parser.y"
-    function yy_r134(){
-    $this->_retvalue = [$this->yystack[$this->yyidx + -4]->minor, $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor];
-    }
-#line 2721 "src/SQLParser/Parser.php"
-#line 322 "src/SQLParser/Parser.y"
-    function yy_r140(){ $this->_retvalue = ['defaultValue', $this->yystack[$this->yyidx + 0]->minor];     }
-#line 2724 "src/SQLParser/Parser.php"
-#line 323 "src/SQLParser/Parser.y"
-    function yy_r141(){ $this->_retvalue = ['collate', $this->yystack[$this->yyidx + 0]->minor];     }
-#line 2727 "src/SQLParser/Parser.php"
-#line 324 "src/SQLParser/Parser.y"
-    function yy_r142(){ $this->_retvalue = 'primaryKey';     }
-#line 2730 "src/SQLParser/Parser.php"
-#line 325 "src/SQLParser/Parser.y"
-    function yy_r143(){    $this->_retvalue = 'notNull';     }
-#line 2733 "src/SQLParser/Parser.php"
-#line 326 "src/SQLParser/Parser.y"
-    function yy_r144(){ $this->_retvalue = 'autoincrement';     }
-#line 2736 "src/SQLParser/Parser.php"
-#line 329 "src/SQLParser/Parser.y"
-    function yy_r145(){ $this->_retvalue = new Stmt\Expr('and', $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);     }
-#line 2739 "src/SQLParser/Parser.php"
-#line 330 "src/SQLParser/Parser.y"
-    function yy_r146(){ $this->_retvalue = new Stmt\Expr('or', $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);     }
-#line 2742 "src/SQLParser/Parser.php"
-#line 331 "src/SQLParser/Parser.y"
-    function yy_r147(){
-    if ($this->yystack[$this->yyidx + 0]->minor->getType() === 'IS NULL') {
-        $parts = $this->yystack[$this->yyidx + 0]->minor->getMembers();
-        $this->_retvalue = new Stmt\Expr('IS NOT NULL', $parts[0]);
-        return;
-    }
-    $this->_retvalue = new Stmt\Expr('not', $this->yystack[$this->yyidx + 0]->minor);
-    }
-#line 2752 "src/SQLParser/Parser.php"
-#line 339 "src/SQLParser/Parser.y"
-    function yy_r148(){ $this->_retvalue = new Stmt\Expr('expr', $this->yystack[$this->yyidx + -1]->minor);     }
-#line 2755 "src/SQLParser/Parser.php"
-#line 341 "src/SQLParser/Parser.y"
-    function yy_r150(){
-    $members = $this->yystack[$this->yyidx + -2]->minor->getMembers();
-    if  ($this->yystack[$this->yyidx + -2]->minor->getType() === 'VALUE' && count($members) === 2&& $members[1] == 2) {
-        $this->yystack[$this->yyidx + -2]->minor = new Stmt\Expr('COLUMN', $members[0]);
-    }
-    $this->_retvalue = new Stmt\Expr($this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);
-    }
-#line 2764 "src/SQLParser/Parser.php"
-#line 348 "src/SQLParser/Parser.y"
-    function yy_r151(){ $this->_retvalue = new Stmt\Expr("IS NOT NULL", $this->yystack[$this->yyidx + -3]->minor);     }
-#line 2767 "src/SQLParser/Parser.php"
-#line 349 "src/SQLParser/Parser.y"
-    function yy_r152(){ $this->_retvalue = new Stmt\Expr("IS NULL", $this->yystack[$this->yyidx + -2]->minor);     }
-#line 2770 "src/SQLParser/Parser.php"
-#line 350 "src/SQLParser/Parser.y"
-    function yy_r153(){ $this->_retvalue = new Stmt\Expr($this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);     }
-#line 2773 "src/SQLParser/Parser.php"
-#line 351 "src/SQLParser/Parser.y"
-    function yy_r154(){
-    $this->_retvalue = new Stmt\Expr('not between', $this->yystack[$this->yyidx + -5]->minor, $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);
-    }
-#line 2778 "src/SQLParser/Parser.php"
-#line 354 "src/SQLParser/Parser.y"
-    function yy_r155(){
-    $this->_retvalue = new Stmt\Expr('between', $this->yystack[$this->yyidx + -4]->minor, $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);
-    }
-#line 2783 "src/SQLParser/Parser.php"
-#line 365 "src/SQLParser/Parser.y"
-    function yy_r158(){ $this->_retvalue = new Stmt\Expr($this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + -2]->minor, new Stmt\Expr('expr', $this->yystack[$this->yyidx + 0]->minor));     }
-#line 2786 "src/SQLParser/Parser.php"
-#line 369 "src/SQLParser/Parser.y"
-    function yy_r161(){ $this->_retvalue = 'IN';     }
-#line 2789 "src/SQLParser/Parser.php"
-#line 370 "src/SQLParser/Parser.y"
-    function yy_r162(){ $this->_retvalue = 'NOT IN';     }
-#line 2792 "src/SQLParser/Parser.php"
-#line 372 "src/SQLParser/Parser.y"
-    function yy_r163(){ $this->_retvalue = 'NOT ' . $this->yystack[$this->yyidx + 0]->minor;     }
-#line 2795 "src/SQLParser/Parser.php"
-#line 375 "src/SQLParser/Parser.y"
-    function yy_r165(){ $this->_retvalue = 'IS';     }
-#line 2798 "src/SQLParser/Parser.php"
-#line 376 "src/SQLParser/Parser.y"
-    function yy_r166(){ $this->_retvalue = 'LIKE';     }
-#line 2801 "src/SQLParser/Parser.php"
-#line 377 "src/SQLParser/Parser.y"
-    function yy_r167(){ $this->_retvalue = 'GLOB';     }
-#line 2804 "src/SQLParser/Parser.php"
-#line 381 "src/SQLParser/Parser.y"
-    function yy_r169(){
-    $this->yystack[$this->yyidx + -1]->minor = array_merge(['CASE'], $this->yystack[$this->yyidx + -1]->minor);
-    $this->_retvalue = new Stmt\Expr($this->yystack[$this->yyidx + -1]->minor);
-    }
-#line 2810 "src/SQLParser/Parser.php"
-#line 385 "src/SQLParser/Parser.y"
-    function yy_r170(){
-    $this->yystack[$this->yyidx + -3]->minor = array_merge(['CASE'], $this->yystack[$this->yyidx + -3]->minor, [$this->yystack[$this->yyidx + -1]->minor]);
-    $this->_retvalue = new Stmt\Expr($this->yystack[$this->yyidx + -3]->minor);
-    }
-#line 2816 "src/SQLParser/Parser.php"
-#line 390 "src/SQLParser/Parser.y"
-    function yy_r171(){ $this->_retvalue = $this->yystack[$this->yyidx + -4]->minor; $this->yystack[$this->yyidx + -4]->minor[] = new Stmt\Expr("WHEN", $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);     }
-#line 2819 "src/SQLParser/Parser.php"
-#line 391 "src/SQLParser/Parser.y"
-    function yy_r172(){ $this->_retvalue = array(new Stmt\Expr("WHEN", $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor));     }
-#line 2822 "src/SQLParser/Parser.php"
-#line 393 "src/SQLParser/Parser.y"
-    function yy_r173(){ $this->_retvalue = new Stmt\Expr('timeinterval', $this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + 0]->minor);     }
-#line 2825 "src/SQLParser/Parser.php"
-#line 394 "src/SQLParser/Parser.y"
-    function yy_r174(){ $this->_retvalue = new Stmt\Expr('value', $this->yystack[$this->yyidx + 0]->minor);     }
-#line 2828 "src/SQLParser/Parser.php"
-#line 395 "src/SQLParser/Parser.y"
-    function yy_r175(){ $this->_retvalue = new Stmt\Expr('value', -1 * $this->yystack[$this->yyidx + 0]->minor);     }
-#line 2831 "src/SQLParser/Parser.php"
-#line 396 "src/SQLParser/Parser.y"
-    function yy_r176(){ $this->_retvalue = new Stmt\Expr('value', 0+$this->yystack[$this->yyidx + 0]->minor);     }
-#line 2834 "src/SQLParser/Parser.php"
-#line 399 "src/SQLParser/Parser.y"
-    function yy_r179(){ $this->_retvalue = new Stmt\Expr('value', trim($this->yystack[$this->yyidx + 0]->minor, "'\""), 1);     }
-#line 2837 "src/SQLParser/Parser.php"
-#line 400 "src/SQLParser/Parser.y"
-    function yy_r180(){ $this->_retvalue = new Stmt\Expr('value', trim($this->yystack[$this->yyidx + 0]->minor, "'\""), 2);     }
-#line 2840 "src/SQLParser/Parser.php"
-#line 401 "src/SQLParser/Parser.y"
-    function yy_r181(){ $this->_retvalue = new Stmt\Expr('column', $this->yystack[$this->yyidx + 0]->minor);     }
-#line 2843 "src/SQLParser/Parser.php"
-#line 403 "src/SQLParser/Parser.y"
-    function yy_r183(){ $this->_retvalue = new Stmt\Expr('expr', $this->yystack[$this->yyidx + 0]->minor);     }
-#line 2846 "src/SQLParser/Parser.php"
-#line 404 "src/SQLParser/Parser.y"
-    function yy_r184(){
-    if ($this->yystack[$this->yyidx + 0]->minor instanceof Stmt\VariablePlaceholder) {
-        $this->_retvalue = $this->yystack[$this->yyidx + 0]->minor;
-    } else if (is_array($this->yystack[$this->yyidx + 0]->minor)) {
-        $this->_retvalue = new Stmt\Expr('column', $this->yystack[$this->yyidx + 0]->minor[0], $this->yystack[$this->yyidx + 0]->minor[1]);
-    } else {
-        $this->_retvalue = new Stmt\Expr('column', $this->yystack[$this->yyidx + 0]->minor);
-    }
-    }
-#line 2857 "src/SQLParser/Parser.php"
-#line 414 "src/SQLParser/Parser.y"
-    function yy_r185(){ $this->_retvalue = new Stmt\Expr('value', NULL);    }
-#line 2860 "src/SQLParser/Parser.php"
-#line 416 "src/SQLParser/Parser.y"
-    function yy_r186(){
-    if (strtolower($this->yystack[$this->yyidx + -1]->minor) === 'isnull') {
-        $parts = $this->yystack[$this->yyidx + 0]->minor->getExprs();
-        if (!empty($parts[0]) && $parts[0]->getType() === 'COLUMN') {
-            // This is a "isnull" function call, we must convert
-            // `isnull(col)` to `col IS NULL` (which is the correct
-            // SQL-standard way of representing that statement)
-            $this->_retvalue = new Stmt\Expr('IS NULL', $parts[0]);
-            return;
-        }
-    }
-    $this->_retvalue = new Stmt\Expr('CALL', $this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + 0]->minor);
-    }
-#line 2875 "src/SQLParser/Parser.php"
-#line 434 "src/SQLParser/Parser.y"
-    function yy_r190(){ $this->_retvalue = new Stmt\ExprList();     }
-#line 2878 "src/SQLParser/Parser.php"
-#line 467 "src/SQLParser/Parser.y"
-    function yy_r214(){ $this->_retvalue = trim($this->yystack[$this->yyidx + 0]->minor, "` \r\n\t");     }
-#line 2881 "src/SQLParser/Parser.php"
-#line 470 "src/SQLParser/Parser.y"
-    function yy_r216(){ $this->_retvalue = new Stmt\Expr("ALL");     }
-#line 2884 "src/SQLParser/Parser.php"
-#line 472 "src/SQLParser/Parser.y"
-    function yy_r217(){ $this->_retvalue = new Stmt\VariablePlaceholder;     }
-#line 2887 "src/SQLParser/Parser.php"
-#line 473 "src/SQLParser/Parser.y"
-    function yy_r218(){ $this->_retvalue = new Stmt\VariablePlaceholder($this->yystack[$this->yyidx + 0]->minor);     }
-#line 2890 "src/SQLParser/Parser.php"
+     //line 2426 "src/SQLParser/Parser.php"
+     //line 54 "src/SQLParser/Parser.y"
+     public function yy_r20()
+     {
+         $this->_retvalue = new SQL\CommitTransaction($this->yystack[$this->yyidx + 0]->minor);
+     }
 
-    /**
-     * placeholder for the left hand side in a reduce operation.
-     * 
-     * For a parser with a rule like this:
-     * <pre>
-     * rule(A) ::= B. { A = 1; }
-     * </pre>
-     * 
-     * The parser will translate to something like:
-     * 
-     * <code>
-     * function yy_r0(){$this->_retvalue = 1;}
-     * </code>
-     */
-    private $_retvalue;
+     //line 2429 "src/SQLParser/Parser.php"
+     //line 55 "src/SQLParser/Parser.y"
+     public function yy_r21()
+     {
+         $this->_retvalue = new SQL\RollbackTransaction();
+     }
 
-    /**
-     * Perform a reduce action and the shift that must immediately
-     * follow the reduce.
-     * 
-     * For a rule such as:
-     * 
-     * <pre>
-     * A ::= B blah C. { dosomething(); }
-     * </pre>
-     * 
-     * This function will first call the action, if any, ("dosomething();" in our
-     * example), and then it will pop three states from the stack,
-     * one for each entry on the right-hand side of the expression
-     * (B, blah, and C in our example rule), and then push the result of the action
-     * back on to the stack with the resulting state reduced to (as described in the .out
-     * file)
-     * @param int Number of the rule by which to reduce
-     */
-    function yy_reduce($yyruleno)
-    {
-        //int $yygoto;                     /* The next state */
-        //int $yyact;                      /* The next action */
-        //mixed $yygotominor;        /* The LHS of the rule reduced */
-        //SQLParser_yyStackEntry $yymsp;            /* The top of the parser's stack */
-        //int $yysize;                     /* Amount to pop the stack */
-        $yymsp = $this->yystack[$this->yyidx];
-        if (self::$yyTraceFILE && $yyruleno >= 0 
+     //line 2432 "src/SQLParser/Parser.php"
+     //line 56 "src/SQLParser/Parser.y"
+     public function yy_r22()
+     {
+         $this->_retvalue = new SQL\RollbackTransaction($this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2435 "src/SQLParser/Parser.php"
+     //line 65 "src/SQLParser/Parser.y"
+     public function yy_r27()
+     {
+         $this->_retvalue = $this->yystack[$this->yyidx + -1]->minor;
+     }
+
+     //line 2438 "src/SQLParser/Parser.php"
+     //line 68 "src/SQLParser/Parser.y"
+     public function yy_r29()
+     {
+         $this->_retvalue = $this->yystack[$this->yyidx + 0]->minor->setTableName($this->yystack[$this->yyidx + -1]->minor);
+     }
+
+     //line 2441 "src/SQLParser/Parser.php"
+     //line 70 "src/SQLParser/Parser.y"
+     public function yy_r30()
+     {
+         $this->_retvalue = new SQL\AlterTable\DropPrimaryKey();
+     }
+
+     //line 2444 "src/SQLParser/Parser.php"
+     //line 71 "src/SQLParser/Parser.y"
+     public function yy_r31()
+     {
+         $this->_retvalue = new SQL\AlterTable\DropIndex($this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2447 "src/SQLParser/Parser.php"
+     //line 72 "src/SQLParser/Parser.y"
+     public function yy_r32()
+     {
+         $this->_retvalue = new SQL\AlterTable\SetDefault($this->yystack[$this->yyidx + -3]->minor, $this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2450 "src/SQLParser/Parser.php"
+     //line 73 "src/SQLParser/Parser.y"
+     public function yy_r33()
+     {
+         $this->_retvalue = new SQL\AlterTable\SetDefault($this->yystack[$this->yyidx + -2]->minor, null);
+     }
+
+     //line 2453 "src/SQLParser/Parser.php"
+     //line 74 "src/SQLParser/Parser.y"
+     public function yy_r34()
+     {
+         $this->_retvalue = new SQL\AlterTable\ChangeColumn($this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2456 "src/SQLParser/Parser.php"
+     //line 75 "src/SQLParser/Parser.y"
+     public function yy_r35()
+     {
+         $this->_retvalue = new SQL\AlterTable\ChangeColumn($this->yystack[$this->yyidx + -1]->minor->getName(), $this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2459 "src/SQLParser/Parser.php"
+     //line 76 "src/SQLParser/Parser.y"
+     public function yy_r36()
+     {
+         $this->_retvalue = new SQL\AlterTable\AddColumn($this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2462 "src/SQLParser/Parser.php"
+     //line 77 "src/SQLParser/Parser.y"
+     public function yy_r37()
+     {
+         $this->_retvalue = new SQL\AlterTable\DropColumn($this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2465 "src/SQLParser/Parser.php"
+     //line 78 "src/SQLParser/Parser.y"
+     public function yy_r38()
+     {
+         $this->_retvalue = new SQL\AlterTable\RenameTable($this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2468 "src/SQLParser/Parser.php"
+     //line 79 "src/SQLParser/Parser.y"
+     public function yy_r39()
+     {
+         $this->_retvalue = new SQL\AlterTable\RenameIndex($this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2471 "src/SQLParser/Parser.php"
+     //line 80 "src/SQLParser/Parser.y"
+     public function yy_r40()
+     {
+         $this->_retvalue = new SQL\AlterTable\AddIndex($this->yystack[$this->yyidx + -3]->minor, $this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2474 "src/SQLParser/Parser.php"
+     //line 82 "src/SQLParser/Parser.y"
+     public function yy_r41()
+     {
+         $this->_retvalue = new SQL\AlterTable\AddIndex($this->yystack[$this->yyidx + -5]->minor, $this->yystack[$this->yyidx + -3]->minor, $this->yystack[$this->yyidx + 0]->minor);
+         $this->_retvalue->setTableName($this->yystack[$this->yyidx + -1]->minor);
+     }
+
+     //line 2480 "src/SQLParser/Parser.php"
+     //line 87 "src/SQLParser/Parser.y"
+     public function yy_r42()
+     {
+         $this->_retvalue = 'UNIQUE';
+     }
+
+     //line 2483 "src/SQLParser/Parser.php"
+     //line 88 "src/SQLParser/Parser.y"
+     public function yy_r43()
+     {
+         $this->_retvalue = '';
+     }
+
+     //line 2486 "src/SQLParser/Parser.php"
+     //line 98 "src/SQLParser/Parser.y"
+     public function yy_r49()
+     {
+         $this->_retvalue = true;
+     }
+
+     //line 2489 "src/SQLParser/Parser.php"
+     //line 104 "src/SQLParser/Parser.y"
+     public function yy_r52()
+     {
+         $this->_retvalue = new SQL\Select($this->yystack[$this->yyidx + -6]->minor);
+         if ($this->yystack[$this->yyidx + -5]->minor) {
+             foreach ($this->yystack[$this->yyidx + -5]->minor as $table) {
+                 $this->_retvalue->from($table[0], $table[1]);
+             }
+         }
+         if ($this->yystack[$this->yyidx + -7]->minor) {
+             $this->_retvalue->setOptions($this->yystack[$this->yyidx + -7]->minor);
+         }
+         if ($this->yystack[$this->yyidx + -3]->minor) {
+             $this->_retvalue->where($this->yystack[$this->yyidx + -3]->minor);
+         }
+         if ($this->yystack[$this->yyidx + -4]->minor) {
+             $this->_retvalue->joins($this->yystack[$this->yyidx + -4]->minor);
+         }
+         if ($this->yystack[$this->yyidx + -1]->minor) {
+             $this->_retvalue->orderBy($this->yystack[$this->yyidx + -1]->minor);
+         }
+         if ($this->yystack[$this->yyidx + -2]->minor) {
+             $this->_retvalue->groupBy($this->yystack[$this->yyidx + -2]->minor[0], $this->yystack[$this->yyidx + -2]->minor[1]);
+         }
+         if ($this->yystack[$this->yyidx + 0]->minor) {
+             $this->_retvalue->limit($this->yystack[$this->yyidx + 0]->minor[0], $this->yystack[$this->yyidx + 0]->minor[1]);
+         }
+     }
+
+     //line 2505 "src/SQLParser/Parser.php"
+     //line 119 "src/SQLParser/Parser.y"
+     public function yy_r53()
+     {
+         $this->_retvalue = $this->yystack[$this->yyidx + -1]->minor;
+         $this->_retvalue[] = $this->yystack[$this->yyidx + 0]->minor;
+     }
+
+     //line 2508 "src/SQLParser/Parser.php"
+     //line 120 "src/SQLParser/Parser.y"
+     public function yy_r54()
+     {
+         $this->_retvalue = [];
+     }
+
+     //line 2511 "src/SQLParser/Parser.php"
+     //line 121 "src/SQLParser/Parser.y"
+     public function yy_r55()
+     {
+         $this->_retvalue = strtoupper($this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2514 "src/SQLParser/Parser.php"
+     //line 127 "src/SQLParser/Parser.y"
+     public function yy_r59()
+     {
+         $this->_retvalue = [$this->yystack[$this->yyidx + 0]->minor];
+     }
+
+     //line 2517 "src/SQLParser/Parser.php"
+     //line 129 "src/SQLParser/Parser.y"
+     public function yy_r60()
+     {
+         $this->_retvalue = [$this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor];
+     }
+
+     //line 2520 "src/SQLParser/Parser.php"
+     //line 130 "src/SQLParser/Parser.y"
+     public function yy_r61()
+     {
+         $this->_retvalue = [$this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + 0]->minor];
+     }
+
+     //line 2523 "src/SQLParser/Parser.php"
+     //line 133 "src/SQLParser/Parser.y"
+     public function yy_r64()
+     {
+         $this->_retvalue = [$this->yystack[$this->yyidx + 0]->minor, null];
+     }
+
+     //line 2526 "src/SQLParser/Parser.php"
+     //line 136 "src/SQLParser/Parser.y"
+     public function yy_r66()
+     {
+         $this->_retvalue = [];
+     }
+
+     //line 2529 "src/SQLParser/Parser.php"
+     //line 138 "src/SQLParser/Parser.y"
+     public function yy_r67()
+     {
+         $this->_retvalue = $this->yystack[$this->yyidx + -3]->minor->setTable($this->yystack[$this->yyidx + -1]->minor[0], $this->yystack[$this->yyidx + -1]->minor[1]);
+         if (is_array($this->yystack[$this->yyidx + 0]->minor) && $this->yystack[$this->yyidx + 0]->minor[0]) {
+             $this->_retvalue->{$this->yystack[$this->yyidx + 0]->minor[0]}($this->yystack[$this->yyidx + 0]->minor[1]);
+         }
+     }
+
+     //line 2537 "src/SQLParser/Parser.php"
+     //line 145 "src/SQLParser/Parser.y"
+     public function yy_r68()
+     {
+         $this->_retvalue = new Stmt\Join('INNER', $this->yystack[$this->yyidx + -1]->minor);
+     }
+
+     //line 2540 "src/SQLParser/Parser.php"
+     //line 146 "src/SQLParser/Parser.y"
+     public function yy_r69()
+     {
+         $this->_retvalue = new Stmt\Join('LEFT', $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2543 "src/SQLParser/Parser.php"
+     //line 147 "src/SQLParser/Parser.y"
+     public function yy_r70()
+     {
+         $this->_retvalue = new Stmt\Join('RIGHT', $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2546 "src/SQLParser/Parser.php"
+     //line 148 "src/SQLParser/Parser.y"
+     public function yy_r71()
+     {
+         $this->_retvalue = new Stmt\Join('INNER', $this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2549 "src/SQLParser/Parser.php"
+     //line 150 "src/SQLParser/Parser.y"
+     public function yy_r72()
+     {
+         $this->_retvalue = 'NATURAL';
+     }
+
+     //line 2552 "src/SQLParser/Parser.php"
+     //line 152 "src/SQLParser/Parser.y"
+     public function yy_r74()
+     {
+         $this->_retvalue = 'OUTER';
+     }
+
+     //line 2555 "src/SQLParser/Parser.php"
+     //line 155 "src/SQLParser/Parser.y"
+     public function yy_r76()
+     {
+         $this->_retvalue = ['ON', $this->yystack[$this->yyidx + 0]->minor];
+     }
+
+     //line 2558 "src/SQLParser/Parser.php"
+     //line 156 "src/SQLParser/Parser.y"
+     public function yy_r77()
+     {
+         $this->_retvalue = ['USING', $this->yystack[$this->yyidx + 0]->minor];
+     }
+
+     //line 2561 "src/SQLParser/Parser.php"
+     //line 157 "src/SQLParser/Parser.y"
+     public function yy_r78()
+     {
+         $this->_retvalue = ['USING',  $this->yystack[$this->yyidx + -1]->minor];
+     }
+
+     //line 2564 "src/SQLParser/Parser.php"
+     //line 158 "src/SQLParser/Parser.y"
+     public function yy_r79()
+     {
+         $this->_retvalue = null;
+     }
+
+     //line 2567 "src/SQLParser/Parser.php"
+     //line 163 "src/SQLParser/Parser.y"
+     public function yy_r82()
+     {
+         $this->_retvalue = new Stmt\ExprList();
+         $this->_retvalue->setExprs($this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2573 "src/SQLParser/Parser.php"
+     //line 172 "src/SQLParser/Parser.y"
+     public function yy_r86()
+     {
+         $this->_retvalue = new Stmt\Expr(strtoupper($this->yystack[$this->yyidx + 0]->minor), $this->yystack[$this->yyidx + -1]->minor);
+     }
+
+     //line 2578 "src/SQLParser/Parser.php"
+     //line 175 "src/SQLParser/Parser.y"
+     public function yy_r87()
+     {
+         $this->_retvalue = new Stmt\Expr('ASC', $this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2581 "src/SQLParser/Parser.php"
+     //line 178 "src/SQLParser/Parser.y"
+     public function yy_r89()
+     {
+         $this->_retvalue = [$this->yystack[$this->yyidx + 0]->minor, $this->yystack[$this->yyidx + -2]->minor];
+     }
+
+     //line 2584 "src/SQLParser/Parser.php"
+     //line 182 "src/SQLParser/Parser.y"
+     public function yy_r92()
+     {
+         $this->_retvalue = [$this->yystack[$this->yyidx + 0]->minor, null];
+     }
+
+     //line 2587 "src/SQLParser/Parser.php"
+     //line 186 "src/SQLParser/Parser.y"
+     public function yy_r95()
+     {
+         $this->_retvalue = $this->yystack[$this->yyidx + -1]->minor;
+         $this->yystack[$this->yyidx + -1]->minor->values($this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2590 "src/SQLParser/Parser.php"
+     //line 188 "src/SQLParser/Parser.y"
+     public function yy_r97()
+     {
+         $this->_retvalue = $this->yystack[$this->yyidx + -3]->minor;
+         $this->yystack[$this->yyidx + -3]->minor->values($this->yystack[$this->yyidx + -1]->minor);
+         if ($this->yystack[$this->yyidx + 0]->minor) {
+             $this->_retvalue->onDuplicate($this->yystack[$this->yyidx + 0]->minor);
+         }
+     }
+
+     //line 2596 "src/SQLParser/Parser.php"
+     //line 192 "src/SQLParser/Parser.y"
+     public function yy_r98()
+     {
+         $this->_retvalue = $this->yystack[$this->yyidx + -2]->minor;
+         $keys = new Stmt\ExprList();
+         $values = [];
+         foreach ($this->yystack[$this->yyidx + -1]->minor->getExprs() as $field) {
+             $member = $field->getMembers();
+             $keys->addTerm($member[0]);
+             $values[] = $member[1];
+         }
+         $this->yystack[$this->yyidx + -2]->minor->values([$values])->fields($keys);
+         if ($this->yystack[$this->yyidx + 0]->minor) {
+             $this->_retvalue->onDuplicate($this->yystack[$this->yyidx + 0]->minor);
+         }
+     }
+
+     //line 2610 "src/SQLParser/Parser.php"
+     //line 205 "src/SQLParser/Parser.y"
+     public function yy_r99()
+     {
+         $this->_retvalue = new SQL\Drop('TABLE', $this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2615 "src/SQLParser/Parser.php"
+     //line 209 "src/SQLParser/Parser.y"
+     public function yy_r100()
+     {
+         $this->_retvalue = new SQL\Delete($this->yystack[$this->yyidx + -3]->minor[0], $this->yystack[$this->yyidx + -3]->minor[1]);
+         if ($this->yystack[$this->yyidx + -2]->minor) {
+             $this->_retvalue->where($this->yystack[$this->yyidx + -2]->minor);
+         }
+         if ($this->yystack[$this->yyidx + -1]->minor) {
+             $this->_retvalue->orderBy($this->yystack[$this->yyidx + -1]->minor);
+         }
+         if ($this->yystack[$this->yyidx + 0]->minor) {
+             $this->_retvalue->limit($this->yystack[$this->yyidx + 0]->minor[0], $this->yystack[$this->yyidx + 0]->minor[1]);
+         }
+     }
+
+     //line 2623 "src/SQLParser/Parser.php"
+     //line 216 "src/SQLParser/Parser.y"
+     public function yy_r101()
+     {
+         $this->_retvalue = new SQL\Update($this->yystack[$this->yyidx + -5]->minor, $this->yystack[$this->yyidx + -3]->minor);
+         if ($this->yystack[$this->yyidx + -4]->minor) {
+             $this->_retvalue->joins($this->yystack[$this->yyidx + -4]->minor);
+         }
+         if ($this->yystack[$this->yyidx + -2]->minor) {
+             $this->_retvalue->where($this->yystack[$this->yyidx + -2]->minor);
+         }
+         if ($this->yystack[$this->yyidx + -1]->minor) {
+             $this->_retvalue->orderBy($this->yystack[$this->yyidx + -1]->minor);
+         }
+         if ($this->yystack[$this->yyidx + 0]->minor) {
+             $this->_retvalue->limit($this->yystack[$this->yyidx + 0]->minor[0], $this->yystack[$this->yyidx + 0]->minor[1]);
+         }
+     }
+
+     //line 2632 "src/SQLParser/Parser.php"
+     //line 224 "src/SQLParser/Parser.y"
+     public function yy_r102()
+     {
+         $this->_retvalue = new SQL\Insert($this->yystack[$this->yyidx + -2]->minor);
+         $this->_retvalue->into($this->yystack[$this->yyidx + 0]->minor[0]);
+         if ($this->yystack[$this->yyidx + 0]->minor[1]) {
+             $this->_retvalue->fields($this->yystack[$this->yyidx + 0]->minor[1]);
+         }
+     }
+
+     //line 2639 "src/SQLParser/Parser.php"
+     //line 229 "src/SQLParser/Parser.y"
+     public function yy_r103()
+     {
+         $this->_retvalue = new SQL\Insert($this->yystack[$this->yyidx + -1]->minor);
+         $this->_retvalue->into($this->yystack[$this->yyidx + 0]->minor[0]);
+         if ($this->yystack[$this->yyidx + 0]->minor[1]) {
+             $this->_retvalue->fields($this->yystack[$this->yyidx + 0]->minor[1]);
+         }
+     }
+
+     //line 2646 "src/SQLParser/Parser.php"
+     //line 235 "src/SQLParser/Parser.y"
+     public function yy_r104()
+     {
+         $this->_retvalue = [$this->yystack[$this->yyidx + 0]->minor, null];
+     }
+
+     //line 2649 "src/SQLParser/Parser.php"
+     //line 236 "src/SQLParser/Parser.y"
+     public function yy_r105()
+     {
+         $this->_retvalue = [$this->yystack[$this->yyidx + -3]->minor, $this->yystack[$this->yyidx + -1]->minor];
+     }
+
+     //line 2652 "src/SQLParser/Parser.php"
+     //line 243 "src/SQLParser/Parser.y"
+     public function yy_r109()
+     {
+         $this->_retvalue = $this->yystack[$this->yyidx + -2]->minor->addTerm($this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2655 "src/SQLParser/Parser.php"
+     //line 244 "src/SQLParser/Parser.y"
+     public function yy_r110()
+     {
+         $this->_retvalue = new Stmt\ExprList($this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2658 "src/SQLParser/Parser.php"
+     //line 245 "src/SQLParser/Parser.y"
+     public function yy_r111()
+     {
+         $this->_retvalue = new Stmt\Expr('=', $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2663 "src/SQLParser/Parser.php"
+     //line 249 "src/SQLParser/Parser.y"
+     public function yy_r112()
+     {
+         $this->_retvalue = new SQL\View($this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2668 "src/SQLParser/Parser.php"
+     //line 253 "src/SQLParser/Parser.y"
+     public function yy_r113()
+     {
+         $this->_retvalue = new SQL\Table($this->yystack[$this->yyidx + -4]->minor, $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2673 "src/SQLParser/Parser.php"
+     //line 257 "src/SQLParser/Parser.y"
+     public function yy_r114()
+     {
+         $this->_retvalue = array_merge($this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2676 "src/SQLParser/Parser.php"
+     //line 260 "src/SQLParser/Parser.y"
+     public function yy_r116()
+     {
+         $this->_retvalue[implode(' ', $this->yystack[$this->yyidx + -2]->minor)] = $this->yystack[$this->yyidx + 0]->minor->getMember(0);
+     }
+
+     //line 2681 "src/SQLParser/Parser.php"
+     //line 268 "src/SQLParser/Parser.y"
+     public function yy_r120()
+     {
+         $this->_retvalue = [$this->yystack[$this->yyidx + 0]->minor];
+     }
+
+     //line 2684 "src/SQLParser/Parser.php"
+     //line 270 "src/SQLParser/Parser.y"
+     public function yy_r121()
+     {
+         $this->_retvalue = ['primary', $this->yystack[$this->yyidx + 0]->minor];
+     }
+
+     //line 2689 "src/SQLParser/Parser.php"
+     //line 273 "src/SQLParser/Parser.y"
+     public function yy_r122()
+     {
+         $this->_retvalue = ['unique', $this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + 0]->minor];
+     }
+
+     //line 2694 "src/SQLParser/Parser.php"
+     //line 276 "src/SQLParser/Parser.y"
+     public function yy_r123()
+     {
+         $this->_retvalue = ['key', $this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + 0]->minor];
+     }
+
+     //line 2699 "src/SQLParser/Parser.php"
+     //line 284 "src/SQLParser/Parser.y"
+     public function yy_r127()
+     {
+         $this->_retvalue = new Stmt\Expr('INDEX', $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2704 "src/SQLParser/Parser.php"
+     //line 293 "src/SQLParser/Parser.y"
+     public function yy_r132()
+     {
+         $this->_retvalue = new Stmt\Column($this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + -1]->minor[0], $this->yystack[$this->yyidx + -1]->minor[1], $this->yystack[$this->yyidx + -1]->minor[2]);
+         foreach ($this->yystack[$this->yyidx + 0]->minor as $setting) {
+             if (is_array($setting)) {
+                 $this->_retvalue->{$setting[0]}($setting[1]);
+             } else {
+                 $this->_retvalue->{$setting}();
+             }
+         }
+     }
+
+     //line 2716 "src/SQLParser/Parser.php"
+     //line 304 "src/SQLParser/Parser.y"
+     public function yy_r133()
+     {
+         $this->_retvalue = [$this->yystack[$this->yyidx + -1]->minor, null, $this->yystack[$this->yyidx + 0]->minor];
+     }
+
+     //line 2721 "src/SQLParser/Parser.php"
+     //line 308 "src/SQLParser/Parser.y"
+     public function yy_r134()
+     {
+         $this->_retvalue = [$this->yystack[$this->yyidx + -4]->minor, $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor];
+     }
+
+     //line 2726 "src/SQLParser/Parser.php"
+     //line 322 "src/SQLParser/Parser.y"
+     public function yy_r140()
+     {
+         $this->_retvalue = ['defaultValue', $this->yystack[$this->yyidx + 0]->minor];
+     }
+
+     //line 2729 "src/SQLParser/Parser.php"
+     //line 323 "src/SQLParser/Parser.y"
+     public function yy_r141()
+     {
+         $this->_retvalue = ['collate', $this->yystack[$this->yyidx + 0]->minor];
+     }
+
+     //line 2732 "src/SQLParser/Parser.php"
+     //line 324 "src/SQLParser/Parser.y"
+     public function yy_r142()
+     {
+         $this->_retvalue = 'primaryKey';
+     }
+
+     //line 2735 "src/SQLParser/Parser.php"
+     //line 325 "src/SQLParser/Parser.y"
+     public function yy_r143()
+     {
+         $this->_retvalue = 'notNull';
+     }
+
+     //line 2738 "src/SQLParser/Parser.php"
+     //line 326 "src/SQLParser/Parser.y"
+     public function yy_r144()
+     {
+         $this->_retvalue = 'autoincrement';
+     }
+
+     //line 2741 "src/SQLParser/Parser.php"
+     //line 329 "src/SQLParser/Parser.y"
+     public function yy_r145()
+     {
+         $this->_retvalue = new Stmt\Expr('and', $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2744 "src/SQLParser/Parser.php"
+     //line 330 "src/SQLParser/Parser.y"
+     public function yy_r146()
+     {
+         $this->_retvalue = new Stmt\Expr('or', $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2747 "src/SQLParser/Parser.php"
+     //line 331 "src/SQLParser/Parser.y"
+     public function yy_r147()
+     {
+         if ('IS NULL' === $this->yystack[$this->yyidx + 0]->minor->getType()) {
+             $parts = $this->yystack[$this->yyidx + 0]->minor->getMembers();
+             $this->_retvalue = new Stmt\Expr('IS NOT NULL', $parts[0]);
+
+             return;
+         }
+         $this->_retvalue = new Stmt\Expr('not', $this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2757 "src/SQLParser/Parser.php"
+     //line 339 "src/SQLParser/Parser.y"
+     public function yy_r148()
+     {
+         $this->_retvalue = new Stmt\Expr('expr', $this->yystack[$this->yyidx + -1]->minor);
+     }
+
+     //line 2760 "src/SQLParser/Parser.php"
+     //line 341 "src/SQLParser/Parser.y"
+     public function yy_r150()
+     {
+         $members = $this->yystack[$this->yyidx + -2]->minor->getMembers();
+         if ('VALUE' === $this->yystack[$this->yyidx + -2]->minor->getType() && 2 === count($members) && 2 === $members[1]) {
+             $this->yystack[$this->yyidx + -2]->minor = new Stmt\Expr('COLUMN', $members[0]);
+         }
+         $this->_retvalue = new Stmt\Expr($this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2769 "src/SQLParser/Parser.php"
+     //line 348 "src/SQLParser/Parser.y"
+     public function yy_r151()
+     {
+         $this->_retvalue = new Stmt\Expr('IS NOT NULL', $this->yystack[$this->yyidx + -3]->minor);
+     }
+
+     //line 2772 "src/SQLParser/Parser.php"
+     //line 349 "src/SQLParser/Parser.y"
+     public function yy_r152()
+     {
+         $this->_retvalue = new Stmt\Expr('IS NULL', $this->yystack[$this->yyidx + -2]->minor);
+     }
+
+     //line 2775 "src/SQLParser/Parser.php"
+     //line 350 "src/SQLParser/Parser.y"
+     public function yy_r153()
+     {
+         $this->_retvalue = new Stmt\Expr($this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2778 "src/SQLParser/Parser.php"
+     //line 351 "src/SQLParser/Parser.y"
+     public function yy_r154()
+     {
+         $this->_retvalue = new Stmt\Expr('not between', $this->yystack[$this->yyidx + -5]->minor, $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2783 "src/SQLParser/Parser.php"
+     //line 354 "src/SQLParser/Parser.y"
+     public function yy_r155()
+     {
+         $this->_retvalue = new Stmt\Expr('between', $this->yystack[$this->yyidx + -4]->minor, $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2788 "src/SQLParser/Parser.php"
+     //line 365 "src/SQLParser/Parser.y"
+     public function yy_r158()
+     {
+         $this->_retvalue = new Stmt\Expr($this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + -2]->minor, new Stmt\Expr('expr', $this->yystack[$this->yyidx + 0]->minor));
+     }
+
+     //line 2791 "src/SQLParser/Parser.php"
+     //line 369 "src/SQLParser/Parser.y"
+     public function yy_r161()
+     {
+         $this->_retvalue = 'IN';
+     }
+
+     //line 2794 "src/SQLParser/Parser.php"
+     //line 370 "src/SQLParser/Parser.y"
+     public function yy_r162()
+     {
+         $this->_retvalue = 'NOT IN';
+     }
+
+     //line 2797 "src/SQLParser/Parser.php"
+     //line 372 "src/SQLParser/Parser.y"
+     public function yy_r163()
+     {
+         $this->_retvalue = 'NOT '.$this->yystack[$this->yyidx + 0]->minor;
+     }
+
+     //line 2800 "src/SQLParser/Parser.php"
+     //line 375 "src/SQLParser/Parser.y"
+     public function yy_r165()
+     {
+         $this->_retvalue = 'IS';
+     }
+
+     //line 2803 "src/SQLParser/Parser.php"
+     //line 376 "src/SQLParser/Parser.y"
+     public function yy_r166()
+     {
+         $this->_retvalue = 'LIKE';
+     }
+
+     //line 2806 "src/SQLParser/Parser.php"
+     //line 377 "src/SQLParser/Parser.y"
+     public function yy_r167()
+     {
+         $this->_retvalue = 'GLOB';
+     }
+
+     //line 2809 "src/SQLParser/Parser.php"
+     //line 381 "src/SQLParser/Parser.y"
+     public function yy_r169()
+     {
+         $this->yystack[$this->yyidx + -1]->minor = array_merge(['CASE'], $this->yystack[$this->yyidx + -1]->minor);
+         $this->_retvalue = new Stmt\Expr($this->yystack[$this->yyidx + -1]->minor);
+     }
+
+     //line 2815 "src/SQLParser/Parser.php"
+     //line 385 "src/SQLParser/Parser.y"
+     public function yy_r170()
+     {
+         $this->yystack[$this->yyidx + -3]->minor = array_merge(['CASE'], $this->yystack[$this->yyidx + -3]->minor, [$this->yystack[$this->yyidx + -1]->minor]);
+         $this->_retvalue = new Stmt\Expr($this->yystack[$this->yyidx + -3]->minor);
+     }
+
+     //line 2821 "src/SQLParser/Parser.php"
+     //line 390 "src/SQLParser/Parser.y"
+     public function yy_r171()
+     {
+         $this->_retvalue = $this->yystack[$this->yyidx + -4]->minor;
+         $this->yystack[$this->yyidx + -4]->minor[] = new Stmt\Expr('WHEN', $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2824 "src/SQLParser/Parser.php"
+     //line 391 "src/SQLParser/Parser.y"
+     public function yy_r172()
+     {
+         $this->_retvalue = [new Stmt\Expr('WHEN', $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor)];
+     }
+
+     //line 2827 "src/SQLParser/Parser.php"
+     //line 393 "src/SQLParser/Parser.y"
+     public function yy_r173()
+     {
+         $this->_retvalue = new Stmt\Expr('timeinterval', $this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2830 "src/SQLParser/Parser.php"
+     //line 394 "src/SQLParser/Parser.y"
+     public function yy_r174()
+     {
+         $this->_retvalue = new Stmt\Expr('value', $this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2833 "src/SQLParser/Parser.php"
+     //line 395 "src/SQLParser/Parser.y"
+     public function yy_r175()
+     {
+         $this->_retvalue = new Stmt\Expr('value', -1 * $this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2836 "src/SQLParser/Parser.php"
+     //line 396 "src/SQLParser/Parser.y"
+     public function yy_r176()
+     {
+         $this->_retvalue = new Stmt\Expr('value', 0 + $this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2839 "src/SQLParser/Parser.php"
+     //line 399 "src/SQLParser/Parser.y"
+     public function yy_r179()
+     {
+         $this->_retvalue = new Stmt\Expr('value', trim($this->yystack[$this->yyidx + 0]->minor, "'\""), 1);
+     }
+
+     //line 2842 "src/SQLParser/Parser.php"
+     //line 400 "src/SQLParser/Parser.y"
+     public function yy_r180()
+     {
+         $this->_retvalue = new Stmt\Expr('value', trim($this->yystack[$this->yyidx + 0]->minor, "'\""), 2);
+     }
+
+     //line 2845 "src/SQLParser/Parser.php"
+     //line 401 "src/SQLParser/Parser.y"
+     public function yy_r181()
+     {
+         $this->_retvalue = new Stmt\Expr('column', $this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2848 "src/SQLParser/Parser.php"
+     //line 403 "src/SQLParser/Parser.y"
+     public function yy_r183()
+     {
+         $this->_retvalue = new Stmt\Expr('expr', $this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2851 "src/SQLParser/Parser.php"
+     //line 404 "src/SQLParser/Parser.y"
+     public function yy_r184()
+     {
+         if ($this->yystack[$this->yyidx + 0]->minor instanceof Stmt\VariablePlaceholder) {
+             $this->_retvalue = $this->yystack[$this->yyidx + 0]->minor;
+         } elseif (is_array($this->yystack[$this->yyidx + 0]->minor)) {
+             $this->_retvalue = new Stmt\Expr('column', $this->yystack[$this->yyidx + 0]->minor[0], $this->yystack[$this->yyidx + 0]->minor[1]);
+         } else {
+             $this->_retvalue = new Stmt\Expr('column', $this->yystack[$this->yyidx + 0]->minor);
+         }
+     }
+
+     //line 2862 "src/SQLParser/Parser.php"
+     //line 414 "src/SQLParser/Parser.y"
+     public function yy_r185()
+     {
+         $this->_retvalue = new Stmt\Expr('value', null);
+     }
+
+     //line 2865 "src/SQLParser/Parser.php"
+     //line 416 "src/SQLParser/Parser.y"
+     public function yy_r186()
+     {
+         if ('isnull' === strtolower($this->yystack[$this->yyidx + -1]->minor)) {
+             $parts = $this->yystack[$this->yyidx + 0]->minor->getExprs();
+             if (!empty($parts[0]) && 'COLUMN' === $parts[0]->getType()) {
+                 // This is a "isnull" function call, we must convert
+                 // `isnull(col)` to `col IS NULL` (which is the correct
+                 // SQL-standard way of representing that statement)
+                 $this->_retvalue = new Stmt\Expr('IS NULL', $parts[0]);
+
+                 return;
+             }
+         }
+         $this->_retvalue = new Stmt\Expr('CALL', $this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     //line 2880 "src/SQLParser/Parser.php"
+     //line 434 "src/SQLParser/Parser.y"
+     public function yy_r190()
+     {
+         $this->_retvalue = new Stmt\ExprList();
+     }
+
+     //line 2883 "src/SQLParser/Parser.php"
+     //line 467 "src/SQLParser/Parser.y"
+     public function yy_r214()
+     {
+         $this->_retvalue = trim($this->yystack[$this->yyidx + 0]->minor, "` \r\n\t");
+     }
+
+     //line 2886 "src/SQLParser/Parser.php"
+     //line 470 "src/SQLParser/Parser.y"
+     public function yy_r216()
+     {
+         $this->_retvalue = new Stmt\Expr('ALL');
+     }
+
+     //line 2889 "src/SQLParser/Parser.php"
+     //line 472 "src/SQLParser/Parser.y"
+     public function yy_r217()
+     {
+         $this->_retvalue = new Stmt\VariablePlaceholder();
+     }
+
+     //line 2892 "src/SQLParser/Parser.php"
+     //line 473 "src/SQLParser/Parser.y"
+     public function yy_r218()
+     {
+         $this->_retvalue = new Stmt\VariablePlaceholder($this->yystack[$this->yyidx + 0]->minor);
+     }
+
+     /**
+      * Perform a reduce action and the shift that must immediately
+      * follow the reduce.
+      *
+      * For a rule such as:
+      *
+      * <pre>
+      * A ::= B blah C. { dosomething(); }
+      * </pre>
+      *
+      * This function will first call the action, if any, ("dosomething();" in our
+      * example), and then it will pop three states from the stack,
+      * one for each entry on the right-hand side of the expression
+      * (B, blah, and C in our example rule), and then push the result of the action
+      * back on to the stack with the resulting state reduced to (as described in the .out
+      * file)
+      *
+      * @param int Number of the rule by which to reduce
+      * @param mixed $yyruleno
+      */
+     public function yy_reduce($yyruleno)
+     {
+         //int $yygoto;                     /* The next state */
+         //int $yyact;                      /* The next action */
+         //mixed $yygotominor;        /* The LHS of the rule reduced */
+         //SQLParser_yyStackEntry $yymsp;            /* The top of the parser's stack */
+         //int $yysize;                     /* Amount to pop the stack */
+         $yymsp = $this->yystack[$this->yyidx];
+         if (self::$yyTraceFILE && $yyruleno >= 0
               && $yyruleno < count(self::$yyRuleName)) {
-            fprintf(self::$yyTraceFILE, "%sReduce (%d) [%s].\n",
-                self::$yyTracePrompt, $yyruleno,
-                self::$yyRuleName[$yyruleno]);
-        }
+             fprintf(
+                 self::$yyTraceFILE,
+                 "%sReduce (%d) [%s].\n",
+                 self::$yyTracePrompt,
+                 $yyruleno,
+                 self::$yyRuleName[$yyruleno]
+             );
+         }
 
-        $this->_retvalue = $yy_lefthand_side = null;
-        if (array_key_exists($yyruleno, self::$yyReduceMap)) {
-            // call the action
-            $this->_retvalue = null;
-            $this->{'yy_r' . self::$yyReduceMap[$yyruleno]}();
-            $yy_lefthand_side = $this->_retvalue;
-        }
-        $yygoto = self::$yyRuleInfo[$yyruleno]['lhs'];
-        $yysize = self::$yyRuleInfo[$yyruleno]['rhs'];
-        $this->yyidx -= $yysize;
-        for ($i = $yysize; $i; $i--) {
-            // pop all of the right-hand side parameters
-            array_pop($this->yystack);
-        }
-        $yyact = $this->yy_find_reduce_action($this->yystack[$this->yyidx]->stateno, $yygoto);
-        if ($yyact < self::YYNSTATE) {
-            /* If we are not debugging and the reduce action popped at least
-            ** one element off the stack, then we can push the new element back
-            ** onto the stack here, and skip the stack overflow test in yy_shift().
-            ** That gives a significant speed improvement. */
-            if (!self::$yyTraceFILE && $yysize) {
-                $this->yyidx++;
-                $x = new SQLParser_yyStackEntry;
-                $x->stateno = $yyact;
-                $x->major = $yygoto;
-                $x->minor = $yy_lefthand_side;
-                $this->yystack[$this->yyidx] = $x;
-            } else {
-                $this->yy_shift($yyact, $yygoto, $yy_lefthand_side);
-            }
-        } elseif ($yyact == self::YYNSTATE + self::YYNRULE + 1) {
-            $this->yy_accept();
-        }
-    }
+         $this->_retvalue = $yy_lefthand_side = null;
+         if (array_key_exists($yyruleno, self::$yyReduceMap)) {
+             // call the action
+             $this->_retvalue = null;
+             $this->{'yy_r'.self::$yyReduceMap[$yyruleno]}();
+             $yy_lefthand_side = $this->_retvalue;
+         }
+         $yygoto = self::$yyRuleInfo[$yyruleno]['lhs'];
+         $yysize = self::$yyRuleInfo[$yyruleno]['rhs'];
+         $this->yyidx -= $yysize;
+         for ($i = $yysize; $i; --$i) {
+             // pop all of the right-hand side parameters
+             array_pop($this->yystack);
+         }
+         $yyact = $this->yy_find_reduce_action($this->yystack[$this->yyidx]->stateno, $yygoto);
+         if ($yyact < self::YYNSTATE) {
+             /* If we are not debugging and the reduce action popped at least
+             ** one element off the stack, then we can push the new element back
+             ** onto the stack here, and skip the stack overflow test in yy_shift().
+             ** That gives a significant speed improvement. */
+             if (!self::$yyTraceFILE && $yysize) {
+                 ++$this->yyidx;
+                 $x = new SQLParser_yyStackEntry();
+                 $x->stateno = $yyact;
+                 $x->major = $yygoto;
+                 $x->minor = $yy_lefthand_side;
+                 $this->yystack[$this->yyidx] = $x;
+             } else {
+                 $this->yy_shift($yyact, $yygoto, $yy_lefthand_side);
+             }
+         } elseif ($yyact === self::YYNSTATE + self::YYNRULE + 1) {
+             $this->yy_accept();
+         }
+     }
 
-    /**
-     * The following code executes when the parse fails
-     * 
-     * Code from %parse_fail is inserted here
-     */
-    function yy_parse_failed()
-    {
-        if (self::$yyTraceFILE) {
-            fprintf(self::$yyTraceFILE, "%sFail!\n", self::$yyTracePrompt);
-        }
-        while ($this->yyidx >= 0) {
-            $this->yy_pop_parser_stack();
-        }
-        /* Here code is inserted which will be executed whenever the
-        ** parser fails */
-    }
+     /**
+      * The following code executes when the parse fails.
+      *
+      * Code from %parse_fail is inserted here
+      */
+     public function yy_parse_failed()
+     {
+         if (self::$yyTraceFILE) {
+             fprintf(self::$yyTraceFILE, "%sFail!\n", self::$yyTracePrompt);
+         }
+         while ($this->yyidx >= 0) {
+             $this->yy_pop_parser_stack();
+         }
+         /* Here code is inserted which will be executed whenever the
+         ** parser fails */
+     }
 
-    /**
-     * The following code executes when a syntax error first occurs.
-     * 
-     * %syntax_error code is inserted here
-     * @param int The major type of the error token
-     * @param mixed The minor type of the error token
-     */
-    function yy_syntax_error($yymajor, $TOKEN)
-    {
-#line 11 "src/SQLParser/Parser.y"
+     /**
+      * The following code executes when a syntax error first occurs.
+      *
+      * %syntax_error code is inserted here
+      *
+      * @param int The major type of the error token
+      * @param mixed The minor type of the error token
+      * @param mixed $yymajor
+      * @param mixed $TOKEN
+      */
+     public function yy_syntax_error($yymajor, $TOKEN)
+     {
+         //line 11 "src/SQLParser/Parser.y"
 
-    $expect = array();
-    foreach ($this->yy_get_expected_tokens($yymajor) as $token) {
-        $expect[] = self::$yyTokenName[$token];
-    }
-    throw new RuntimeException('Unexpected ' . $this->tokenName($yymajor) . '(' . $TOKEN. ') Expecting ' . implode(",", $expect));
-#line 3010 "src/SQLParser/Parser.php"
-    }
+         $expect = [];
+         foreach ($this->yy_get_expected_tokens($yymajor) as $token) {
+             $expect[] = self::$yyTokenName[$token];
+         }
 
-    /**
-     * The following is executed when the parser accepts
-     * 
-     * %parse_accept code is inserted here
-     */
-    function yy_accept()
-    {
-        if (self::$yyTraceFILE) {
-            fprintf(self::$yyTraceFILE, "%sAccept!\n", self::$yyTracePrompt);
-        }
-        while ($this->yyidx >= 0) {
-            $stack = $this->yy_pop_parser_stack();
-        }
-        /* Here code is inserted which will be executed whenever the
-        ** parser accepts */
-    }
+         throw new RuntimeException('Unexpected '.$this->tokenName($yymajor).'('.$TOKEN.') Expecting '.implode(',', $expect));
+         //line 3015 "src/SQLParser/Parser.php"
+     }
 
-    /**
-     * The main parser program.
-     * 
-     * The first argument is the major token number.  The second is
-     * the token value string as scanned from the input.
-     *
-     * @param int   $yymajor      the token number
-     * @param mixed $yytokenvalue the token value
-     * @param mixed ...           any extra arguments that should be passed to handlers
-     *
-     * @return void
-     */
-    function doParse($yymajor, $yytokenvalue)
-    {
+     /**
+      * The following is executed when the parser accepts.
+      *
+      * %parse_accept code is inserted here
+      */
+     public function yy_accept()
+     {
+         if (self::$yyTraceFILE) {
+             fprintf(self::$yyTraceFILE, "%sAccept!\n", self::$yyTracePrompt);
+         }
+         while ($this->yyidx >= 0) {
+             $stack = $this->yy_pop_parser_stack();
+         }
+         /* Here code is inserted which will be executed whenever the
+         ** parser accepts */
+     }
+
+     /**
+      * The main parser program.
+      *
+      * The first argument is the major token number.  The second is
+      * the token value string as scanned from the input.
+      *
+      * @param int   $yymajor      the token number
+      * @param mixed $yytokenvalue the token value
+      * @param mixed ...           any extra arguments that should be passed to handlers
+      */
+     public function doParse($yymajor, $yytokenvalue)
+     {
 //        $yyact;            /* The parser action. */
 //        $yyendofinput;     /* True if we are at the end of input */
-        $yyerrorhit = 0;   /* True if yymajor has invoked an error */
-        
-        /* (re)initialize the parser, if necessary */
-        if ($this->yyidx === null || $this->yyidx < 0) {
-            /* if ($yymajor == 0) return; // not sure why this was here... */
-            $this->yyidx = 0;
-            $this->yyerrcnt = -1;
-            $x = new SQLParser_yyStackEntry;
-            $x->stateno = 0;
-            $x->major = 0;
-            $this->yystack = array();
-            array_push($this->yystack, $x);
-        }
-        $yyendofinput = ($yymajor==0);
-        
-        if (self::$yyTraceFILE) {
-            fprintf(
-                self::$yyTraceFILE,
-                "%sInput %s\n",
-                self::$yyTracePrompt,
-                self::$yyTokenName[$yymajor]
-            );
-        }
-        
-        do {
-            $yyact = $this->yy_find_shift_action($yymajor);
-            if ($yymajor < self::YYERRORSYMBOL
+         $yyerrorhit = 0;   // True if yymajor has invoked an error
+
+         // (re)initialize the parser, if necessary
+         if (null === $this->yyidx || $this->yyidx < 0) {
+             // if ($yymajor == 0) return; // not sure why this was here...
+             $this->yyidx = 0;
+             $this->yyerrcnt = -1;
+             $x = new SQLParser_yyStackEntry();
+             $x->stateno = 0;
+             $x->major = 0;
+             $this->yystack = [];
+             $this->yystack[] = $x;
+         }
+         $yyendofinput = (0 === $yymajor);
+
+         if (self::$yyTraceFILE) {
+             fprintf(
+                 self::$yyTraceFILE,
+                 "%sInput %s\n",
+                 self::$yyTracePrompt,
+                 self::$yyTokenName[$yymajor]
+             );
+         }
+
+         do {
+             $yyact = $this->yy_find_shift_action($yymajor);
+             if ($yymajor < self::YYERRORSYMBOL
                 && !$this->yy_is_expected_token($yymajor)
             ) {
-                // force a syntax error
-                $yyact = self::YY_ERROR_ACTION;
-            }
-            if ($yyact < self::YYNSTATE) {
-                $this->yy_shift($yyact, $yymajor, $yytokenvalue);
-                $this->yyerrcnt--;
-                if ($yyendofinput && $this->yyidx >= 0) {
-                    $yymajor = 0;
-                } else {
-                    $yymajor = self::YYNOCODE;
-                }
-            } elseif ($yyact < self::YYNSTATE + self::YYNRULE) {
-                $this->yy_reduce($yyact - self::YYNSTATE);
-            } elseif ($yyact == self::YY_ERROR_ACTION) {
-                if (self::$yyTraceFILE) {
-                    fprintf(
-                        self::$yyTraceFILE,
-                        "%sSyntax Error!\n",
-                        self::$yyTracePrompt
-                    );
-                }
-                if (self::YYERRORSYMBOL) {
-                    /* A syntax error has occurred.
-                    ** The response to an error depends upon whether or not the
-                    ** grammar defines an error token "ERROR".  
-                    **
-                    ** This is what we do if the grammar does define ERROR:
-                    **
-                    **  * Call the %syntax_error function.
-                    **
-                    **  * Begin popping the stack until we enter a state where
-                    **    it is legal to shift the error symbol, then shift
-                    **    the error symbol.
-                    **
-                    **  * Set the error count to three.
-                    **
-                    **  * Begin accepting and shifting new tokens.  No new error
-                    **    processing will occur until three tokens have been
-                    **    shifted successfully.
-                    **
-                    */
-                    if ($this->yyerrcnt < 0) {
-                        $this->yy_syntax_error($yymajor, $yytokenvalue);
-                    }
-                    $yymx = $this->yystack[$this->yyidx]->major;
-                    if ($yymx == self::YYERRORSYMBOL || $yyerrorhit ) {
-                        if (self::$yyTraceFILE) {
-                            fprintf(
-                                self::$yyTraceFILE,
-                                "%sDiscard input token %s\n",
-                                self::$yyTracePrompt,
-                                self::$yyTokenName[$yymajor]
-                            );
-                        }
-                        $this->yy_destructor($yymajor, $yytokenvalue);
-                        $yymajor = self::YYNOCODE;
-                    } else {
-                        while ($this->yyidx >= 0
-                            && $yymx != self::YYERRORSYMBOL
+                 // force a syntax error
+                 $yyact = self::YY_ERROR_ACTION;
+             }
+             if ($yyact < self::YYNSTATE) {
+                 $this->yy_shift($yyact, $yymajor, $yytokenvalue);
+                 --$this->yyerrcnt;
+                 if ($yyendofinput && $this->yyidx >= 0) {
+                     $yymajor = 0;
+                 } else {
+                     $yymajor = self::YYNOCODE;
+                 }
+             } elseif ($yyact < self::YYNSTATE + self::YYNRULE) {
+                 $this->yy_reduce($yyact - self::YYNSTATE);
+             } elseif (self::YY_ERROR_ACTION === $yyact) {
+                 if (self::$yyTraceFILE) {
+                     fprintf(
+                         self::$yyTraceFILE,
+                         "%sSyntax Error!\n",
+                         self::$yyTracePrompt
+                     );
+                 }
+                 if (self::YYERRORSYMBOL) {
+                     /* A syntax error has occurred.
+                     ** The response to an error depends upon whether or not the
+                     ** grammar defines an error token "ERROR".
+                     **
+                     ** This is what we do if the grammar does define ERROR:
+                     **
+                     **  * Call the %syntax_error function.
+                     **
+                     **  * Begin popping the stack until we enter a state where
+                     **    it is legal to shift the error symbol, then shift
+                     **    the error symbol.
+                     **
+                     **  * Set the error count to three.
+                     **
+                     **  * Begin accepting and shifting new tokens.  No new error
+                     **    processing will occur until three tokens have been
+                     **    shifted successfully.
+                     **
+                     */
+                     if ($this->yyerrcnt < 0) {
+                         $this->yy_syntax_error($yymajor, $yytokenvalue);
+                     }
+                     $yymx = $this->yystack[$this->yyidx]->major;
+                     if (self::YYERRORSYMBOL === $yymx || $yyerrorhit) {
+                         if (self::$yyTraceFILE) {
+                             fprintf(
+                                 self::$yyTraceFILE,
+                                 "%sDiscard input token %s\n",
+                                 self::$yyTracePrompt,
+                                 self::$yyTokenName[$yymajor]
+                             );
+                         }
+                         $this->yy_destructor($yymajor, $yytokenvalue);
+                         $yymajor = self::YYNOCODE;
+                     } else {
+                         while ($this->yyidx >= 0
+                            && self::YYERRORSYMBOL !== $yymx
                             && ($yyact = $this->yy_find_shift_action(self::YYERRORSYMBOL)) >= self::YYNSTATE
                         ) {
-                            $this->yy_pop_parser_stack();
-                        }
-                        if ($this->yyidx < 0 || $yymajor==0) {
-                            $this->yy_destructor($yymajor, $yytokenvalue);
-                            $this->yy_parse_failed();
-                            $yymajor = self::YYNOCODE;
-                        } elseif ($yymx != self::YYERRORSYMBOL) {
-                            $u2 = 0;
-                            $this->yy_shift($yyact, self::YYERRORSYMBOL, $u2);
-                        }
-                    }
-                    $this->yyerrcnt = 3;
-                    $yyerrorhit = 1;
-                } else {
-                    /* YYERRORSYMBOL is not defined */
-                    /* This is what we do if the grammar does not define ERROR:
-                    **
-                    **  * Report an error message, and throw away the input token.
-                    **
-                    **  * If the input token is $, then fail the parse.
-                    **
-                    ** As before, subsequent error messages are suppressed until
-                    ** three input tokens have been successfully shifted.
-                    */
-                    if ($this->yyerrcnt <= 0) {
-                        $this->yy_syntax_error($yymajor, $yytokenvalue);
-                    }
-                    $this->yyerrcnt = 3;
-                    $this->yy_destructor($yymajor, $yytokenvalue);
-                    if ($yyendofinput) {
-                        $this->yy_parse_failed();
-                    }
-                    $yymajor = self::YYNOCODE;
-                }
-            } else {
-                $this->yy_accept();
-                $yymajor = self::YYNOCODE;
-            }            
-        } while ($yymajor != self::YYNOCODE && $this->yyidx >= 0);
-    }
-}
+                             $this->yy_pop_parser_stack();
+                         }
+                         if ($this->yyidx < 0 || 0 === $yymajor) {
+                             $this->yy_destructor($yymajor, $yytokenvalue);
+                             $this->yy_parse_failed();
+                             $yymajor = self::YYNOCODE;
+                         } elseif (self::YYERRORSYMBOL !== $yymx) {
+                             $u2 = 0;
+                             $this->yy_shift($yyact, self::YYERRORSYMBOL, $u2);
+                         }
+                     }
+                     $this->yyerrcnt = 3;
+                     $yyerrorhit = 1;
+                 } else {
+                     // YYERRORSYMBOL is not defined
+                     /* This is what we do if the grammar does not define ERROR:
+                     **
+                     **  * Report an error message, and throw away the input token.
+                     **
+                     **  * If the input token is $, then fail the parse.
+                     **
+                     ** As before, subsequent error messages are suppressed until
+                     ** three input tokens have been successfully shifted.
+                     */
+                     if ($this->yyerrcnt <= 0) {
+                         $this->yy_syntax_error($yymajor, $yytokenvalue);
+                     }
+                     $this->yyerrcnt = 3;
+                     $this->yy_destructor($yymajor, $yytokenvalue);
+                     if ($yyendofinput) {
+                         $this->yy_parse_failed();
+                     }
+                     $yymajor = self::YYNOCODE;
+                 }
+             } else {
+                 $this->yy_accept();
+                 $yymajor = self::YYNOCODE;
+             }
+         } while (self::YYNOCODE !== $yymajor && $this->yyidx >= 0);
+     }
+ }
