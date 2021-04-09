@@ -10,7 +10,7 @@ Sometimes we need to parse and validate SQL.
 What does it do?
 ---------------
 
-It parse SQL (mostly MySQL's SQL) and exposes the SQL query as an object so it can be manipulated and assembled back to a query.
+It parses SQL (mostly MySQL's SQL) and returns the SQL query as an object. This object can be modified programmatically to generate another SQL query.
 
 How to install?
 --------------

@@ -16,6 +16,9 @@
             "src/"
         ]
     },
+    "requires": {
+        "php": "^7.0 || ^8.0"
+    },
     "require-dev": {
         "crodas/phpunit-compat": "^1.7",
         "fpoirotte/php_parsergenerator": "^0.2.4",
