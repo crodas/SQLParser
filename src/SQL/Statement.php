@@ -1,51 +1,51 @@
 <?php
+
 /*
-   The MIT License (MIT)
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2015-2021 César Rodas
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * -
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * -
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 
-   Copyright (c) 2015 César Rodas
-
-   Permission is hereby granted, free of charge, to any person obtaining a copy
-   of this software and associated documentation files (the "Software"), to deal
-   in the Software without restriction, including without limitation the rights
-   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-   copies of the Software, and to permit persons to whom the Software is
-   furnished to do so, subject to the following conditions:
-
-   The above copyright notice and this permission notice shall be included in
-   all copies or substantial portions of the Software.
-
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-   THE SOFTWARE.
-*/
 namespace SQL;
 
-use SQLParser\Stmt\VariablePlaceholder;
-use SQLParser\Stmt\ExprList;
-use SQLParser\Stmt\Expr;
 use RuntimeException;
+use SQLParser\Stmt\Expr;
+use SQLParser\Stmt\ExprList;
+use SQLParser\Stmt\VariablePlaceholder;
 
 /**
- * Class Statement
+ * Class Statement.
  *
  * Base statement class with all the things that INSERT, UPDATE,
  * SELECT, DELETE, DROP and any other similar statement may have in
  * common.
- *
- * @package SQL
  */
 abstract class Statement
 {
-    protected $varValues = array();
+    protected $varValues = [];
 
     /**
      * @var array
      */
-    protected $comments = array();
+    protected $comments = [];
 
     /**
      * @var Expr
@@ -82,7 +82,17 @@ abstract class Statement
      */
     protected $joins = [];
 
-    protected $mods = array();
+    protected $mods = [];
+
+    /**
+     * Converts the current statement into an string, using the default writer.
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return Writer::create($this, $this->varValues);
+    }
 
     /**
      * Returns whether the current expression has any GROUP BY object.
@@ -95,9 +105,9 @@ abstract class Statement
     }
 
     /**
-     * Returns the GROUP BY object
+     * Returns the GROUP BY object.
      *
-     * @return ExprList|null
+     * @return null|ExprList
      */
     public function getGroupBy()
     {
@@ -105,7 +115,7 @@ abstract class Statement
     }
 
     /**
-     * Returns whether the current expression has any HAVING
+     * Returns whether the current expression has any HAVING.
      *
      * @return bool
      */
@@ -117,7 +127,7 @@ abstract class Statement
     /**
      * Returns the current HAVING expression object.
      *
-     * @return Expr|null
+     * @return null|Expr
      */
     public function getHaving()
     {
@@ -127,19 +137,19 @@ abstract class Statement
     /**
      * Adds GROUP BY to the current object.
      *
-     * @param ExprList $group
-     * @param Expr|null $having
      * @return $this
      */
     public function groupBy(ExprList $group, Expr $having = null)
     {
-        $this->group  = $group;
+        $this->group = $group;
         $this->having = $having;
+
         return $this;
     }
 
     /**
-     * Returns all the available options for the current
+     * Returns all the available options for the current.
+     *
      * @return array
      */
     public function getOptions()
@@ -150,7 +160,6 @@ abstract class Statement
     /**
      * Adds options for the current statement.
      *
-     * @param array $mods
      * @return $this
      */
     public function setOptions(array $mods)
@@ -163,13 +172,13 @@ abstract class Statement
         foreach ($rules as $rule) {
             $walk = [];
             foreach ($rule as $id) {
-                if (in_array($id, $mods)) {
+                if (\in_array($id, $mods, true)) {
                     $walk[] = $id;
                 }
             }
 
-            if (count($walk) > 1) {
-                throw new RuntimeException("Invalid usage of " . implode(", ", $walk));
+            if (\count($walk) > 1) {
+                throw new RuntimeException('Invalid usage of '.implode(', ', $walk));
             }
         }
 
@@ -181,12 +190,12 @@ abstract class Statement
     /**
      * Adds JOINs to the current statements.
      *
-     * @param array $joins
      * @return $this
      */
     public function joins(array $joins)
     {
         $this->joins = $joins;
+
         return $this;
     }
 
@@ -211,7 +220,7 @@ abstract class Statement
     }
 
     /**
-     * Returns whether the current statement has a WHERE
+     * Returns whether the current statement has a WHERE.
      *
      * @return bool
      */
@@ -221,9 +230,9 @@ abstract class Statement
     }
 
     /**
-     * Returns the WHERE expression for this statement
+     * Returns the WHERE expression for this statement.
      *
-     * @return Expr|null
+     * @return null|Expr
      */
     public function getWhere()
     {
@@ -231,19 +240,19 @@ abstract class Statement
     }
 
     /**
-     * Adds a WHERE expression to the current statement
+     * Adds a WHERE expression to the current statement.
      *
-     * @param Expr $expr
      * @return $this
      */
     public function where(Expr $expr)
     {
         $this->where = $expr;
+
         return $this;
     }
 
     /**
-     * Returns the OFFSET for the current statement
+     * Returns the OFFSET for the current statement.
      *
      * @return Expr|VariablePlaceholder
      */
@@ -253,27 +262,27 @@ abstract class Statement
     }
 
     /**
-     * Returns whether the current statement has an OFFSET
+     * Returns whether the current statement has an OFFSET.
      *
      * @return bool
      */
     public function hasOffset()
     {
-        return $this->offset !== NULL;
+        return null !== $this->offset;
     }
 
     /**
-     * Returns whether the current statement has any LIMIT
+     * Returns whether the current statement has any LIMIT.
      *
      * @return bool
      */
     public function hasLimit()
     {
-        return $this->limit !== NULL;
+        return null !== $this->limit;
     }
 
     /**
-     * Returns the LIMIT for the current statement
+     * Returns the LIMIT for the current statement.
      *
      * @return Expr|VariablePlaceholder
      */
@@ -283,20 +292,21 @@ abstract class Statement
     }
 
     /**
-     * @param Expr|VariablePlaceholder $limit
-     * @param Expr|VariablePlaceholder|null $offset
+     * @param Expr|VariablePlaceholder      $limit
+     * @param null|Expr|VariablePlaceholder $offset
+     *
      * @return $this
      */
-    public function limit($limit, $offset = NULL)
+    public function limit($limit, $offset = null)
     {
-        $this->limit  = $limit;
+        $this->limit = $limit;
         $this->offset = $offset;
 
         return $this;
     }
 
     /**
-     * Returns whether the current statement has ORDER BY
+     * Returns whether the current statement has ORDER BY.
      *
      * @return bool
      */
@@ -318,74 +328,35 @@ abstract class Statement
     /**
      * Adds ORDER BY to the current statement.
      *
-     * @param ExprList $orderBy
      * @return $this
      */
     public function orderBy(ExprList $orderBy)
     {
         $this->orderBy = $orderBy;
+
         return $this;
     }
 
     /**
-     * Add a list of comments associated with this statement
+     * Add a list of comments associated with this statement.
      *
-     * @param array $comments
      * @return $this
      */
     public function setComments(array $comments)
     {
         $this->comments = $comments;
+
         return $this;
     }
 
     /**
-     * Return a list of comments
+     * Return a list of comments.
      *
      * @return array
      */
     public function getComments()
     {
         return $this->comments;
-    }
-
-    /**
-     * Iterates recursively over a given $variable, calling a $callback
-     * for each value.
-     *
-     * This function is also useful to replace Statements or Expressions if the callback returns
-     * something other than NULL.
-     *
-     * @param $variable
-     * @param callable $callback
-     */
-    protected function each(&$variable, Callable $callback)
-    {
-        if ($variable instanceof ExprList) {
-            $exprs = $variable->getExprs();
-            foreach ($exprs as &$value) {
-                $this->each($value, $callback);
-            }
-            $variable->setExprs($exprs);
-        } else if (is_array($variable)) {
-            foreach ($variable as &$value) {
-                $this->each($value, $callback);
-            }
-        } else if ($variable instanceof Expr) {
-            $exprs = $variable->getMembers();
-            foreach ($exprs as &$member) {
-                $this->each($member, $callback);
-            }
-            $variable->setMembers($exprs);
-        } else if ($variable instanceof self) {
-            foreach ($variable as &$property) {
-                $this->each($property, $callback);
-            }
-        }
-        $return = $callback($variable);
-        if ($return !== NULL) {
-            $variable = $return;
-        }
     }
 
     /**
@@ -397,10 +368,8 @@ abstract class Statement
      *
      * This function is also useful to replace Statements or Expressions if the callback returns
      * something other than NULL.
-     *
-     * @param callable $callback
      */
-    public function iterate(Callable $callback)
+    public function iterate(callable $callback)
     {
         foreach ($this as &$value) {
             $this->each($value, $callback);
@@ -414,12 +383,13 @@ abstract class Statement
      */
     public function getSubQueries()
     {
-        $values = array();
-        $this->iterate(function($value) use (&$values) {
+        $values = [];
+        $this->iterate(function ($value) use (&$values) {
             if ($value instanceof Select) {
                 $values[] = $value;
             }
         });
+
         return $values;
     }
 
@@ -428,7 +398,6 @@ abstract class Statement
      *
      * This function do not check if a given variable exists.
      *
-     * @param array $variables
      * @return $this
      */
     public function setValues(array $variables)
@@ -437,6 +406,7 @@ abstract class Statement
             $this->varValues,
             $variables
         );
+
         return $this;
     }
 
@@ -445,48 +415,79 @@ abstract class Statement
      * scope.
      *
      * @param null $scope
+     *
      * @return array
      */
     public function getVariables($scope = null)
     {
         $vars = [];
-        $walk = function($value) use (&$vars) {
+        $walk = function ($value) use (&$vars) {
             if ($value instanceof VariablePlaceholder) {
                 $vars[] = $value->getName();
             }
         };
 
-        if ($scope === null) {
+        if (null === $scope) {
             $this->iterate($walk);
         } else {
-            $this->each($this->$scope, $walk);
+            $this->each($this->{$scope}, $walk);
         }
+
         return $vars;
     }
 
     /**
-     * Returns all the function calls that may exists in the statements
+     * Returns all the function calls that may exists in the statements.
      *
      * @return array
      */
     public function getFunctionCalls()
     {
         $vars = [];
-        $this->iterate(function($value) use (&$vars) {
+        $this->iterate(function ($value) use (&$vars) {
             if ($value instanceof Expr && $value->is('call')) {
                 $vars[] = $value;
             }
         });
+
         return $vars;
     }
 
     /**
-     * Converts the current statement into an string, using the default writer.
+     * Iterates recursively over a given $variable, calling a $callback
+     * for each value.
      *
-     * @return string
+     * This function is also useful to replace Statements or Expressions if the callback returns
+     * something other than NULL.
+     *
+     * @param $variable
      */
-    public function __toString()
+    protected function each(&$variable, callable $callback)
     {
-        return Writer::create($this, $this->varValues);
+        if ($variable instanceof ExprList) {
+            $exprs = $variable->getExprs();
+            foreach ($exprs as &$value) {
+                $this->each($value, $callback);
+            }
+            $variable->setExprs($exprs);
+        } elseif (\is_array($variable)) {
+            foreach ($variable as &$value) {
+                $this->each($value, $callback);
+            }
+        } elseif ($variable instanceof Expr) {
+            $exprs = $variable->getMembers();
+            foreach ($exprs as &$member) {
+                $this->each($member, $callback);
+            }
+            $variable->setMembers($exprs);
+        } elseif ($variable instanceof self) {
+            foreach ($variable as &$property) {
+                $this->each($property, $callback);
+            }
+        }
+        $return = $callback($variable);
+        if (null !== $return) {
+            $variable = $return;
+        }
     }
 }

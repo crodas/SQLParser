@@ -2,3 +2,5 @@ Lexer.phpbak
 vendor
 composer.lock
 Parser.out
+.php_cs.cache
+.phpunit.result.cache

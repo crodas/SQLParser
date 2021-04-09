@@ -1,57 +1,55 @@
 <?php
+
 /*
-   The MIT License (MIT)
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2015-2021 César Rodas
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * -
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * -
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 
-   Copyright (c) 2015 César Rodas
-
-   Permission is hereby granted, free of charge, to any person obtaining a copy
-   of this software and associated documentation files (the "Software"), to deal
-   in the Software without restriction, including without limitation the rights
-   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-   copies of the Software, and to permit persons to whom the Software is
-   furnished to do so, subject to the following conditions:
-
-   The above copyright notice and this permission notice shall be included in
-   all copies or substantial portions of the Software.
-
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-   THE SOFTWARE.
-*/
 namespace SQL;
 
 use SQLParser\Stmt\Expr;
 use SQLParser\Stmt\Join;
-use SQLParser\Stmt\VariablePlaceholder;
-use SQLParser\Stmt\ExprList;
 
 /**
- * Class Select
- *
- * @package SQL
+ * Class Select.
  */
 class Select extends Statement
 {
     /**
      * @var array
      */
-    protected $tables = array();
+    protected $tables = [];
 
     /**
      * @var array
      */
     protected $columns;
 
-    public function __construct(array $expr = NULL)
+    public function __construct(array $expr = null)
     {
         foreach ($expr as $i => $e) {
-            if ($e[0]->getType() === 'VALUE') {
+            if ('VALUE' === $e[0]->getType()) {
                 $parts = $e[0]->getMembers();
-                if (count($parts) === 2 && $parts[1] === 2) {
+                if (2 === \count($parts) && 2 === $parts[1]) {
                     $expr[$i][0] = new Expr('column', $parts[0]);
                 }
             }
@@ -61,19 +59,19 @@ class Select extends Statement
     }
 
     /**
-     * Adds tables for the current SELECT
+     * Adds tables for the current SELECT.
      *
-     * @param array $tables
      * @return $this
      */
     public function setTables(array $tables)
     {
         $this->tables = $tables;
+
         return $this;
     }
 
     /**
-     * Returns whether the current statement has any table
+     * Returns whether the current statement has any table.
      *
      * @return bool
      */
@@ -83,7 +81,7 @@ class Select extends Statement
     }
 
     /**
-     * Returns the list of tables associated with this statement
+     * Returns the list of tables associated with this statement.
      *
      * @return array
      */
@@ -93,7 +91,7 @@ class Select extends Statement
     }
 
     /**
-     * Returns all the tables in the statement
+     * Returns all the tables in the statement.
      *
      * This function will return all tables, including JOINs and
      * sub-queries.
@@ -104,16 +102,16 @@ class Select extends Statement
     {
         $tables = $this->tables;
 
-        $this->iterate(function($stmt) use (&$tables) {
-            if ($stmt instanceof Select) {
+        $this->iterate(function ($stmt) use (&$tables) {
+            if ($stmt instanceof self) {
                 $tables = array_merge($tables, $stmt->getAllTables());
-            } else if ($stmt instanceof Join) {
+            } elseif ($stmt instanceof Join) {
                 $tables[] = $stmt->getTable();
             }
         });
 
         foreach ($tables as $id => $table) {
-            if ($table instanceof Select) {
+            if ($table instanceof self) {
                 unset($tables[$id]);
                 $tables = array_merge($tables, $table->getAllTables());
             }
@@ -123,25 +121,27 @@ class Select extends Statement
     }
 
     /**
-     * Adds a table to the current statement
+     * Adds a table to the current statement.
      *
-     * @param string $table
-     * @param string|null $alias
+     * @param string      $table
+     * @param null|string $alias
+     *
      * @return $this
      */
-    public function from($table, $alias = NULL)
+    public function from($table, $alias = null)
     {
-        if ($alias === NULL) {
-            $alias = count($this->tables);
+        if (null === $alias) {
+            $alias = \count($this->tables);
         }
         $this->tables[$alias] = $table;
+
         return $this;
     }
 
     /**
-     * Returns the list of columns in this statement
+     * Returns the list of columns in this statement.
      *
-     * @return array|null
+     * @return null|array
      */
     public function getColumns()
     {
