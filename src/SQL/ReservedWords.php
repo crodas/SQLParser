@@ -28,177 +28,92 @@ namespace SQL;
 
 class ReservedWords
 {
-    const T_ADD = 'add';
-
-    const T_AFTER = 'after';
-
-    const T_ALL = 'all';
-
-    const T_ALTER = 'alter';
-
-    const T_AND = 'and';
-
-    const T_AS = 'as';
-
-    const T_ASC = 'asc';
-
-    const T_AUTO_INCREMENT = 'auto_increment';
-
-    const T_BEGIN = 'begin';
-
-    const T_BETWEEN = 'between';
-
-    const T_BINARY = 'binary';
-
-    const T_BITWISE = 'bitwise';
-
-    const T_BY = 'by';
-
-    const T_CASE = 'case';
-
-    const T_CHANGE = 'change';
-
-    const T_COLLATE = 'collate';
-
-    const T_COLUMN = 'column';
-
-    const T_COMMIT = 'commit';
-
-    const T_CREATE = 'create';
-
-    const T_DEFAULT = 'default';
-
-    const T_DELETE = 'delete';
-
-    const T_DESC = 'desc';
-
-    const T_DISTINCT = 'distinct';
-
-    const T_DISTINCTROW = 'distinctrow';
-
-    const T_DROP = 'drop';
-
-    const T_DUPLICATE = 'duplicate';
-
-    const T_ELSE = 'else';
-
-    const T_END = 'end';
-
-    const T_FILTER_PIPE = 'filter_pipe';
-
-    const T_FIRST = 'first';
-
-    const T_FROM = 'from';
-
-    const T_GLOB = 'glob';
-
-    const T_GROUP = 'group';
-
-    const T_HAVING = 'having';
-
-    const T_HIGH_PRIORITY = 'high_priority';
-
-    const T_IN = 'in';
-
-    const T_INDEX = 'index';
-
-    const T_INNER = 'inner';
-
-    const T_INSERT = 'insert';
-
-    const T_INTERVAL = 'interval';
-
-    const T_INTO = 'into';
-
-    const T_IS = 'is';
-
-    const T_JOIN = 'join';
-
-    const T_KEY = 'key';
-
-    const T_LEFT = 'left';
-
-    const T_LIKE = 'like';
-
-    const T_LIMIT = 'limit';
-
-    const T_LT = 'lt';
-
-    const T_MODIFY = 'modify';
-
-    const T_NATURAL = 'natural';
-
-    const T_NOT = 'not';
-
-    const T_NULL = 'null';
-
-    const T_OFFSET = 'offset';
-
-    const T_ON = 'on';
-
-    const T_OR = 'or';
-
-    const T_ORDER = 'order';
-
-    const T_OUTER = 'outer';
-
-    const T_PIPE = 'pipe';
-
-    const T_PRIMARY = 'primary';
-
-    const T_RELEASE = 'release';
-
-    const T_RENAME = 'rename';
-
-    const T_ROLLBACK = 'rollback';
-
-    const T_RT_IGHT = 'rt_ight';
-
-    const T_SAVEPOINT = 'savepoint';
-
-    const T_SELECT = 'select';
-
-    const T_SET = 'set';
-
-    const T_SQL_BIG_RESULT = 'sql_big_result';
-
-    const T_SQL_BUFFER_RESULT = 'sql_buffer_result';
-
-    const T_SQL_CACHE = 'sql_cache';
-
+    const T_ADD                 = 'add';
+    const T_AFTER               = 'after';
+    const T_ALL                 = 'all';
+    const T_ALTER               = 'alter';
+    const T_AND                 = 'and';
+    const T_AS                  = 'as';
+    const T_ASC                 = 'asc';
+    const T_AUTO_INCREMENT      = 'auto_increment';
+    const T_BEGIN               = 'begin';
+    const T_BETWEEN             = 'between';
+    const T_BINARY              = 'binary';
+    const T_BITWISE             = 'bitwise';
+    const T_BY                  = 'by';
+    const T_CASE                = 'case';
+    const T_CHANGE              = 'change';
+    const T_COLLATE             = 'collate';
+    const T_COLUMN              = 'column';
+    const T_COMMIT              = 'commit';
+    const T_CREATE              = 'create';
+    const T_DEFAULT             = 'default';
+    const T_DELETE              = 'delete';
+    const T_DESC                = 'desc';
+    const T_DISTINCT            = 'distinct';
+    const T_DISTINCTROW         = 'distinctrow';
+    const T_DROP                = 'drop';
+    const T_DUPLICATE           = 'duplicate';
+    const T_ELSE                = 'else';
+    const T_END                 = 'end';
+    const T_FILTER_PIPE         = 'filter_pipe';
+    const T_FIRST               = 'first';
+    const T_FROM                = 'from';
+    const T_GLOB                = 'glob';
+    const T_GROUP               = 'group';
+    const T_HAVING              = 'having';
+    const T_HIGH_PRIORITY       = 'high_priority';
+    const T_IN                  = 'in';
+    const T_INDEX               = 'index';
+    const T_INNER               = 'inner';
+    const T_INSERT              = 'insert';
+    const T_INTERVAL            = 'interval';
+    const T_INTO                = 'into';
+    const T_IS                  = 'is';
+    const T_JOIN                = 'join';
+    const T_KEY                 = 'key';
+    const T_LEFT                = 'left';
+    const T_LIKE                = 'like';
+    const T_LIMIT               = 'limit';
+    const T_LT                  = 'lt';
+    const T_MODIFY              = 'modify';
+    const T_NATURAL             = 'natural';
+    const T_NOT                 = 'not';
+    const T_NULL                = 'null';
+    const T_OFFSET              = 'offset';
+    const T_ON                  = 'on';
+    const T_OR                  = 'or';
+    const T_ORDER               = 'order';
+    const T_OUTER               = 'outer';
+    const T_PIPE                = 'pipe';
+    const T_PRIMARY             = 'primary';
+    const T_RELEASE             = 'release';
+    const T_RENAME              = 'rename';
+    const T_ROLLBACK            = 'rollback';
+    const T_RT_IGHT             = 'rt_ight';
+    const T_SAVEPOINT           = 'savepoint';
+    const T_SELECT              = 'select';
+    const T_SET                 = 'set';
+    const T_SQL_BIG_RESULT      = 'sql_big_result';
+    const T_SQL_BUFFER_RESULT   = 'sql_buffer_result';
+    const T_SQL_CACHE           = 'sql_cache';
     const T_SQL_CALC_FOUND_ROWS = 'sql_calc_found_rows';
-
-    const T_SQL_NO_CACHE = 'sql_no_cache';
-
-    const T_SQL_SMALL_RESULT = 'sql_small_result';
-
-    const T_STRAIGHT_JOIN = 'straight_join';
-
-    const T_TABLE = 'table';
-
-    const T_THEN = 'then';
-
-    const T_TO = 'to';
-
-    const T_TRANSACTION = 'transaction';
-
-    const T_UNIQUE = 'unique';
-
-    const T_UNSIGNED = 'unsigned';
-
-    const T_UPDATE = 'update';
-
-    const T_USING = 'using';
-
-    const T_VALUES = 'values';
-
-    const T_VIEW = 'view';
-
-    const T_WHEN = 'when';
-
-    const T_WHERE = 'where';
-
-    const T_WORK = 'work';
+    const T_SQL_NO_CACHE        = 'sql_no_cache';
+    const T_SQL_SMALL_RESULT    = 'sql_small_result';
+    const T_STRAIGHT_JOIN       = 'straight_join';
+    const T_TABLE               = 'table';
+    const T_THEN                = 'then';
+    const T_TO                  = 'to';
+    const T_TRANSACTION         = 'transaction';
+    const T_UNIQUE              = 'unique';
+    const T_UNSIGNED            = 'unsigned';
+    const T_UPDATE              = 'update';
+    const T_USING               = 'using';
+    const T_VALUES              = 'values';
+    const T_VIEW                = 'view';
+    const T_WHEN                = 'when';
+    const T_WHERE               = 'where';
+    const T_WORK                = 'work';
 
     public static $words = [
         self::T_ADD                 => true,

@@ -9,7 +9,7 @@ $array     = '';
 
 foreach (Lexer::getKeywords() as $code => $id) {
     $array     .= 'self::T_' . strtoupper($code) . " => true,\n";
-    $constants .= 'const T_' . strtoupper($code) . ' = ' . var_export($code, true) . ";\n\n";
+    $constants .= 'const T_' . strtoupper($code) . ' = ' . var_export($code, true) . ";\n";
 }
 
 $code = '<?php
