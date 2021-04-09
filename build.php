@@ -5,8 +5,10 @@ require __DIR__ . '/vendor/autoload.php';
 use SQLParser\Lexer;
 
 $constants = '';
+$array     = '';
 
 foreach (Lexer::getKeywords() as $code => $id) {
+    $array     .= 'self::T_' . strtoupper($code) . " => true,\n";
     $constants .= 'const T_' . strtoupper($code) . ' = ' . var_export($code, true) . ";\n\n";
 }
 
@@ -16,8 +18,8 @@ namespace SQL;
 
 class ReservedWords
 {
-    ' . $constants . '
-    public static $words = ' . var_export(Lexer::getKeywords(), true) . ';
+    ' . $constants ."
+    public static \$words = [\n" . $array . '];
 }';
 
 
