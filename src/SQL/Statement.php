@@ -141,7 +141,7 @@ abstract class Statement
      */
     public function groupBy(ExprList $group, Expr $having = null)
     {
-        $this->group = $group;
+        $this->group  = $group;
         $this->having = $having;
 
         return $this;
@@ -299,7 +299,7 @@ abstract class Statement
      */
     public function limit($limit, $offset = null)
     {
-        $this->limit = $limit;
+        $this->limit  = $limit;
         $this->offset = $offset;
 
         return $this;

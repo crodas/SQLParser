@@ -38,7 +38,7 @@ class AddIndex extends AlterTable
     {
         $this->indexType = $type;
         $this->indexName = $name;
-        $this->columns = $columns;
+        $this->columns   = $columns;
     }
 
     public function getIndexName()

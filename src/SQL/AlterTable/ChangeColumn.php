@@ -34,8 +34,8 @@ class ChangeColumn extends AlterTable
 
     public function __construct($oldName, Column $column, $position)
     {
-        $this->oldName = $oldName;
-        $this->column = $column;
+        $this->oldName  = $oldName;
+        $this->column   = $column;
         $this->position = $position;
     }
 

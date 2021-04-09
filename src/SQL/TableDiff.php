@@ -61,8 +61,8 @@ class TableDiff
     public function getIndexChanges(Table $old, Table $current)
     {
         $changes = [];
-        $old = $old->getIndexes();
-        $new = $current->getIndexes();
+        $old     = $old->getIndexes();
+        $new     = $current->getIndexes();
 
         foreach ($old as $name => $index) {
             if (empty($new[$name]) || $new[$name]['cols'] !== $index['cols']) {
@@ -92,7 +92,7 @@ class TableDiff
      */
     public function getColumnChanges(Table $old, Table $current)
     {
-        $changes = [];
+        $changes  = [];
         $oldNames = $this->getColumns($old);
         $newNames = $this->getColumns($current);
 
@@ -152,7 +152,7 @@ class TableDiff
      */
     public function diff($oldSQL, $newSQL)
     {
-        $old = $this->getTable($oldSQL);
+        $old     = $this->getTable($oldSQL);
         $current = $this->getTable($newSQL);
         $changes = [];
 

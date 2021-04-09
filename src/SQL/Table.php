@@ -34,11 +34,11 @@ class Table extends Statement
     protected $name;
     protected $options;
     protected $columns = [];
-    protected $keys = [];
+    protected $keys    = [];
 
     public function __construct($alpha, array $columns, array $options = [])
     {
-        $this->name = $alpha;
+        $this->name    = $alpha;
         $this->options = $options;
         $this->columns = array_filter($columns, 'is_object');
 
@@ -61,7 +61,7 @@ class Table extends Statement
             case 'unique':
                 $this->keys[$column[1]] = [
                     'unique' => true,
-                    'cols' => $column[2]->getExprs(),
+                    'cols'   => $column[2]->getExprs(),
                 ];
 
                 break;
@@ -69,7 +69,7 @@ class Table extends Statement
             case 'key':
                 $this->keys[$column[1]] = [
                     'unique' => false,
-                    'cols' => $column[2]->getExprs(),
+                    'cols'   => $column[2]->getExprs(),
                 ];
 
                 break;
@@ -93,7 +93,7 @@ class Table extends Statement
     {
         $this->keys[$index->getIndexName()] = [
             'unique' => 'UNIQUE' === $index->getIndexType(),
-            'cols' => $index->getColumns()->getExprs(),
+            'cols'   => $index->getColumns()->getExprs(),
         ];
     }
 

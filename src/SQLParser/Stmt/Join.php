@@ -38,9 +38,9 @@ class Join
 
     public function __construct($type, $prefix = '', $sufix = '')
     {
-        $this->type = strtoupper($type);
+        $this->type   = strtoupper($type);
         $this->prefix = strtoupper($prefix);
-        $this->sufix = strtoupper($sufix);
+        $this->sufix  = strtoupper($sufix);
     }
 
     public function getAlias()
@@ -93,7 +93,7 @@ class Join
 
     public function using(ExprList $expr)
     {
-        $this->on = null;
+        $this->on    = null;
         $this->using = $expr;
 
         return $this;
@@ -102,7 +102,7 @@ class Join
     public function on($expr)
     {
         $this->using = null;
-        $this->on = $expr;
+        $this->on    = $expr;
 
         return $this;
     }

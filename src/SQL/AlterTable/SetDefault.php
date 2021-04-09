@@ -33,7 +33,7 @@ class SetDefault extends AlterTable
     public function __construct($columnName, $value)
     {
         $this->column = $columnName;
-        $this->value = $value;
+        $this->value  = $value;
     }
 
     public function getValue()
