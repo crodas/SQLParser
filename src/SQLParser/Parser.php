@@ -39,13 +39,13 @@ use SQLParser\Stmt;
  */
 class SQLParser_yyToken implements \ArrayAccess
 {
-    public $string = '';
+    public $string   = '';
     public $metadata = [];
 
     public function __construct($s, $m = [])
     {
         if ($s instanceof self) {
-            $this->string = $s->string;
+            $this->string   = $s->string;
             $this->metadata = $s->metadata;
         } else {
             $this->string = (string) $s;
@@ -137,120 +137,120 @@ class SQLParser_yyStackEntry
      **
      ** Each symbol here is a terminal symbol in the grammar.
      */
-     const T_OR = 1;
-     const T_AND = 2;
-     const T_NOT = 3;
-     const T_QUESTION = 4;
-     const T_COLON = 5;
-     const T_EQ = 6;
-     const T_LIKE = 7;
-     const T_GLOB = 8;
-     const T_NE = 9;
-     const T_GT = 10;
-     const T_GE = 11;
-     const T_LT = 12;
-     const T_LE = 13;
-     const T_IN = 14;
-     const T_PLUS = 15;
-     const T_MINUS = 16;
-     const T_TIMES = 17;
-     const T_DIV = 18;
-     const T_MOD = 19;
-     const T_PIPE = 20;
-     const T_BITWISE = 21;
-     const T_FILTER_PIPE = 22;
-     const T_SEMICOLON = 23;
-     const T_PAR_OPEN = 24;
-     const T_PAR_CLOSE = 25;
-     const T_BEGIN = 26;
-     const T_SAVEPOINT = 27;
-     const T_RELEASE = 28;
-     const T_ROLLBACK = 29;
-     const T_TO = 30;
-     const T_TRANSACTION = 31;
-     const T_WORK = 32;
-     const T_COMMIT = 33;
-     const T_END = 34;
-     const T_ALTER = 35;
-     const T_TABLE = 36;
-     const T_DROP = 37;
-     const T_PRIMARY = 38;
-     const T_KEY = 39;
-     const T_INDEX = 40;
-     const T_SET = 41;
-     const T_DEFAULT = 42;
-     const T_MODIFY = 43;
-     const T_ADD = 44;
-     const T_RENAME = 45;
-     const T_CREATE = 46;
-     const T_ON = 47;
-     const T_UNIQUE = 48;
-     const T_AS = 49;
-     const T_CHANGE = 50;
-     const T_COLUMN = 51;
-     const T_FIRST = 52;
-     const T_AFTER = 53;
-     const T_SELECT = 54;
-     const T_ALL = 55;
-     const T_DISTINCT = 56;
-     const T_DISTINCTROW = 57;
-     const T_HIGH_PRIORITY = 58;
-     const T_STRAIGHT_JOIN = 59;
-     const T_SQL_SMALL_RESULT = 60;
-     const T_SQL_BIG_RESULT = 61;
-     const T_SQL_CACHE = 62;
-     const T_SQL_CALC_FOUND_ROWS = 63;
-     const T_SQL_BUFFER_RESULT = 64;
-     const T_SQL_NO_CACHE = 65;
-     const T_FROM = 66;
-     const T_COMMA = 67;
-     const T_JOIN = 68;
-     const T_INNER = 69;
-     const T_LEFT = 70;
-     const T_RT_IGHT = 71;
-     const T_NATURAL = 72;
-     const T_OUTER = 73;
-     const T_USING = 74;
-     const T_WHERE = 75;
-     const T_ORDER = 76;
-     const T_BY = 77;
-     const T_DESC = 78;
-     const T_ASC = 79;
-     const T_LIMIT = 80;
-     const T_OFFSET = 81;
-     const T_GROUP = 82;
-     const T_HAVING = 83;
-     const T_VALUES = 84;
-     const T_DELETE = 85;
-     const T_UPDATE = 86;
-     const T_INSERT = 87;
-     const REPLACE = 88;
-     const T_INTO = 89;
-     const T_DUPLICATE = 90;
-     const T_VIEW = 91;
-     const NUMBER = 92;
-     const T_UNSIGNED = 93;
-     const T_COLLATE = 94;
-     const T_NULL = 95;
-     const T_AUTO_INCREMENT = 96;
-     const T_IS = 97;
-     const T_BETWEEN = 98;
-     const T_BINARY = 99;
-     const T_CASE = 100;
-     const T_ELSE = 101;
-     const T_WHEN = 102;
-     const T_THEN = 103;
-     const T_INTERVAL = 104;
-     const ALPHA = 105;
-     const T_STRING1 = 106;
-     const T_STRING2 = 107;
-     const T_DOT = 108;
-     const INTERVAL = 109;
-     const T_DOLLAR = 110;
-     const PRIMARY = 111;
-     const YY_NO_ACTION = 613;
-     const YY_ACCEPT_ACTION = 612;
-     const YY_ERROR_ACTION = 611;
+     const T_OR                           =  1;
+     const T_AND                          =  2;
+     const T_NOT                          =  3;
+     const T_QUESTION                     =  4;
+     const T_COLON                        =  5;
+     const T_EQ                           =  6;
+     const T_LIKE                         =  7;
+     const T_GLOB                         =  8;
+     const T_NE                           =  9;
+     const T_GT                           = 10;
+     const T_GE                           = 11;
+     const T_LT                           = 12;
+     const T_LE                           = 13;
+     const T_IN                           = 14;
+     const T_PLUS                         = 15;
+     const T_MINUS                        = 16;
+     const T_TIMES                        = 17;
+     const T_DIV                          = 18;
+     const T_MOD                          = 19;
+     const T_PIPE                         = 20;
+     const T_BITWISE                      = 21;
+     const T_FILTER_PIPE                  = 22;
+     const T_SEMICOLON                    = 23;
+     const T_PAR_OPEN                     = 24;
+     const T_PAR_CLOSE                    = 25;
+     const T_BEGIN                        = 26;
+     const T_SAVEPOINT                    = 27;
+     const T_RELEASE                      = 28;
+     const T_ROLLBACK                     = 29;
+     const T_TO                           = 30;
+     const T_TRANSACTION                  = 31;
+     const T_WORK                         = 32;
+     const T_COMMIT                       = 33;
+     const T_END                          = 34;
+     const T_ALTER                        = 35;
+     const T_TABLE                        = 36;
+     const T_DROP                         = 37;
+     const T_PRIMARY                      = 38;
+     const T_KEY                          = 39;
+     const T_INDEX                        = 40;
+     const T_SET                          = 41;
+     const T_DEFAULT                      = 42;
+     const T_MODIFY                       = 43;
+     const T_ADD                          = 44;
+     const T_RENAME                       = 45;
+     const T_CREATE                       = 46;
+     const T_ON                           = 47;
+     const T_UNIQUE                       = 48;
+     const T_AS                           = 49;
+     const T_CHANGE                       = 50;
+     const T_COLUMN                       = 51;
+     const T_FIRST                        = 52;
+     const T_AFTER                        = 53;
+     const T_SELECT                       = 54;
+     const T_ALL                          = 55;
+     const T_DISTINCT                     = 56;
+     const T_DISTINCTROW                  = 57;
+     const T_HIGH_PRIORITY                = 58;
+     const T_STRAIGHT_JOIN                = 59;
+     const T_SQL_SMALL_RESULT             = 60;
+     const T_SQL_BIG_RESULT               = 61;
+     const T_SQL_CACHE                    = 62;
+     const T_SQL_CALC_FOUND_ROWS          = 63;
+     const T_SQL_BUFFER_RESULT            = 64;
+     const T_SQL_NO_CACHE                 = 65;
+     const T_FROM                         = 66;
+     const T_COMMA                        = 67;
+     const T_JOIN                         = 68;
+     const T_INNER                        = 69;
+     const T_LEFT                         = 70;
+     const T_RT_IGHT                      = 71;
+     const T_NATURAL                      = 72;
+     const T_OUTER                        = 73;
+     const T_USING                        = 74;
+     const T_WHERE                        = 75;
+     const T_ORDER                        = 76;
+     const T_BY                           = 77;
+     const T_DESC                         = 78;
+     const T_ASC                          = 79;
+     const T_LIMIT                        = 80;
+     const T_OFFSET                       = 81;
+     const T_GROUP                        = 82;
+     const T_HAVING                       = 83;
+     const T_VALUES                       = 84;
+     const T_DELETE                       = 85;
+     const T_UPDATE                       = 86;
+     const T_INSERT                       = 87;
+     const REPLACE                        = 88;
+     const T_INTO                         = 89;
+     const T_DUPLICATE                    = 90;
+     const T_VIEW                         = 91;
+     const NUMBER                         = 92;
+     const T_UNSIGNED                     = 93;
+     const T_COLLATE                      = 94;
+     const T_NULL                         = 95;
+     const T_AUTO_INCREMENT               = 96;
+     const T_IS                           = 97;
+     const T_BETWEEN                      = 98;
+     const T_BINARY                       = 99;
+     const T_CASE                         = 100;
+     const T_ELSE                         = 101;
+     const T_WHEN                         = 102;
+     const T_THEN                         = 103;
+     const T_INTERVAL                     = 104;
+     const ALPHA                          = 105;
+     const T_STRING1                      = 106;
+     const T_STRING2                      = 107;
+     const T_DOT                          = 108;
+     const INTERVAL                       = 109;
+     const T_DOLLAR                       = 110;
+     const PRIMARY                        = 111;
+     const YY_NO_ACTION                   = 613;
+     const YY_ACCEPT_ACTION               = 612;
+     const YY_ERROR_ACTION                = 611;
 
      /* Next are that tables used to determine what action to take based on the
      ** current state and lookahead token.  These tables are used to implement
@@ -302,11 +302,11 @@ class SQLParser_yyStackEntry
      **                          shifting non-terminals after a reduce.
      **  self::$yy_default       Default action for each state.
      */
-     const YY_SZ_ACTTAB = 2141;
-     const YY_SHIFT_USE_DFLT = -93;
-     const YY_SHIFT_MAX = 229;
+     const YY_SZ_ACTTAB       = 2141;
+     const YY_SHIFT_USE_DFLT  = -93;
+     const YY_SHIFT_MAX       = 229;
      const YY_REDUCE_USE_DFLT = -149;
-     const YY_REDUCE_MAX = 176;
+     const YY_REDUCE_MAX      = 176;
      /* The next thing included is series of defines which control
      ** various aspects of the generated parser.
      **    self::YYNOCODE      is a number which corresponds
@@ -322,18 +322,18 @@ class SQLParser_yyStackEntry
      **    self::YYERRORSYMBOL is the code number of the error symbol.  If not
      **                        defined, then do no error processing.
      */
-     const YYNOCODE = 200;
-     const YYSTACKDEPTH = 100;
-     const YYNSTATE = 390;
-     const YYNRULE = 221;
+     const YYNOCODE      = 200;
+     const YYSTACKDEPTH  = 100;
+     const YYNSTATE      = 390;
+     const YYNRULE       = 221;
      const YYERRORSYMBOL = 112;
-     const YYERRSYMDT = 'yy0';
-     const YYFALLBACK = 0;
+     const YYERRSYMDT    = 'yy0';
+     const YYFALLBACK    = 0;
      /* First off, code is included which follows the "include_class" declaration
      ** in the input file. */
      //line 7 "src/SQLParser/Parser.y"
 
-     public $body = [];
+     public $body             = [];
      public static $yy_action = [
          /*     0 */ 34,  254,  120,  463,  463,  463,  463,  336,   74,   74,
          /*    10 */ 36,  133,   40,  221,  255,   35,  110,   57,  116,  134,
@@ -1814,34 +1814,34 @@ class SQLParser_yyStackEntry
       * If a rule is not set, it has no handler.
       */
      public static $yyReduceMap = [
-         0 => 0,
-         1 => 1,
-         58 => 1,
-         84 => 1,
+         0   => 0,
+         1   => 1,
+         58  => 1,
+         84  => 1,
          119 => 1,
          193 => 1,
          198 => 1,
-         2 => 2,
-         3 => 3,
+         2   => 2,
+         3   => 3,
          124 => 3,
          130 => 3,
          195 => 3,
-         4 => 4,
-         5 => 4,
-         6 => 4,
-         7 => 4,
-         8 => 4,
-         9 => 4,
-         10 => 4,
-         11 => 4,
-         12 => 4,
-         13 => 4,
-         14 => 4,
-         15 => 4,
-         46 => 4,
-         50 => 4,
-         56 => 4,
-         80 => 4,
+         4   => 4,
+         5   => 4,
+         6   => 4,
+         7   => 4,
+         8   => 4,
+         9   => 4,
+         10  => 4,
+         11  => 4,
+         12  => 4,
+         13  => 4,
+         14  => 4,
+         15  => 4,
+         46  => 4,
+         50  => 4,
+         56  => 4,
+         80  => 4,
          106 => 4,
          108 => 4,
          137 => 4,
@@ -1868,89 +1868,89 @@ class SQLParser_yyStackEntry
          215 => 4,
          219 => 4,
          220 => 4,
-         16 => 16,
-         17 => 17,
-         18 => 18,
-         19 => 19,
-         20 => 20,
-         21 => 21,
-         22 => 22,
-         27 => 27,
-         28 => 27,
-         29 => 29,
-         30 => 30,
-         31 => 31,
-         32 => 32,
-         33 => 33,
-         34 => 34,
-         35 => 35,
-         36 => 36,
-         37 => 37,
-         38 => 38,
-         39 => 39,
-         40 => 40,
-         41 => 41,
-         42 => 42,
-         43 => 43,
-         73 => 43,
-         75 => 43,
+         16  => 16,
+         17  => 17,
+         18  => 18,
+         19  => 19,
+         20  => 20,
+         21  => 21,
+         22  => 22,
+         27  => 27,
+         28  => 27,
+         29  => 29,
+         30  => 30,
+         31  => 31,
+         32  => 32,
+         33  => 33,
+         34  => 34,
+         35  => 35,
+         36  => 36,
+         37  => 37,
+         38  => 38,
+         39  => 39,
+         40  => 40,
+         41  => 41,
+         42  => 42,
+         43  => 43,
+         73  => 43,
+         75  => 43,
          136 => 43,
-         49 => 49,
-         52 => 52,
-         53 => 53,
-         65 => 53,
+         49  => 49,
+         52  => 52,
+         53  => 53,
+         65  => 53,
          117 => 53,
          138 => 53,
-         54 => 54,
+         54  => 54,
          115 => 54,
-         55 => 55,
+         55  => 55,
          128 => 55,
-         59 => 59,
-         85 => 59,
+         59  => 59,
+         85  => 59,
          118 => 59,
          194 => 59,
          199 => 59,
          200 => 59,
-         60 => 60,
-         62 => 60,
-         88 => 60,
-         93 => 60,
+         60  => 60,
+         62  => 60,
+         88  => 60,
+         93  => 60,
          201 => 60,
          204 => 60,
-         61 => 61,
-         63 => 61,
+         61  => 61,
+         63  => 61,
          202 => 61,
-         64 => 64,
-         90 => 64,
-         66 => 66,
+         64  => 64,
+         90  => 64,
+         66  => 66,
          139 => 66,
-         67 => 67,
-         68 => 68,
-         69 => 69,
-         70 => 70,
-         71 => 71,
-         72 => 72,
-         74 => 74,
-         76 => 76,
-         77 => 77,
-         78 => 78,
-         79 => 79,
-         81 => 79,
-         83 => 79,
-         91 => 79,
+         67  => 67,
+         68  => 68,
+         69  => 69,
+         70  => 70,
+         71  => 71,
+         72  => 72,
+         74  => 74,
+         76  => 76,
+         77  => 77,
+         78  => 78,
+         79  => 79,
+         81  => 79,
+         83  => 79,
+         91  => 79,
          107 => 79,
          129 => 79,
          131 => 79,
-         82 => 82,
-         86 => 86,
-         87 => 87,
-         89 => 89,
-         92 => 92,
-         95 => 95,
-         96 => 95,
-         97 => 97,
-         98 => 98,
-         99 => 99,
+         82  => 82,
+         86  => 86,
+         87  => 87,
+         89  => 89,
+         92  => 92,
+         95  => 95,
+         96  => 95,
+         97  => 97,
+         98  => 98,
+         99  => 99,
          100 => 100,
          101 => 101,
          102 => 102,
@@ -2086,7 +2086,7 @@ class SQLParser_yyStackEntry
          } elseif (!$zTracePrompt) {
              $TraceFILE = 0;
          }
-         self::$yyTraceFILE = $TraceFILE;
+         self::$yyTraceFILE   = $TraceFILE;
          self::$yyTracePrompt = $zTracePrompt;
      }
 
@@ -2095,7 +2095,7 @@ class SQLParser_yyStackEntry
       */
      public static function PrintTrace()
      {
-         self::$yyTraceFILE = fopen('php://output', 'w');
+         self::$yyTraceFILE   = fopen('php://output', 'w');
          self::$yyTracePrompt = '';
      }
 
@@ -2189,7 +2189,7 @@ class SQLParser_yyStackEntry
       */
      public function yy_get_expected_tokens($token)
      {
-         $state = $this->yystack[$this->yyidx]->stateno;
+         $state    = $this->yystack[$this->yyidx]->stateno;
          $expected = self::$yyExpectedTokens[$state];
          if (in_array($token, self::$yyExpectedTokens[$state], true)) {
              return $expected;
@@ -2203,7 +2203,7 @@ class SQLParser_yyStackEntry
                  $done = 0;
                  do {
                      if (100 === $done++) {
-                         $this->yyidx = $yyidx;
+                         $this->yyidx   = $yyidx;
                          $this->yystack = $stack;
                          // too much recursion prevents proper detection
                          // so give up
@@ -2222,7 +2222,7 @@ class SQLParser_yyStackEntry
                              self::$yyExpectedTokens[$nextstate],
                              true
                          )) {
-                             $this->yyidx = $yyidx;
+                             $this->yyidx   = $yyidx;
                              $this->yystack = $stack;
 
                              return array_unique($expected);
@@ -2231,15 +2231,15 @@ class SQLParser_yyStackEntry
                      if ($nextstate < self::YYNSTATE) {
                          // we need to shift a non-terminal
                          ++$this->yyidx;
-                         $x = new SQLParser_yyStackEntry();
-                         $x->stateno = $nextstate;
-                         $x->major = self::$yyRuleInfo[$yyruleno]['lhs'];
+                         $x                           = new SQLParser_yyStackEntry();
+                         $x->stateno                  = $nextstate;
+                         $x->major                    = self::$yyRuleInfo[$yyruleno]['lhs'];
                          $this->yystack[$this->yyidx] = $x;
 
                          continue 2;
                      }
                      if ($nextstate === self::YYNSTATE + self::YYNRULE + 1) {
-                         $this->yyidx = $yyidx;
+                         $this->yyidx   = $yyidx;
                          $this->yystack = $stack;
                          // the last token was just ignored, we can't accept
                          // by ignoring input, this is in essence ignoring a
@@ -2247,7 +2247,7 @@ class SQLParser_yyStackEntry
                          return array_unique($expected);
                      }
                      if (self::YY_NO_ACTION === $nextstate) {
-                         $this->yyidx = $yyidx;
+                         $this->yyidx   = $yyidx;
                          $this->yystack = $stack;
                          // input accepted, but not shifted (I guess)
                          return $expected;
@@ -2292,7 +2292,7 @@ class SQLParser_yyStackEntry
                  $done = 0;
                  do {
                      if (100 === $done++) {
-                         $this->yyidx = $yyidx;
+                         $this->yyidx   = $yyidx;
                          $this->yystack = $stack;
                          // too much recursion prevents proper detection
                          // so give up
@@ -2306,7 +2306,7 @@ class SQLParser_yyStackEntry
                      );
                      if (isset(self::$yyExpectedTokens[$nextstate])
                           && in_array($token, self::$yyExpectedTokens[$nextstate], true)) {
-                         $this->yyidx = $yyidx;
+                         $this->yyidx   = $yyidx;
                          $this->yystack = $stack;
 
                          return true;
@@ -2314,15 +2314,15 @@ class SQLParser_yyStackEntry
                      if ($nextstate < self::YYNSTATE) {
                          // we need to shift a non-terminal
                          ++$this->yyidx;
-                         $x = new SQLParser_yyStackEntry();
-                         $x->stateno = $nextstate;
-                         $x->major = self::$yyRuleInfo[$yyruleno]['lhs'];
+                         $x                           = new SQLParser_yyStackEntry();
+                         $x->stateno                  = $nextstate;
+                         $x->major                    = self::$yyRuleInfo[$yyruleno]['lhs'];
                          $this->yystack[$this->yyidx] = $x;
 
                          continue 2;
                      }
                      if ($nextstate === self::YYNSTATE + self::YYNRULE + 1) {
-                         $this->yyidx = $yyidx;
+                         $this->yyidx   = $yyidx;
                          $this->yystack = $stack;
                          if (!$token) {
                              // end of input: this is valid
@@ -2334,7 +2334,7 @@ class SQLParser_yyStackEntry
                          return false;
                      }
                      if (self::YY_NO_ACTION === $nextstate) {
-                         $this->yyidx = $yyidx;
+                         $this->yyidx   = $yyidx;
                          $this->yystack = $stack;
                          // input accepted, but not shifted (I guess)
                          return true;
@@ -2345,7 +2345,7 @@ class SQLParser_yyStackEntry
 
              break;
          } while (true);
-         $this->yyidx = $yyidx;
+         $this->yyidx   = $yyidx;
          $this->yystack = $stack;
 
          return true;
@@ -2459,10 +2459,10 @@ class SQLParser_yyStackEntry
              ** stack ever overflows */
              return;
          }
-         $yytos = new SQLParser_yyStackEntry();
-         $yytos->stateno = $yyNewState;
-         $yytos->major = $yyMajor;
-         $yytos->minor = $yypMinor;
+         $yytos           = new SQLParser_yyStackEntry();
+         $yytos->stateno  = $yyNewState;
+         $yytos->major    = $yyMajor;
+         $yytos->minor    = $yypMinor;
          $this->yystack[] = $yytos;
          if (self::$yyTraceFILE && $this->yyidx > 0) {
              fprintf(
@@ -2499,7 +2499,7 @@ class SQLParser_yyStackEntry
      //line 32 "src/SQLParser/Parser.y"
      public function yy_r1()
      {
-         $this->_retvalue = $this->yystack[$this->yyidx + -2]->minor;
+         $this->_retvalue   = $this->yystack[$this->yyidx + -2]->minor;
          $this->_retvalue[] = $this->yystack[$this->yyidx + 0]->minor;
      }
 
@@ -2727,7 +2727,7 @@ class SQLParser_yyStackEntry
      //line 119 "src/SQLParser/Parser.y"
      public function yy_r53()
      {
-         $this->_retvalue = $this->yystack[$this->yyidx + -1]->minor;
+         $this->_retvalue   = $this->yystack[$this->yyidx + -1]->minor;
          $this->_retvalue[] = $this->yystack[$this->yyidx + 0]->minor;
      }
 
@@ -2920,8 +2920,8 @@ class SQLParser_yyStackEntry
      public function yy_r98()
      {
          $this->_retvalue = $this->yystack[$this->yyidx + -2]->minor;
-         $keys = new Stmt\ExprList();
-         $values = [];
+         $keys            = new Stmt\ExprList();
+         $values          = [];
          foreach ($this->yystack[$this->yyidx + -1]->minor->getExprs() as $field) {
              $member = $field->getMembers();
              $keys->addTerm($member[0]);
@@ -3177,7 +3177,7 @@ class SQLParser_yyStackEntry
      public function yy_r147()
      {
          if ('IS NULL' === $this->yystack[$this->yyidx + 0]->minor->getType()) {
-             $parts = $this->yystack[$this->yyidx + 0]->minor->getMembers();
+             $parts           = $this->yystack[$this->yyidx + 0]->minor->getMembers();
              $this->_retvalue = new Stmt\Expr('IS NOT NULL', $parts[0]);
 
              return;
@@ -3292,7 +3292,7 @@ class SQLParser_yyStackEntry
      public function yy_r169()
      {
          $this->yystack[$this->yyidx + -1]->minor = array_merge(['CASE'], $this->yystack[$this->yyidx + -1]->minor);
-         $this->_retvalue = new Stmt\Expr($this->yystack[$this->yyidx + -1]->minor);
+         $this->_retvalue                         = new Stmt\Expr($this->yystack[$this->yyidx + -1]->minor);
      }
 
      //line 2815 "src/SQLParser/Parser.php"
@@ -3300,14 +3300,14 @@ class SQLParser_yyStackEntry
      public function yy_r170()
      {
          $this->yystack[$this->yyidx + -3]->minor = array_merge(['CASE'], $this->yystack[$this->yyidx + -3]->minor, [$this->yystack[$this->yyidx + -1]->minor]);
-         $this->_retvalue = new Stmt\Expr($this->yystack[$this->yyidx + -3]->minor);
+         $this->_retvalue                         = new Stmt\Expr($this->yystack[$this->yyidx + -3]->minor);
      }
 
      //line 2821 "src/SQLParser/Parser.php"
      //line 390 "src/SQLParser/Parser.y"
      public function yy_r171()
      {
-         $this->_retvalue = $this->yystack[$this->yyidx + -4]->minor;
+         $this->_retvalue                           = $this->yystack[$this->yyidx + -4]->minor;
          $this->yystack[$this->yyidx + -4]->minor[] = new Stmt\Expr('WHEN', $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);
      }
 
@@ -3508,10 +3508,10 @@ class SQLParser_yyStackEntry
              ** That gives a significant speed improvement. */
              if (!self::$yyTraceFILE && $yysize) {
                  ++$this->yyidx;
-                 $x = new SQLParser_yyStackEntry();
-                 $x->stateno = $yyact;
-                 $x->major = $yygoto;
-                 $x->minor = $yy_lefthand_side;
+                 $x                           = new SQLParser_yyStackEntry();
+                 $x->stateno                  = $yyact;
+                 $x->major                    = $yygoto;
+                 $x->minor                    = $yy_lefthand_side;
                  $this->yystack[$this->yyidx] = $x;
              } else {
                  $this->yy_shift($yyact, $yygoto, $yy_lefthand_side);
@@ -3597,12 +3597,12 @@ class SQLParser_yyStackEntry
          // (re)initialize the parser, if necessary
          if (null === $this->yyidx || $this->yyidx < 0) {
              // if ($yymajor == 0) return; // not sure why this was here...
-             $this->yyidx = 0;
-             $this->yyerrcnt = -1;
-             $x = new SQLParser_yyStackEntry();
-             $x->stateno = 0;
-             $x->major = 0;
-             $this->yystack = [];
+             $this->yyidx     = 0;
+             $this->yyerrcnt  = -1;
+             $x               = new SQLParser_yyStackEntry();
+             $x->stateno      = 0;
+             $x->major        = 0;
+             $this->yystack   = [];
              $this->yystack[] = $x;
          }
          $yyendofinput = (0 === $yymajor);
@@ -3694,7 +3694,7 @@ class SQLParser_yyStackEntry
                          }
                      }
                      $this->yyerrcnt = 3;
-                     $yyerrorhit = 1;
+                     $yyerrorhit     = 1;
                  } else {
                      // YYERRORSYMBOL is not defined
                      /* This is what we do if the grammar does not define ERROR:

@@ -31,7 +31,7 @@ class Column
     protected $name;
     protected $type;
     protected $size;
-    protected $pk = false;
+    protected $pk      = false;
     protected $notNull = false;
     protected $default;
     protected $collate;
@@ -40,9 +40,9 @@ class Column
 
     public function __construct($name, $type, $size = null, $modifier = null)
     {
-        $this->name = $name;
-        $this->type = $type;
-        $this->size = $size;
+        $this->name     = $name;
+        $this->type     = $type;
+        $this->size     = $size;
         $this->modifier = $modifier;
     }
 

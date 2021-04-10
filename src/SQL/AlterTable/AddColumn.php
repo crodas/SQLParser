@@ -32,7 +32,7 @@ class AddColumn extends AlterTable
 {
     public function __construct(Column $column, $position)
     {
-        $this->column = $column;
+        $this->column   = $column;
         $this->position = $position;
     }
 }

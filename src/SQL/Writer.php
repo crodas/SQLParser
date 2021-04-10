@@ -78,7 +78,7 @@ class Writer
                 break;
             }
             if (class_exists('SQL\Writer\\'.$instance)) {
-                $class = 'SQL\Writer\\'.$instance;
+                $class    = 'SQL\Writer\\'.$instance;
                 $instance = new $class();
             } else {
                 $instance = new self();
@@ -387,7 +387,7 @@ class Writer
 
         case 'INDEX':
             $rawMember = $expr->getMembers();
-            $expr = $members[0];
+            $expr      = $members[0];
             if (!empty($rawMember[1])) {
                 $expr .= '('.$rawMember[1].')';
             }
@@ -677,10 +677,10 @@ class Writer
     protected function value($value)
     {
         $map = [
-            'SQL\Select' => 'select',
-            'SQLParser\Stmt\Join' => 'join',
-            'SQLParser\Stmt\Expr' => 'expr',
-            'SQLParser\Stmt\ExprList' => 'exprList',
+            'SQL\Select'                         => 'select',
+            'SQLParser\Stmt\Join'                => 'join',
+            'SQLParser\Stmt\Expr'                => 'expr',
+            'SQLParser\Stmt\ExprList'            => 'exprList',
             'SQLParser\Stmt\VariablePlaceholder' => 'variable',
         ];
 

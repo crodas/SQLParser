@@ -44,7 +44,7 @@ class ExprList
 
     public static function fromArray(array $exprs)
     {
-        $self = new self();
+        $self       = new self();
         $self->expr = $exprs;
 
         return $self;

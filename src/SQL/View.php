@@ -44,7 +44,7 @@ class View extends Statement
      */
     public function __construct($name, Select $select)
     {
-        $this->name = $name;
+        $this->name   = $name;
         $this->select = $select;
     }
 

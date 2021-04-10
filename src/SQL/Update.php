@@ -49,7 +49,7 @@ class Update extends Statement
     public function __construct(array $tables, ExprList $set)
     {
         $this->tables = $tables;
-        $this->set = $set;
+        $this->set    = $set;
     }
 
     /**

@@ -28,10 +28,10 @@ class SQLParser
 {
     public function parse($text)
     {
-        $lexer = new SQLParser\Lexer($text);
-        $parser = new SQLParser_Parser();
+        $lexer    = new SQLParser\Lexer($text);
+        $parser   = new SQLParser_Parser();
         $comments = [];
-        $stmt = 0;
+        $stmt     = 0;
         while ($lexer->hasNextToken()) {
             switch ($lexer->token) {
                 case 'comment':

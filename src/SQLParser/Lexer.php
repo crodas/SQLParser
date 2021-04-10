@@ -38,25 +38,25 @@ class Lexer
 
     protected static $symbols = [
         '--' => 'comment',
-        '"' => P::T_STRING1,
-        "'" => P::T_STRING2,
-        '`' => P::T_STRING2,
-        '+' => P::T_PLUS,
-        '-' => P::T_MINUS,
-        '*' => P::T_TIMES,
-        '/' => P::T_DIV,
-        '%' => P::T_MOD,
-        '>' => P::T_GT,
-        '<' => P::T_GT,
-        '(' => P::T_PAR_OPEN,
-        ')' => P::T_PAR_CLOSE,
-        ';' => P::T_SEMICOLON,
-        '=' => P::T_EQ,
-        '?' => P::T_QUESTION,
-        '$' => P::T_DOLLAR,
-        ':' => P::T_COLON,
-        '.' => P::T_DOT,
-        ',' => P::T_COMMA,
+        '"'  => P::T_STRING1,
+        "'"  => P::T_STRING2,
+        '`'  => P::T_STRING2,
+        '+'  => P::T_PLUS,
+        '-'  => P::T_MINUS,
+        '*'  => P::T_TIMES,
+        '/'  => P::T_DIV,
+        '%'  => P::T_MOD,
+        '>'  => P::T_GT,
+        '<'  => P::T_GT,
+        '('  => P::T_PAR_OPEN,
+        ')'  => P::T_PAR_CLOSE,
+        ';'  => P::T_SEMICOLON,
+        '='  => P::T_EQ,
+        '?'  => P::T_QUESTION,
+        '$'  => P::T_DOLLAR,
+        ':'  => P::T_COLON,
+        '.'  => P::T_DOT,
+        ','  => P::T_COMMA,
         '||' => P::T_OR,
         '&&' => P::T_AND,
         '<>' => P::T_NE,
@@ -75,8 +75,8 @@ class Lexer
     public function __construct(string $data)
     {
         $this->data = trim($data);
-        $this->len = \strlen($this->data);
-        $this->N = 0;
+        $this->len  = \strlen($this->data);
+        $this->N    = 0;
         $this->line = 1;
     }
 
@@ -90,11 +90,11 @@ class Lexer
         $ignoredKeywords = array_combine(self::$symbols, self::$symbols);
         unset($ignoredKeywords[P::T_OR], $ignoredKeywords[P::T_AND]);
 
-        $keywords = [];
+        $keywords   = [];
         $reflection = new \ReflectionClass(P::class);
         foreach ($reflection->getConstants() as $name => $value) {
             if ('T' === $name[0] && '_' === $name[1] && !($ignoredKeywords[$value] ?? false)) {
-                $keyword = strtolower(substr($name, 2));
+                $keyword            = strtolower(substr($name, 2));
                 $keywords[$keyword] = $value;
             }
         }
@@ -142,7 +142,7 @@ class Lexer
                 break;
             }
             $stopAt = $this->data[$i];
-            $start = ++$i;
+            $start  = ++$i;
 
             for (; $i < $this->len && $this->data[$i] !== $stopAt; ++$i) {
                 if ('\\' === $this->data[$i]) {
@@ -170,7 +170,7 @@ class Lexer
             if ('comment' === $token) {
                 $i -= 2;
 
-                $end = strpos($this->data, "\n", $i);
+                $end   = strpos($this->data, "\n", $i);
                 $value = $end ? substr($this->data, $i, $end - $i) : substr($this->data, $i);
                 $i += \strlen($value);
             }

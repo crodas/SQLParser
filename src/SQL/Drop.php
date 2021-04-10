@@ -50,7 +50,7 @@ class Drop extends Statement
      */
     public function __construct($type, array $tables)
     {
-        $this->type = $type;
+        $this->type   = $type;
         $this->tables = $tables;
     }
 
