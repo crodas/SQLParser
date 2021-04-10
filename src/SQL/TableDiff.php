@@ -128,7 +128,7 @@ class TableDiff
     {
         $stmts = $this->parser->parse($sql);
         if (!($stmts[0] instanceof Table)) {
-            throw new InvalidArgumentException('Expecting a CREATE TABLE Statement, got '.\get_class($stmts[0]).' class');
+            throw new InvalidArgumentException('Expecting a CREATE TABLE Statement, got ' . \get_class($stmts[0]) . ' class');
         }
 
         $table = array_shift($stmts);

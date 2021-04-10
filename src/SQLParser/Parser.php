@@ -44,12 +44,12 @@ class SQLParser_yyToken implements \ArrayAccess
 
     public function __construct($s, $m = [])
     {
-        if ($s instanceof self) {
+        if ($s instanceof SQLParser_yyToken) {
             $this->string   = $s->string;
             $this->metadata = $s->metadata;
         } else {
             $this->string = (string) $s;
-            if ($m instanceof self) {
+            if ($m instanceof SQLParser_yyToken) {
                 $this->metadata = $m->metadata;
             } elseif (is_array($m)) {
                 $this->metadata = $m;
@@ -76,7 +76,7 @@ class SQLParser_yyToken implements \ArrayAccess
     {
         if (null === $offset) {
             if (isset($value[0])) {
-                $x = ($value instanceof self) ?
+                $x = ($value instanceof SQLParser_yyToken) ?
                     $value->metadata : $value;
                 $this->metadata = array_merge($this->metadata, $x);
 
@@ -87,7 +87,7 @@ class SQLParser_yyToken implements \ArrayAccess
         if (null === $value) {
             return;
         }
-        if ($value instanceof self) {
+        if ($value instanceof SQLParser_yyToken) {
             if ($value->metadata) {
                 $this->metadata[$offset] = $value->metadata;
             }
@@ -2167,7 +2167,7 @@ class SQLParser_yyStackEntry
          if (self::$yyTraceFILE && $this->yyidx >= 0) {
              fwrite(
                  self::$yyTraceFILE,
-                 self::$yyTracePrompt.'Popping '.self::$yyTokenName[$yytos->major].
+                 self::$yyTracePrompt . 'Popping ' . self::$yyTokenName[$yytos->major] .
                     "\n"
              );
          }
@@ -2202,7 +2202,7 @@ class SQLParser_yyStackEntry
                  // reduce action
                  $done = 0;
                  do {
-                     if (100 === $done++) {
+                     if (100 == $done++) {
                          $this->yyidx   = $yyidx;
                          $this->yystack = $stack;
                          // too much recursion prevents proper detection
@@ -2238,7 +2238,7 @@ class SQLParser_yyStackEntry
 
                          continue 2;
                      }
-                     if ($nextstate === self::YYNSTATE + self::YYNRULE + 1) {
+                     if ($nextstate == self::YYNSTATE + self::YYNRULE + 1) {
                          $this->yyidx   = $yyidx;
                          $this->yystack = $stack;
                          // the last token was just ignored, we can't accept
@@ -2291,7 +2291,7 @@ class SQLParser_yyStackEntry
                  // reduce action
                  $done = 0;
                  do {
-                     if (100 === $done++) {
+                     if (100 == $done++) {
                          $this->yyidx   = $yyidx;
                          $this->yystack = $stack;
                          // too much recursion prevents proper detection
@@ -2321,7 +2321,7 @@ class SQLParser_yyStackEntry
 
                          continue 2;
                      }
-                     if ($nextstate === self::YYNSTATE + self::YYNRULE + 1) {
+                     if ($nextstate == self::YYNSTATE + self::YYNRULE + 1) {
                          $this->yyidx   = $yyidx;
                          $this->yystack = $stack;
                          if (!$token) {
@@ -2375,18 +2375,18 @@ class SQLParser_yyStackEntry
          if (self::YY_SHIFT_USE_DFLT === $i) {
              return self::$yy_default[$stateno];
          }
-         if (self::YYNOCODE === $iLookAhead) {
+         if (self::YYNOCODE == $iLookAhead) {
              return self::YY_NO_ACTION;
          }
          $i += $iLookAhead;
          if ($i < 0 || $i >= self::YY_SZ_ACTTAB
-              || self::$yy_lookahead[$i] !== $iLookAhead) {
+              || self::$yy_lookahead[$i] != $iLookAhead) {
              if (count(self::$yyFallback) && $iLookAhead < count(self::$yyFallback)
-                   && ($iFallback = self::$yyFallback[$iLookAhead]) !== 0) {
+                   && ($iFallback = self::$yyFallback[$iLookAhead]) != 0) {
                  if (self::$yyTraceFILE) {
-                     fwrite(self::$yyTraceFILE, self::$yyTracePrompt.'FALLBACK '.
-                        self::$yyTokenName[$iLookAhead].' => '.
-                        self::$yyTokenName[$iFallback]."\n");
+                     fwrite(self::$yyTraceFILE, self::$yyTracePrompt . 'FALLBACK ' .
+                        self::$yyTokenName[$iLookAhead] . ' => ' .
+                        self::$yyTokenName[$iFallback] . "\n");
                  }
 
                  return $this->yy_find_shift_action($iFallback);
@@ -2419,15 +2419,15 @@ class SQLParser_yyStackEntry
              return self::$yy_default[$stateno];
          }
          $i = self::$yy_reduce_ofst[$stateno];
-         if (self::YY_REDUCE_USE_DFLT === $i) {
+         if (self::YY_REDUCE_USE_DFLT == $i) {
              return self::$yy_default[$stateno];
          }
-         if (self::YYNOCODE === $iLookAhead) {
+         if (self::YYNOCODE == $iLookAhead) {
              return self::YY_NO_ACTION;
          }
          $i += $iLookAhead;
          if ($i < 0 || $i >= self::YY_SZ_ACTTAB
-              || self::$yy_lookahead[$i] !== $iLookAhead) {
+              || self::$yy_lookahead[$i] != $iLookAhead) {
              return self::$yy_default[$stateno];
          }
 
@@ -2459,11 +2459,11 @@ class SQLParser_yyStackEntry
              ** stack ever overflows */
              return;
          }
-         $yytos           = new SQLParser_yyStackEntry();
-         $yytos->stateno  = $yyNewState;
-         $yytos->major    = $yyMajor;
-         $yytos->minor    = $yypMinor;
-         $this->yystack[] = $yytos;
+         $yytos          = new SQLParser_yyStackEntry();
+         $yytos->stateno = $yyNewState;
+         $yytos->major   = $yyMajor;
+         $yytos->minor   = $yypMinor;
+         array_push($this->yystack, $yytos);
          if (self::$yyTraceFILE && $this->yyidx > 0) {
              fprintf(
                  self::$yyTraceFILE,
@@ -3197,7 +3197,7 @@ class SQLParser_yyStackEntry
      public function yy_r150()
      {
          $members = $this->yystack[$this->yyidx + -2]->minor->getMembers();
-         if ('VALUE' === $this->yystack[$this->yyidx + -2]->minor->getType() && 2 === count($members) && 2 === $members[1]) {
+         if ('VALUE' === $this->yystack[$this->yyidx + -2]->minor->getType() && 2 === count($members) && 2 == $members[1]) {
              $this->yystack[$this->yyidx + -2]->minor = new Stmt\Expr('COLUMN', $members[0]);
          }
          $this->_retvalue = new Stmt\Expr($this->yystack[$this->yyidx + -1]->minor, $this->yystack[$this->yyidx + -2]->minor, $this->yystack[$this->yyidx + 0]->minor);
@@ -3263,7 +3263,7 @@ class SQLParser_yyStackEntry
      //line 372 "src/SQLParser/Parser.y"
      public function yy_r163()
      {
-         $this->_retvalue = 'NOT '.$this->yystack[$this->yyidx + 0]->minor;
+         $this->_retvalue = 'NOT ' . $this->yystack[$this->yyidx + 0]->minor;
      }
 
      //line 2800 "src/SQLParser/Parser.php"
@@ -3490,7 +3490,7 @@ class SQLParser_yyStackEntry
          if (array_key_exists($yyruleno, self::$yyReduceMap)) {
              // call the action
              $this->_retvalue = null;
-             $this->{'yy_r'.self::$yyReduceMap[$yyruleno]}();
+             $this->{'yy_r' . self::$yyReduceMap[$yyruleno]}();
              $yy_lefthand_side = $this->_retvalue;
          }
          $yygoto = self::$yyRuleInfo[$yyruleno]['lhs'];
@@ -3516,7 +3516,7 @@ class SQLParser_yyStackEntry
              } else {
                  $this->yy_shift($yyact, $yygoto, $yy_lefthand_side);
              }
-         } elseif ($yyact === self::YYNSTATE + self::YYNRULE + 1) {
+         } elseif ($yyact == self::YYNSTATE + self::YYNRULE + 1) {
              $this->yy_accept();
          }
      }
@@ -3557,7 +3557,7 @@ class SQLParser_yyStackEntry
              $expect[] = self::$yyTokenName[$token];
          }
 
-         throw new RuntimeException('Unexpected '.$this->tokenName($yymajor).'('.$TOKEN.') Expecting '.implode(',', $expect));
+         throw new RuntimeException('Unexpected ' . $this->tokenName($yymajor) . '(' . $TOKEN . ') Expecting ' . implode(',', $expect));
          //line 3015 "src/SQLParser/Parser.php"
      }
 
@@ -3597,15 +3597,15 @@ class SQLParser_yyStackEntry
          // (re)initialize the parser, if necessary
          if (null === $this->yyidx || $this->yyidx < 0) {
              // if ($yymajor == 0) return; // not sure why this was here...
-             $this->yyidx     = 0;
-             $this->yyerrcnt  = -1;
-             $x               = new SQLParser_yyStackEntry();
-             $x->stateno      = 0;
-             $x->major        = 0;
-             $this->yystack   = [];
-             $this->yystack[] = $x;
+             $this->yyidx    = 0;
+             $this->yyerrcnt = -1;
+             $x              = new SQLParser_yyStackEntry();
+             $x->stateno     = 0;
+             $x->major       = 0;
+             $this->yystack  = [];
+             array_push($this->yystack, $x);
          }
-         $yyendofinput = (0 === $yymajor);
+         $yyendofinput = (0 == $yymajor);
 
          if (self::$yyTraceFILE) {
              fprintf(
@@ -3634,7 +3634,7 @@ class SQLParser_yyStackEntry
                  }
              } elseif ($yyact < self::YYNSTATE + self::YYNRULE) {
                  $this->yy_reduce($yyact - self::YYNSTATE);
-             } elseif (self::YY_ERROR_ACTION === $yyact) {
+             } elseif (self::YY_ERROR_ACTION == $yyact) {
                  if (self::$yyTraceFILE) {
                      fprintf(
                          self::$yyTraceFILE,
@@ -3666,7 +3666,7 @@ class SQLParser_yyStackEntry
                          $this->yy_syntax_error($yymajor, $yytokenvalue);
                      }
                      $yymx = $this->yystack[$this->yyidx]->major;
-                     if (self::YYERRORSYMBOL === $yymx || $yyerrorhit) {
+                     if (self::YYERRORSYMBOL == $yymx || $yyerrorhit) {
                          if (self::$yyTraceFILE) {
                              fprintf(
                                  self::$yyTraceFILE,
@@ -3679,16 +3679,16 @@ class SQLParser_yyStackEntry
                          $yymajor = self::YYNOCODE;
                      } else {
                          while ($this->yyidx >= 0
-                            && self::YYERRORSYMBOL !== $yymx
+                            && self::YYERRORSYMBOL != $yymx
                             && ($yyact = $this->yy_find_shift_action(self::YYERRORSYMBOL)) >= self::YYNSTATE
                         ) {
                              $this->yy_pop_parser_stack();
                          }
-                         if ($this->yyidx < 0 || 0 === $yymajor) {
+                         if ($this->yyidx < 0 || 0 == $yymajor) {
                              $this->yy_destructor($yymajor, $yytokenvalue);
                              $this->yy_parse_failed();
                              $yymajor = self::YYNOCODE;
-                         } elseif (self::YYERRORSYMBOL !== $yymx) {
+                         } elseif (self::YYERRORSYMBOL != $yymx) {
                              $u2 = 0;
                              $this->yy_shift($yyact, self::YYERRORSYMBOL, $u2);
                          }
@@ -3720,6 +3720,6 @@ class SQLParser_yyStackEntry
                  $this->yy_accept();
                  $yymajor = self::YYNOCODE;
              }
-         } while (self::YYNOCODE !== $yymajor && $this->yyidx >= 0);
+         } while (self::YYNOCODE != $yymajor && $this->yyidx >= 0);
      }
  }

@@ -36,7 +36,6 @@ $config
         '@PHPUnit75Migration:risky' => true,
         '@Symfony' => true,
         '@PhpCsFixer' => true,
-        '@PhpCsFixer:risky' => true,
         'binary_operator_spaces' => ['default' => 'align_single_space'],
         'align_multiline_comment' => true,
         'array_syntax' => ['syntax' => 'short'],
@@ -44,6 +43,7 @@ $config
         'blank_line_before_return' => true,
         'header_comment' => ['header' => $header],
         'list_syntax' => ['syntax' => 'long'],
+        'concat_space' => ['spacing' => 'one']
     ])
     ->setFinder($finder)
 ;

@@ -17,7 +17,7 @@
         ]
     },
     "requires": {
-        "php": "^7.0 || ^8.0"
+        "php": ">=7.3 || ^8.0"
     },
     "require-dev": {
         "crodas/phpunit-compat": "^1.7",

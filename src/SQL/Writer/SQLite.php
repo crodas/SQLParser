@@ -45,16 +45,16 @@ class SQLite extends Writer
     public function columnDefinition(Stmt\Column $column)
     {
         $sql = $this->escape($column->GetName())
-            .' '
-            .$this->dataType($column->getType(), $column->getTypeSize())
-            .$column->getModifier();
+            . ' '
+            . $this->dataType($column->getType(), $column->getTypeSize())
+            . $column->getModifier();
 
         if ($column->isNotNull()) {
             $sql .= ' NOT NULL';
         }
 
         if ($column->defaultValue()) {
-            $sql .= ' DEFAULT '.$this->value($column->defaultValue());
+            $sql .= ' DEFAULT ' . $this->value($column->defaultValue());
         }
 
         if ($column->isPrimaryKey()) {

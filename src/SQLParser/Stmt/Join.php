@@ -80,7 +80,7 @@ class Join
 
     public function getType()
     {
-        return trim($this->prefix.' '.$this->type.' '.$this->sufix).' JOIN';
+        return trim($this->prefix . ' ' . $this->type . ' ' . $this->sufix) . ' JOIN';
     }
 
     public function setTable($table, $alias = null)

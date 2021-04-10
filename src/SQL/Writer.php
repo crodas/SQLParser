@@ -77,8 +77,8 @@ class Writer
 
                 break;
             }
-            if (class_exists('SQL\Writer\\'.$instance)) {
-                $class    = 'SQL\Writer\\'.$instance;
+            if (class_exists('SQL\Writer\\' . $instance)) {
+                $class    = 'SQL\Writer\\' . $instance;
                 $instance = new $class();
             } else {
                 $instance = new self();
@@ -173,7 +173,7 @@ class Writer
             return self::$instance->addIndex($object);
         }
 
-        throw new InvalidArgumentException("Don't know how to create ".\get_class($object));
+        throw new InvalidArgumentException("Don't know how to create " . \get_class($object));
     }
 
     /**
@@ -183,10 +183,10 @@ class Writer
      */
     public function addIndex(AlterTable\AddIndex $alterTable)
     {
-        return 'CREATE '.$alterTable->getIndexType().' INDEX '
-            .$this->escape($alterTable->getIndexName())
-            .' ON '.$this->escape($alterTable->getTableName())
-            .' ( '.$this->exprList($alterTable->getColumns()).')';
+        return 'CREATE ' . $alterTable->getIndexType() . ' INDEX '
+            . $this->escape($alterTable->getIndexName())
+            . ' ON ' . $this->escape($alterTable->getTableName())
+            . ' ( ' . $this->exprList($alterTable->getColumns()) . ')';
     }
 
     /**
@@ -196,10 +196,10 @@ class Writer
      */
     public function renameIndex(AlterTable\RenameIndex $alterTable)
     {
-        return 'ALTER TABLE '.$this->escape($alterTable->getTableName()).' RENAME INDEX '
-            .$this->escape($alterTable->getOldName())
-            .' TO '
-            .$this->escape($alterTable->getNewName());
+        return 'ALTER TABLE ' . $this->escape($alterTable->getTableName()) . ' RENAME INDEX '
+            . $this->escape($alterTable->getOldName())
+            . ' TO '
+            . $this->escape($alterTable->getNewName());
     }
 
     /**
@@ -209,8 +209,8 @@ class Writer
      */
     public function renameTable(AlterTable\RenameTable $alterTable)
     {
-        return 'ALTER TABLE '.$this->escape($alterTable->getTableName()).' RENAME TO '
-            .$this->escape($alterTable->getNewName());
+        return 'ALTER TABLE ' . $this->escape($alterTable->getTableName()) . ' RENAME TO '
+            . $this->escape($alterTable->getNewName());
     }
 
     /**
@@ -220,8 +220,8 @@ class Writer
      */
     public function dropColumn(AlterTable\DropColumn $alterTable)
     {
-        return 'ALTER TABLE '.$this->escape($alterTable->getTableName()).' DROP  COLUMN'
-            .$this->escape($alterTable->getColumnName());
+        return 'ALTER TABLE ' . $this->escape($alterTable->getTableName()) . ' DROP  COLUMN'
+            . $this->escape($alterTable->getColumnName());
     }
 
     /**
@@ -231,7 +231,7 @@ class Writer
      */
     public function dropPrimaryKey(AlterTable\DropPrimaryKey $alterTable)
     {
-        return 'ALTER TABLE '.$this->escape($alterTable->getTableName()).' DROP PRIMARY KEY';
+        return 'ALTER TABLE ' . $this->escape($alterTable->getTableName()) . ' DROP PRIMARY KEY';
     }
 
     /**
@@ -241,8 +241,8 @@ class Writer
      */
     public function dropIndex(AlterTable\DropIndex $alterTable)
     {
-        return 'ALTER TABLE '.$this->escape($alterTable->getTableName()).' DROP INDEX '
-            .$this->escape($alterTable->getIndexName());
+        return 'ALTER TABLE ' . $this->escape($alterTable->getTableName()) . ' DROP INDEX '
+            . $this->escape($alterTable->getIndexName());
     }
 
     /**
@@ -252,12 +252,12 @@ class Writer
      */
     public function setDefault(AlterTable\SetDefault $alterTable)
     {
-        $sql = 'ALTER TABLE '.$this->escape($alterTable->getTableName()).' CHANGE COLUMN '
-            .$this->escape($alterTable->getColumn());
+        $sql = 'ALTER TABLE ' . $this->escape($alterTable->getTableName()) . ' CHANGE COLUMN '
+            . $this->escape($alterTable->getColumn());
         if (null === $alterTable->getValue()) {
             $sql .= ' DROP DEFAULT';
         } else {
-            $sql .= ' SET DEFAULT '.$this->expr($alterTable->getValue());
+            $sql .= ' SET DEFAULT ' . $this->expr($alterTable->getValue());
         }
 
         return $sql;
@@ -270,14 +270,14 @@ class Writer
      */
     public function changeColumn(AlterTable\ChangeColumn $alterTable)
     {
-        $sql = 'ALTER TABLE '.$this->escape($alterTable->getTableName()).' CHANGE COLUMN '
-            .$this->escape($alterTable->getOldName())
-            .' '
-            .$this->columnDefinition($alterTable->getColumn());
+        $sql = 'ALTER TABLE ' . $this->escape($alterTable->getTableName()) . ' CHANGE COLUMN '
+            . $this->escape($alterTable->getOldName())
+            . ' '
+            . $this->columnDefinition($alterTable->getColumn());
         if ($alterTable->isFirst()) {
             $sql .= ' FIRST';
         } elseif ($alterTable->getPosition()) {
-            $sql .= ' AFTER '.$this->escape($alterTable->getPosition());
+            $sql .= ' AFTER ' . $this->escape($alterTable->getPosition());
         }
 
         return $sql;
@@ -290,12 +290,12 @@ class Writer
      */
     public function addColumn(AlterTable\AddColumn $alterTable)
     {
-        $sql = 'ALTER TABLE '.$this->escape($alterTable->getTableName()).' ADD COLUMN '
-            .$this->columnDefinition($alterTable->getColumn());
+        $sql = 'ALTER TABLE ' . $this->escape($alterTable->getTableName()) . ' ADD COLUMN '
+            . $this->columnDefinition($alterTable->getColumn());
         if ($alterTable->isFirst()) {
             $sql .= ' FIRST';
         } elseif ($alterTable->getPosition()) {
-            $sql .= ' AFTER '.$this->escape($alterTable->getPosition());
+            $sql .= ' AFTER ' . $this->escape($alterTable->getPosition());
         }
 
         return $sql;
@@ -332,7 +332,7 @@ class Writer
      */
     public function expr(Stmt\Expr $expr)
     {
-        $method = 'expr'.preg_replace('/[^a-z0-9_]+/i', '', $expr->getType());
+        $method = 'expr' . preg_replace('/[^a-z0-9_]+/i', '', $expr->getType());
         if ('expr' !== $method && \is_callable([$this, $method])) {
             return $this->{$method}($expr);
         }
@@ -350,16 +350,16 @@ class Writer
 
         case 'IS NULL':
         case 'IS NOT NULL':
-            return $members[0].' '.$type;
+            return $members[0] . ' ' . $type;
 
         case 'CASE':
             $else = null;
             if ($expr->getMember(-1) instanceof Stmt\Expr) {
                 $else = array_pop($members);
             }
-            $stmt = 'CASE '.implode(' ', $members);
+            $stmt = 'CASE ' . implode(' ', $members);
             if (null !== $else) {
-                $stmt .= ' ELSE '.$else;
+                $stmt .= ' ELSE ' . $else;
             }
             $stmt .= ' END';
 
@@ -376,7 +376,7 @@ class Writer
             return '*';
 
         case 'CALL':
-            return $expr->getMember(0)."({$members[1]})";
+            return $expr->getMember(0) . "({$members[1]})";
 
         case 'ASC':
         case 'DESC':
@@ -389,10 +389,10 @@ class Writer
             $rawMember = $expr->getMembers();
             $expr      = $members[0];
             if (!empty($rawMember[1])) {
-                $expr .= '('.$rawMember[1].')';
+                $expr .= '(' . $rawMember[1] . ')';
             }
             if (!empty($rawMember[2])) {
-                $expr .= ' '.$rawMember[2];
+                $expr .= ' ' . $rawMember[2];
             }
 
             return $expr;
@@ -404,7 +404,7 @@ class Writer
             return "NOT {$members[0]}";
 
         case 'TIMEINTERVAL':
-            return "INTERVAL {$members[0]} ".$expr->getMember(1);
+            return "INTERVAL {$members[0]} " . $expr->getMember(1);
         }
 
         return "{$members[0]} {$type} {$members[1]}";
@@ -417,9 +417,9 @@ class Writer
      */
     public function update(Update $update)
     {
-        $stmt = 'UPDATE '.$this->tableList($update->getTables());
+        $stmt = 'UPDATE ' . $this->tableList($update->getTables());
         $stmt .= $this->doJoins($update);
-        $stmt .= ' SET '.$this->exprList($update->getSet());
+        $stmt .= ' SET ' . $this->exprList($update->getSet());
         $stmt .= $this->doWhere($update);
         $stmt .= $this->doOrderBy($update);
         $stmt .= $this->doLimit($update);
@@ -435,7 +435,7 @@ class Writer
     public function commit(CommitTransaction $transaction)
     {
         if ($transaction->getName()) {
-            return 'RELEASE SAVEPOINT '.$this->escape($transaction->getName());
+            return 'RELEASE SAVEPOINT ' . $this->escape($transaction->getName());
         }
 
         return 'COMMIT TRANSACTION';
@@ -449,7 +449,7 @@ class Writer
     public function rollback(RollbackTransaction $transaction)
     {
         if ($transaction->getName()) {
-            return 'ROLLBACK TO '.$this->escape($transaction->getName());
+            return 'ROLLBACK TO ' . $this->escape($transaction->getName());
         }
 
         return 'ROLLBACK TRANSACTION';
@@ -463,7 +463,7 @@ class Writer
     public function begin(BeginTransaction $transaction)
     {
         if ($transaction->getName()) {
-            return 'SAVEPOINT '.$this->escape($transaction->getName());
+            return 'SAVEPOINT ' . $this->escape($transaction->getName());
         }
 
         return 'BEGIN TRANSACTION';
@@ -482,7 +482,7 @@ class Writer
         );
 
         if (!empty($options)) {
-            return implode(' ', $options).' ';
+            return implode(' ', $options) . ' ';
         }
     }
 
@@ -507,16 +507,16 @@ class Writer
     public function columnDefinition(Stmt\Column $column)
     {
         $sql = $this->escape($column->GetName())
-            .' '
-            .$this->dataType($column->getType(), $column->getTypeSize())
-            .$column->getModifier();
+            . ' '
+            . $this->dataType($column->getType(), $column->getTypeSize())
+            . $column->getModifier();
 
         if ($column->isNotNull()) {
             $sql .= ' NOT NULL';
         }
 
         if ($column->defaultValue()) {
-            $sql .= ' DEFAULT '.$this->value($column->defaultValue());
+            $sql .= ' DEFAULT ' . $this->value($column->defaultValue());
         }
 
         if ($column->isPrimaryKey()) {
@@ -541,14 +541,14 @@ class Writer
             $columns[] = $this->columnDefinition($column);
         }
 
-        return 'CREATE TABLE '.$this->escape($table->getName()).'('
-            .implode(',', $columns)
-            .')';
+        return 'CREATE TABLE ' . $this->escape($table->getName()) . '('
+            . implode(',', $columns)
+            . ')';
     }
 
     public function view(View $view)
     {
-        return 'CREATE VIEW '.$this->escape($view->getName()).' AS '.$this->select($view->getSelect());
+        return 'CREATE VIEW ' . $this->escape($view->getName()) . ' AS ' . $this->select($view->getSelect());
     }
 
     /**
@@ -558,7 +558,7 @@ class Writer
      */
     public function drop(Drop $drop)
     {
-        return 'DROP '.$drop->getType().' '.$this->tableList($drop->getTables());
+        return 'DROP ' . $drop->getType() . ' ' . $this->tableList($drop->getTables());
     }
 
     /**
@@ -568,7 +568,7 @@ class Writer
      */
     public function delete(Delete $delete)
     {
-        $stmt = 'DELETE FROM '.$this->escape($delete->getTable());
+        $stmt = 'DELETE FROM ' . $this->escape($delete->getTable());
         $stmt .= $this->doWhere($delete);
         $stmt .= $this->doOrderBy($delete);
         $stmt .= $this->doLimit($delete);
@@ -583,16 +583,16 @@ class Writer
      */
     public function insert(Insert $insert)
     {
-        $sql = $insert->getType().' INTO '.$this->escape($insert->getTable());
+        $sql = $insert->getType() . ' INTO ' . $this->escape($insert->getTable());
         if ($insert->hasFields()) {
-            $sql .= '('.$this->exprList($insert->getFields()).')';
+            $sql .= '(' . $this->exprList($insert->getFields()) . ')';
         }
         if ($insert->getValues() instanceof Select) {
-            $sql .= ' '.$this->select($insert->getValues());
+            $sql .= ' ' . $this->select($insert->getValues());
         } else {
             $sql .= ' VALUES';
             foreach ($insert->getValues() as $expr) {
-                $sql .= '('.$this->exprList($expr).'),';
+                $sql .= '(' . $this->exprList($expr) . '),';
             }
             $sql = substr($sql, 0, -1);
         }
@@ -607,9 +607,9 @@ class Writer
      */
     public function join(Stmt\Join $join)
     {
-        $str = $join->getType().' '.$this->tableList([$join->getTable()]);
+        $str = $join->getType() . ' ' . $this->tableList([$join->getTable()]);
         if ($join->hasAlias()) {
-            $str .= ' AS '.$this->escape($join->getAlias());
+            $str .= ' AS ' . $this->escape($join->getAlias());
         }
         if ($join->hasCondition()) {
             $str .= $join->hasOn() ? ' ON ' : ' USING ';
@@ -631,7 +631,7 @@ class Writer
         $stmt .= $this->exprList($select->getColumns());
 
         if ($select->hasTable()) {
-            $stmt .= ' FROM '.$this->tableList($select->getTables());
+            $stmt .= ' FROM ' . $this->tableList($select->getTables());
         }
         $stmt .= $this->doJoins($select);
         $stmt .= $this->doWhere($select);
@@ -704,7 +704,7 @@ class Writer
 
         $text = substr(var_export($value, true), 1, -1);
 
-        return '"'.str_replace('"', '\\"', $text).'"';
+        return '"' . str_replace('"', '\\"', $text) . '"';
     }
 
     /**
@@ -728,7 +728,7 @@ class Writer
             } else {
                 $value = $this->expr($column[0]);
                 if (2 === \count($column)) {
-                    $columns[] = $value.' AS '.$this->escape($column[1]);
+                    $columns[] = $value . ' AS ' . $this->escape($column[1]);
                 } else {
                     $columns[] = $value;
                 }
@@ -748,11 +748,11 @@ class Writer
         $list = [];
         foreach ($tables as $key => $table) {
             if (\is_array($table) && $table[1]) {
-                $table = $this->escape($table[0]).'.'.$this->escape($table[1]);
+                $table = $this->escape($table[0]) . '.' . $this->escape($table[1]);
             } elseif (\is_array($table)) {
                 $table = $this->escape($table[0]);
             } elseif ($table instanceof Select) {
-                $table = '('.$this->select($table).')';
+                $table = '(' . $this->select($table) . ')';
             } else {
                 $table = $this->escape($table);
             }
@@ -760,7 +760,7 @@ class Writer
             if (is_numeric($key)) {
                 $list[] = $table;
             } else {
-                $list[] = $table.' AS '.$this->escape($key);
+                $list[] = $table . ' AS ' . $this->escape($key);
             }
         }
 
@@ -775,7 +775,7 @@ class Writer
     protected function doWhere(Statement $stmt)
     {
         if ($stmt->hasWhere()) {
-            return ' WHERE '.$this->expr($stmt->getWhere());
+            return ' WHERE ' . $this->expr($stmt->getWhere());
         }
     }
 
@@ -787,7 +787,7 @@ class Writer
     protected function doOrderBy(Statement $stmt)
     {
         if ($stmt->hasOrderBy()) {
-            return ' ORDER BY '.$this->exprList($stmt->getOrderBy());
+            return ' ORDER BY ' . $this->exprList($stmt->getOrderBy());
         }
     }
 
@@ -800,10 +800,10 @@ class Writer
     {
         if ($stmt->hasLimit() || $stmt->hasOffset()) {
             if ($stmt->hasOffset()) {
-                return ' LIMIT '.$this->value($stmt->getOffset()).','.$this->value($stmt->getLimit());
+                return ' LIMIT ' . $this->value($stmt->getOffset()) . ',' . $this->value($stmt->getLimit());
             }
 
-            return ' LIMIT '.$this->value($stmt->getLimit());
+            return ' LIMIT ' . $this->value($stmt->getLimit());
         }
     }
 
@@ -823,7 +823,7 @@ class Writer
             $joins[] = $this->join($join);
         }
 
-        return ' '.implode(' ', $joins);
+        return ' ' . implode(' ', $joins);
     }
 
     /**
@@ -834,9 +834,9 @@ class Writer
     protected function doGroupBy(Statement $stmt)
     {
         if ($stmt->hasGroupBy()) {
-            $str = ' GROUP BY '.$this->value($stmt->getGroupBy());
+            $str = ' GROUP BY ' . $this->value($stmt->getGroupBy());
             if ($stmt->hasHaving()) {
-                $str .= ' HAVING '.$this->value($stmt->getHaving());
+                $str .= ' HAVING ' . $this->value($stmt->getHaving());
             }
 
             return $str;

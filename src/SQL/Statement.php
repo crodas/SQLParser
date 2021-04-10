@@ -178,7 +178,7 @@ abstract class Statement
             }
 
             if (\count($walk) > 1) {
-                throw new RuntimeException('Invalid usage of '.implode(', ', $walk));
+                throw new RuntimeException('Invalid usage of ' . implode(', ', $walk));
             }
         }
 

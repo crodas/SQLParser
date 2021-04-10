@@ -1,16 +1,44 @@
 <?php
 
-use SQLParser\Stmt\Expr;
-use SQL\Writer;
-use PHPUnit\Framework\TestCase;
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2015-2021 César Rodas
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * -
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * -
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 
+use PHPUnit\Framework\TestCase;
+use SQL\Writer;
+use SQLParser\Stmt\Expr;
+
+/**
+ * @internal
+ * @coversNothing
+ */
 class AllTest extends TestCase
 {
     public static function provider()
     {
-        $data = include __DIR__ . '/tests.php';
-        $args = [];
-        $parser = new SQLParser;
+        $data   = include __DIR__ . '/tests.php';
+        $args   = [];
+        $parser = new SQLParser();
         foreach ($data as $sql => $next) {
             $args[] = [$parser, $sql, $next];
         }
@@ -20,10 +48,12 @@ class AllTest extends TestCase
 
     public function featuresException()
     {
-        $args = [];
-        $parser = new SQLParser;
-        foreach(explode(";", file_get_contents(__DIR__ . '/features/exception.sql')) as $sql) {
-            if (!trim($sql)) continue;
+        $args   = [];
+        $parser = new SQLParser();
+        foreach (explode(';', file_get_contents(__DIR__ . '/features/exception.sql')) as $sql) {
+            if (!trim($sql)) {
+                continue;
+            }
             $args[] = [$sql, $parser];
         }
 
@@ -32,7 +62,7 @@ class AllTest extends TestCase
 
     public static function featuresProviderEngines()
     {
-        $args = array();
+        $args = [];
         foreach (self::featuresProvider() as $arg) {
             $arg[3] = 'mysql';
             $args[] = $arg;
@@ -45,23 +75,26 @@ class AllTest extends TestCase
                 $args[] = $arg;
             }
         }
+
         return $args;
     }
 
     public static function featuresProvider()
     {
-        $args = [];
-        $parser = new SQLParser;
-        foreach(glob(__DIR__ . "/features/*.sql") as $file) {
-            if (basename($file) == 'exception.sql') {
+        $args   = [];
+        $parser = new SQLParser();
+        foreach (glob(__DIR__ . '/features/*.sql') as $file) {
+            if ('exception.sql' == basename($file)) {
                 continue;
             }
-            $stmts = preg_split("/;\s*(\n|$)/", file_get_contents($file));
+            $stmts = preg_split("/;\\s*(\n|$)/", file_get_contents($file));
             $type  = substr(basename($file), 0, -4);
 
             foreach ($stmts as $stmt) {
                 $stmt = trim($stmt);
-                if (!$stmt) continue;
+                if (!$stmt) {
+                    continue;
+                }
                 $args[] = [$parser, $stmt, $type];
             }
         }
@@ -71,6 +104,10 @@ class AllTest extends TestCase
 
     /**
      *  @dataProvider Provider
+     *
+     * @param mixed $parser
+     * @param mixed $sql
+     * @param mixed $callback
      */
     public function testMain($parser, $sql, $callback)
     {
@@ -86,9 +123,9 @@ class AllTest extends TestCase
         foreach ($parsed as $sql) {
             $strs[] = Writer::Create($sql);
         }
-        $newSql = implode(";", $strs);
+        $newSql = implode(';', $strs);
 
-        if ($callback($parsed, $this) !== false) {
+        if (false !== $callback($parsed, $this)) {
             // test if the generated SQL is good enough
             $callback($parser->parse($newSql), $this);
         }
@@ -96,13 +133,17 @@ class AllTest extends TestCase
 
     /**
      *  @dataProvider featuresProvider
+     *
+     * @param mixed $parser
+     * @param mixed $sql
      */
     public function testFeatures($parser, $sql)
     {
         try {
-            $this->assertTrue( is_array( $parser->parse($sql) ) );
+            $this->assertIsArray($parser->parse($sql));
         } catch (\Exception $e) {
             echo $sql . "\n";
+
             throw $e;
         }
     }
@@ -113,7 +154,7 @@ class AllTest extends TestCase
         foreach ($exprArray as $i => $e) {
             if ($e instanceof Expr) {
                 $exprArray[$i] = $this->exprToArray($e);
-            } else if (!is_scalar($e)) {
+            } elseif (!is_scalar($e)) {
                 $exprArray[$i] = serialize($e);
             }
         }
@@ -123,6 +164,11 @@ class AllTest extends TestCase
 
     /**
      *  @dataProvider featuresProviderEngines
+     *
+     * @param mixed $parser
+     * @param mixed $sql
+     * @param mixed $file
+     * @param mixed $engine
      */
     public function testFeaturesGeneration($parser, $sql, $file, $engine)
     {
@@ -131,53 +177,54 @@ class AllTest extends TestCase
             $object = $parser->parse($sql)[0];
             $newsql = $parser->parse(SQL\Writer::create($object))[0];
 
-
             foreach ([
-                    'getOptions', 'hasHaving', 'hasGroupBy','hasWhere', 'hasOrderBy', 'hasLimit',
-                    'hasJoins', 'getView', 'getSelect', 'getName', 'getColumns', 'getIndexes',
-                    'getName', 'hasName', 'getOnDuplicate', 'getPrimaryKey', 'getModifier',
-                ] as $q) {
+                'getOptions', 'hasHaving', 'hasGroupBy', 'hasWhere', 'hasOrderBy', 'hasLimit',
+                'hasJoins', 'getView', 'getSelect', 'getName', 'getColumns', 'getIndexes',
+                'getName', 'hasName', 'getOnDuplicate', 'getPrimaryKey', 'getModifier',
+            ] as $q) {
                 if (!is_callable([$object, $q])) {
                     continue;
                 }
                 $this->assertEquals(
-                    $object->$q(),
-                    $newsql->$q(),
-                    "checking $q"
+                    $object->{$q}(),
+                    $newsql->{$q}(),
+                    "checking {$q}"
                 );
-
             }
             foreach (['where', 'set', 'having'] as $type) {
                 $check = 'has' . $type;
                 $get   = 'get' . $type;
-                if (is_callable([$object, $check]) && $object->$check()) {
-                    $expr1 = $object->$get();
-                    $expr2 = $newsql->$get();
+                if (is_callable([$object, $check]) && $object->{$check}()) {
+                    $expr1 = $object->{$get}();
+                    $expr2 = $newsql->{$get}();
 
                     $this->assertEquals(
                         $this->exprToArray($expr1),
                         $this->exprToArray($expr2),
-                        "checking where are the same"
+                        'checking where are the same'
                     );
                 }
             }
-
         } catch (\Exception $e) {
-            echo "\nEngine: $engine\n";
+            echo "\nEngine: {$engine}\n";
             echo $sql . "\n";
             if (!empty($object)) {
                 echo SQL\Writer::create($object) . "\n";
             }
             if (!empty($newsql)) {
-                echo "NEW SQL: ";
+                echo 'NEW SQL: ';
                 echo $newsql . "\n";
             }
+
             throw $e;
         }
     }
 
     /**
      *  @dataProvider featuresException
+     *
+     * @param mixed $sql
+     * @param mixed $parser
      */
     public function testFeaturesParsingErrors($sql, $parser)
     {
@@ -188,39 +235,41 @@ class AllTest extends TestCase
 
     public function testGetSubQuery()
     {
-        $parser = new SQLParser;
-        $parsed = $parser->parse("SELECT * FROM (select * from xxx) as y");
-        $subs = $parsed[0]->getSubQueries();
-        $this->assertTrue(is_array($subs));
-        $this->assertFalse(empty($subs));
+        $parser = new SQLParser();
+        $parsed = $parser->parse('SELECT * FROM (select * from xxx) as y');
+        $subs   = $parsed[0]->getSubQueries();
+        $this->assertIsArray($subs);
+        $this->assertNotEmpty($subs);
 
-        $parsed = $parser->parse("SELECT * FROM foobar");
-        $this->assertEquals(array(), $parsed[0]->getSubQueries());
+        $parsed = $parser->parse('SELECT * FROM foobar');
+        $this->assertEquals([], $parsed[0]->getSubQueries());
     }
 
     public function testVariableExtrapolation()
     {
-        $parser = new SQLParser;
-        $q = $parser->parse("SELECT * FROM foobar LIMIT :limit");
-        $this->assertEquals("SELECT * FROM foobar LIMIT 33", (string)$q[0]->setValues(array('limit' => 33)));
+        $parser = new SQLParser();
+        $q      = $parser->parse('SELECT * FROM foobar LIMIT :limit');
+        $this->assertEquals('SELECT * FROM foobar LIMIT 33', (string) $q[0]->setValues(['limit' => 33]));
     }
 
     public function testVariableExtrapolationMultipleCalls()
     {
-        $parser = new SQLParser;
-        $q = $parser->parse("SELECT * FROM foobar LIMIT :limit,:offset");
-        $this->assertEquals("SELECT * FROM foobar LIMIT 33,10", (string)$q[0]->setValues(array('limit' => 33))->setValues(array('offset'=> 10)));
+        $parser = new SQLParser();
+        $q      = $parser->parse('SELECT * FROM foobar LIMIT :limit,:offset');
+        $this->assertEquals('SELECT * FROM foobar LIMIT 33,10', (string) $q[0]->setValues(['limit' => 33])->setValues(['offset' => 10]));
     }
 
-    public function testGetAllTables() {
-        $parser = new SQLParser;
-        $q = $parser->parse("SELECT * FROM (SELECT * FROM bar) as lol WHERE y in (SELECT x FROM y)");
+    public function testGetAllTables()
+    {
+        $parser = new SQLParser();
+        $q      = $parser->parse('SELECT * FROM (SELECT * FROM bar) as lol WHERE y in (SELECT x FROM y)');
         $this->assertEquals(['bar', 'y'], $q[0]->getAllTables());
     }
-    public function testGetAllTablesJoin() {
-        $parser = new SQLParser;
-        $q = $parser->parse("SELECT * FROM users INNER JOIN lol ON x = y");
+
+    public function testGetAllTablesJoin()
+    {
+        $parser = new SQLParser();
+        $q      = $parser->parse('SELECT * FROM users INNER JOIN lol ON x = y');
         $this->assertEquals(['users', 'lol'], $q[0]->getAllTables());
     }
-
 }
